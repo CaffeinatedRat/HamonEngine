@@ -353,4 +353,4 @@ MigrationBackup/
 .ionide/
 
 #VS Code workspace
-hamonengine.code-workspace
+*.code-workspace
