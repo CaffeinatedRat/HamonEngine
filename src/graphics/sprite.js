@@ -354,21 +354,17 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this.drawRaw(layer, elapsedTimeInMilliseconds, x, y + layer.viewPort.height, width, height);
                 this.drawRaw(layer, elapsedTimeInMilliseconds, x, y - layer.viewPort.height, width, height);
 
-                //Draw the layer boundaries raw so we can see how the canvas is being affected by the various transformations.
-                layer.context.strokeStyle = 'red';
-                layer.context.moveTo(xCenterOffset, yCenterOffset);
-                layer.context.strokeRect(xCenterOffset - layer.viewPort.width / 2, 
-                    yCenterOffset - layer.viewPort.height /2, 
-                    layer.viewPort.width, 
-                    layer.viewPort.height);
+                //Draw the viewport relative to the sprite.
+                layer.context.strokeStyle = 'white';
+                layer.context.strokeRect(xCenterOffset - layer.viewPort.width / 2, yCenterOffset - layer.viewPort.height / 2, layer.viewPort.width, layer.viewPort.height);
             }
 
             //Show an outline of the sprite.
             layer.context.strokeStyle = 'red';
             layer.context.strokeRect(x, y, width, height);
 
-            //Draw the layer boundaries raw so we can see how the canvas is being affected by the various transformations.
-            layer.context.strokeStyle = 'white';
+            //Draw the viewport raw relative to all the transformations.
+            layer.context.strokeStyle = 'cyan';
             layer.context.strokeRect(layer.viewPort.x, layer.viewPort.y, layer.viewPort.width, layer.viewPort.height);
         }
     }
