@@ -182,19 +182,18 @@ hamonengine.core = hamonengine.core || {};
                     // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
                     this._layers.forEach( (key, layer) => {
                         if (layer.allowEventBinding) {
-                            layer.canvas.addEventListener('keyup', (e) => {this.onKeyUp(e.code, e, layer);});
-                            layer.canvas.addEventListener('keydown', (e) => {this.onKeyDown(e.code, e, layer);});
+                            layer.canvas.addEventListener('keyup', (e) => {this.onKeyEvent('up', e.code, e, layer);});
+                            layer.canvas.addEventListener('keydown', (e) => {this.onKeyEvent('down', e.code, e, layer);});
                             layer.canvas.addEventListener('click', (e) => {this.onMouseClick(e, layer);});
-                            layer.canvas.addEventListener('mouseup', (e) => {this.onMouseUp(new hamonengine.geometry.vector2( 
+                            layer.canvas.addEventListener('mouseup', (e) => {this.onMouseEvent('up', new hamonengine.geometry.vector2( 
                                 e.clientX,
                                 e.clientY
                             ), e, layer);});
-                            layer.canvas.addEventListener('mousedown', (e) => {this.onMouseDown(new hamonengine.geometry.vector2( 
+                            layer.canvas.addEventListener('mousedown', (e) => {this.onMouseEvent('down', new hamonengine.geometry.vector2( 
                                 e.clientX,
                                 e.clientY
                             ), e, layer);});
-                
-                            layer.canvas.addEventListener("touchstart", (e) => {
+                            layer.canvas.addEventListener('touchstart', (e) => {
                                 let touches = [];
                                 for(let i = 0; i < e.touches.length; i++) {
                                     touches.push({
@@ -202,23 +201,23 @@ hamonengine.core = hamonengine.core || {};
                                         top: e.touches[i].clientY - (layer.offsetY || 0)
                                     });
                                 }
-                                this.onTouchStart(e, touches, layer);
+                                this.onTouchEvent('start', e, touches, layer);
+                            });
+                            layer.canvas.addEventListener('touchmove', (e) => {
+                                let touches = [];
+                                for(let i = 0; i < e.touches.length; i++) {
+                                    touches.push({
+                                        left: e.touches[i].clientX - (layer.offsetX || 0),
+                                        top: e.touches[i].clientY - (layer.offsetY || 0)
+                                    });
+                                }
+                                this.onTouchEvent('move', e, touches, layer);
                             });
                             layer.canvas.addEventListener("touchend", (e) => {
                                 this.onTouchEnd(e, layer);
                             });
                             layer.canvas.addEventListener("touchcancel", (e) => {
                                 this.onTouchCancel(e, layer);
-                            });
-                            layer.canvas.addEventListener("touchmove", (e) => {
-                                let touches = [];
-                                for(let i = 0; i < e.touches.length; i++) {
-                                    touches.push({
-                                        left: e.touches[i].clientX - (layer.offsetX || 0),
-                                        top: e.touches[i].clientY - (layer.offsetY || 0)
-                                    });
-                                }
-                                this.onTouchMove(e, touches, layer);
                             });
                         }
                     });
@@ -234,25 +233,15 @@ hamonengine.core = hamonengine.core || {};
         onMouseClick(e, layer) {
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseClick] '${e}'`);
         }
-        onMouseUp(v, e, layer) {
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseUp] '${v.toString()}'`);
+        onMouseEvent(type, v, e, layer) {
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
         }
-        onMouseDown(v, e, layer) {
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseDown] '${v.toString()}'`);
+        onKeyEvent(type, keyCode, e, layer) {
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
-        onKeyUp(keyCode, e, layer) {
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onKeyUp] '${keyCode}'`);
-        }
-        onKeyDown(keyCode, e, layer) {
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onKeyDown] '${keyCode}'`);
-        }
-        onTouchStart(e, touches, layer) {
+        onTouchEvent(type, e, touches, layer) {
             e.preventDefault();
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchStart] '${e}'`);
-        }
-        onTouchMove(e, touches, layer) {
-            e.preventDefault();
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchMove] '${e}'`);
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }
         onTouchEnd(e, layer) {
             e.preventDefault();
