@@ -196,43 +196,27 @@ hamonengine.core = hamonengine.core || {};
                     // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
                     this._layers.forEach( (key, layer) => {
                         if (layer.allowEventBinding) {
-                            layer.canvas.addEventListener('keyup', (e) => {this.onKeyEvent('up', e.code, e, layer);});
-                            layer.canvas.addEventListener('keydown', (e) => {this.onKeyEvent('down', e.code, e, layer);});
+                            const keyEvent = (type, e) => this.onKeyEvent(type, e.code, e, layer);
+                            const mouseEvent = (type, e) => this.onMouseEvent(type, new hamonengine.geometry.vector2(e.clientX, e.clientY), e, layer);
+                            const touchEvent = (type, e) => {
+                                let touches = [];
+                                for(let i = 0; i < e.touches.length; i++) {
+                                    touches.push({
+                                        left: e.touches[i].clientX - (layer.offsetX || 0),
+                                        top: e.touches[i].clientY - (layer.offsetY || 0)
+                                    });
+                                }
+                                this.onTouchEvent(type, e, touches, layer);
+                            };
+                            layer.canvas.addEventListener('keyup', (e) => keyEvent('up',e));
+                            layer.canvas.addEventListener('keydown', (e) => keyEvent('down',e));
                             layer.canvas.addEventListener('click', (e) => {this.onMouseClick(e, layer);});
-                            layer.canvas.addEventListener('mouseup', (e) => {this.onMouseEvent('up', new hamonengine.geometry.vector2( 
-                                e.clientX,
-                                e.clientY
-                            ), e, layer);});
-                            layer.canvas.addEventListener('mousedown', (e) => {this.onMouseEvent('down', new hamonengine.geometry.vector2( 
-                                e.clientX,
-                                e.clientY
-                            ), e, layer);});
-                            layer.canvas.addEventListener('touchstart', (e) => {
-                                let touches = [];
-                                for(let i = 0; i < e.touches.length; i++) {
-                                    touches.push({
-                                        left: e.touches[i].clientX - (layer.offsetX || 0),
-                                        top: e.touches[i].clientY - (layer.offsetY || 0)
-                                    });
-                                }
-                                this.onTouchEvent('start', e, touches, layer);
-                            });
-                            layer.canvas.addEventListener('touchmove', (e) => {
-                                let touches = [];
-                                for(let i = 0; i < e.touches.length; i++) {
-                                    touches.push({
-                                        left: e.touches[i].clientX - (layer.offsetX || 0),
-                                        top: e.touches[i].clientY - (layer.offsetY || 0)
-                                    });
-                                }
-                                this.onTouchEvent('move', e, touches, layer);
-                            });
-                            layer.canvas.addEventListener("touchend", (e) => {
-                                this.onTouchEnd(e, layer);
-                            });
-                            layer.canvas.addEventListener("touchcancel", (e) => {
-                                this.onTouchCancel(e, layer);
-                            });
+                            layer.canvas.addEventListener('mouseup', (e) => mouseEvent('up',e));
+                            layer.canvas.addEventListener('mousedown', (e) => mouseEvent('down',e));
+                            layer.canvas.addEventListener('touchstart', (e) => touchEvent('start',e));
+                            layer.canvas.addEventListener('touchmove', (e) =>  touchEvent('move',e));
+                            layer.canvas.addEventListener("touchend", (e) => this.onTouchEnd(e, layer));
+                            layer.canvas.addEventListener("touchcancel", (e) => this.onTouchCancel(e, layer));
                         }
                     });
                 });
