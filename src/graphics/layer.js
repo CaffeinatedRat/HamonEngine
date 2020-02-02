@@ -227,12 +227,12 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Clears the layer
-         * @param {*} x coordinate to clear.
-         * @param {*} y coordinate to clear.
-         * @param {*} width to clear.
-         * @param {*} height to clear.
+         * @param {*} x coordinate to clear, set to viewport by default.
+         * @param {*} y coordinate to clear, set to viewport by default.
+         * @param {*} width to clear, set to viewport by default.
+         * @param {*} height to clear, set to viewport by default.
          */
-        clear(x, y, width=this.width, height=this.height) {
+        clear(x=this.viewPort.x, y=this.viewPort.y, width=this.viewPort.width, height=this.viewPort.height) {
             this._wasReset = false;
             this.context.clearRect(x,y,width,height);
         }
@@ -258,10 +258,19 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.allowSaveState && this.context.restore();
         }
         /**
+         * Draws the image to the size of the layer.
+         * @param {*} image to draw
+         * @param {*} x coordinate, set to viewport by default.
+         * @param {*} y coordinate, set to viewport by default.
+         */
+        fillLayerImage(image, x=this.viewPort.x, y=this.viewPort.y) {
+            this.context.drawImage(image, x, y, this.viewPort.width, this.viewPort.height);
+        }
+        /**
          * Begins default painting on this layer.
         */
         beginPainting () {
-            this.clear(0, 0);
+            this.clear();
 
             if (this.borderColor) {
                 this.context.strokeStyle = this.borderColor;
