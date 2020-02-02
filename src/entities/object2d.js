@@ -32,10 +32,9 @@ hamonengine.entities = hamonengine.entities || {};
         constructor(options) {
             options = options || {};
 
-            //Image properties.
+            //Object properties.
             this._name = options.name || '';
             this._boundingShape = options.boundingShape;
-            
             this._width = options.width;
             this._height = options.height;
             
