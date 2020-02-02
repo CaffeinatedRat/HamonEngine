@@ -313,6 +313,15 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Restore the previous state.
             layer.restore();
         }
+        /**
+         * Draws the diagnosis outlines.  This is more of an internal method.
+         * @param {object} layer to draw upon.
+         * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds.
+         * @param {number} x coordinate to draw at.
+         * @param {number} y cooridnate to draw at.
+         * @param {number} width the optional width of the sprite.
+         * @param {number} height the option height of the sprite.
+         */        
         drawDiagnosisOutlines(layer, elapsedTimeInMilliseconds, x, y, width, height) {
 
             //Find the center of the sprite.
