@@ -64,7 +64,8 @@ hamonengine.core = hamonengine.core || {};
                     canvasId: canvas.id,
                     viewPort: canvas.viewPort,
                     allowEventBinding: canvas.allowEventBinding,
-                    enableImageSmoothing: options.enableImageSmoothing
+                    enableImageSmoothing: options.enableImageSmoothing,
+                    clipToViewPort: canvas.clipToViewPort
                 });
             });
 

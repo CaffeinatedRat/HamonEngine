@@ -39,6 +39,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._allowEventBinding = options.allowEventBinding !== undefined ? options.allowEventBinding : false;
             this._wrapVertical = options.wrapVertical !== undefined ? options.wrapVertical : false;
             this._wrapHorizontal = options.wrapHorizontal !== undefined ? options.wrapHorizontal : false;
+            this._clipToViewPort = options.clipToViewPort !== undefined ? options.clipToViewPort : true;
 
             //DOM Contexts.
             if (!this._canvasId) {
@@ -85,6 +86,14 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Allow the viewport border to be drawn.
             this._viewPortBorderColor = '';
+
+            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] Canvas Id: ${this._canvasId}`);
+            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] Name: ${this._name}`);
+            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] Alpha: ${this._alpha}`);
+            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] AllowEventBinding: ${this._allowEventBinding}`);
+            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] WrapVertical: ${this._wrapVertical}`);
+            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] WrapHorizontal: ${this._wrapHorizontal}`);
+            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] ClipToViewPort: ${this._clipToViewPort}`);
         }
         //--------------------------------------------------------
         // Properties
@@ -191,6 +200,12 @@ hamonengine.graphics = hamonengine.graphics || {};
         set borderColor(v) {
             this._viewPortBorderColor = v;
         }
+        /**
+         * Returns true if the layer is clipping to the viewport.
+         */
+        get clipToViewPort() {
+            return this._clipToViewPort;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -253,11 +268,15 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this.context.strokeRect(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
             }
 
-            //If the viewport does not match the canvas then start clipping the custom viewport size.
-            if (this.viewPort.x !== 0 || this.viewPort.y !== 0 || this.viewPort.width !== this.width || this.viewPort.height !== this.height) {
-                this.context.beginPath();
-                this.context.rect(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
-                this.context.clip();
+            //Determine if viewport clipping is enabled.
+            if (this.clipToViewPort) {
+                //Broken for readability
+                //Only perform additional clip operations if the canvas & the viewport are not the same size.
+                if (this.viewPort.x !== 0 || this.viewPort.y !== 0 || this.viewPort.width !== this.width || this.viewPort.height !== this.height) {
+                    this.context.beginPath();
+                    this.context.rect(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
+                    this.context.clip();
+                }
             }
         }
         /**
