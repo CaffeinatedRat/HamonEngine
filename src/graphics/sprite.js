@@ -107,7 +107,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         //--------------------------------------------------------
         /**
          * Copies the properties from another sprite in real-time.
-         * Static coping should be done through the constructor.
+         * Static copying should be done through the constructor.
          * @param {*} properties 
          */
         copyProperties(properties) {
