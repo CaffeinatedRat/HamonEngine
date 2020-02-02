@@ -35,8 +35,9 @@ hamonengine.entities = hamonengine.entities || {};
             //Object properties.
             this._name = options.name || '';
             this._boundingShape = options.boundingShape;
-            this._width = options.width;
-            this._height = options.height;
+            this._width = options.width || 0;
+            this._height = options.height || 0;
+            this._zindex = options.zindex || 0;
             
             //Movement variables
             this._movementRate = options.movementRate || 0;
@@ -49,10 +50,13 @@ hamonengine.entities = hamonengine.entities || {};
             //Determine if the object is solid or transparent.
             this._isSolid = (options.isSolid === undefined) ? false : true; 
 
+            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Name: ${this.name}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Dimensions {Width: ${this.width}, Height: ${this.height}}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Direction: {x: ${this.direction.x}, y: ${this.direction.y}}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Position: {x: ${this.position.x}, y: ${this.position.y}}`);
+            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Theta: ${this.theta}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Movement Rate: ${this._movementRate}`);
+            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] isSolid: ${this.isSolid}`);
         }
         //--------------------------------------------------------
         // Properties
@@ -92,6 +96,18 @@ hamonengine.entities = hamonengine.entities || {};
          */
         get height() {
             return this._height;
+        }
+        /**
+         * Returns the z-index that can be used in evaluating depth for things such as a painter's algorithm.
+         */
+        get zIndex() {
+            return this._zindex;
+        }
+        /**
+         * Assigns the z-index that can be used in evaluating depth for things such as a painter's algorithm.
+         */
+        set zIndex(v) {
+            this._zindex = v;
         }
         /**
          * Returns the bounding shape for the object, used in collision detection.
