@@ -28,20 +28,13 @@
 hamonengine.entities = hamonengine.entities || {};
 
 (function() {
-
-    const COLLISION_TYPES = {
-        NONE: 0,
-        EDGE: 1,
-        INSIDE: 2
-    };
-
     hamonengine.entities.object2d = class {
         constructor(options) {
             options = options || {};
 
             //Image properties.
             this._name = options.name || '';
-            this._boundingBox = options.boundingBox;
+            this._boundingShape = options.boundingShape;
             
             this._width = options.width;
             this._height = options.height;
@@ -102,13 +95,13 @@ hamonengine.entities = hamonengine.entities || {};
             return this._height;
         }
         /**
-         * Returns the bounding box for the object, used in collision detection.
+         * Returns the bounding shape for the object, used in collision detection.
          */
-        get boundingBox() {
+        get boundingShape() {
             //Load this on demand.
-            //If the boundingbox was not defined on creation then create one by default, on demand, to use the width & height of the object2d.
-            this._boundingBox = this._boundingBox || new hamonengine.geometry.rect({ x: 0, y: 0, width: this.width, height: this.height});
-            return this._boundingBox;
+            //If the boundingShape was not defined on creation then create one by default, on demand, to use the width & height of the object2d.
+            this._boundingShape = this._boundingShape || new hamonengine.geometry.rect({ x: 0, y: 0, width: this.width, height: this.height});
+            return this._boundingShape;
         }
         /**
          * Returns true if the object's state is solid.
@@ -129,25 +122,15 @@ hamonengine.entities = hamonengine.entities || {};
         }
         /**
          * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
-         * @param {number} x 
-         * @param {number} y 
+         * @param {number} x coordinate
+         * @param {number} y coordinate
          * @return {number} a COLLISION_TYPES 
          */
         isCollision(x, y) {
             //Negate the position of the object.
             x -= this.position.x;
             y -= this.position.y;
-            //Determine if the coordinates are in the bounding box.
-            if (( x === 0 || x === this.boundingBox.width) && (y === 0 || y === this.boundingBox.height)) {
-                hamonengine.util.logger.debug(`[hamonengine.entities.object2d.isCollision] EDGE: (${x}, ${y})`);
-                return COLLISION_TYPES.EDGE;
-            }
-            if (x > 0 && x < this.boundingBox.width && y > 0 && y < this.boundingBox.height) {
-                hamonengine.util.logger.debug(`[hamonengine.entities.object2d.isCollision] Inside: (${x}, ${y})`);
-                return COLLISION_TYPES.INSIDE;
-            }
-
-            return COLLISION_TYPES.NONE;
+            return this.boundingShape.isCollision(x,y);
         }
         /**
          * Draws the object at the specific location, width & height.

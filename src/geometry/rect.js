@@ -28,7 +28,6 @@
 hamonengine.geometry = hamonengine.geometry || {};
 
 (function() {
-
     hamonengine.geometry.rect = class {
         constructor(options) {
             options = options || {};
@@ -47,6 +46,25 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         toString() {
             return `x: ${this.x} y: ${this.y} width: ${this.width} height: ${this.height}`;
+        }
+        /**
+         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * @param {number} x coordinate
+         * @param {number} y coordinate
+         * @return {number} a COLLISION_TYPES
+         */
+        isCollision(x, y) {
+            //Determine if the coordinates are in the bounding box.
+            if ((x === this.x || x === this.width) && (y === this.y || y === this.height)) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isCollision] EDGE: (${x}, ${y})`);
+                return COLLISION_TYPES.EDGE;
+            }
+            if (x > this.x && x < this.width && y > this.y && y < this.height) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isCollision] Inside: (${x}, ${y})`);
+                return COLLISION_TYPES.INSIDE;
+            }
+
+            return COLLISION_TYPES.NONE;
         }
     }
 })();
