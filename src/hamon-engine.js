@@ -98,10 +98,14 @@ hamonengine.core = hamonengine.core || {};
             return this._layers[name];
         }
         /**
-         * Preloads any extra resources.
+         * Preloads any resource loading.
+         * @return {object} a promise to complete resource loading.
          */
         load() {
             hamonengine.util.logger.debug("[hamonengine.core.engine.load]");
+
+            //Preform the preload.
+            this.onPreload();
 
             this._state = ENGINE_STATES.LOADING;
             hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] State: ${this._state}`);
@@ -114,21 +118,23 @@ hamonengine.core = hamonengine.core || {};
             let parentElement = document.getElementById('canvas-wrapper');
             parentElement.insertBefore(this._stats.domElement, parentElement.firstChild);
 
-            this.onEventBinding().then(() => {
-                hamonengine.util.logger.debug("[hamonengine.core.engine.load] Event binding completed.");
-            });
-
-            //Load resources.
-            this.onloadResources().then(() => {
-                this._resourcesLoaded = true;
-                hamonengine.util.logger.debug("[hamonengine.core.engine.load] Load resources completed.");
-            }).catch(error => {
-                hamonengine.util.logger.debug("[hamonengine.core.engine.load] Failed!");
-                this.stop();
-            });
-
-            //Allow chaining.
-            return this;
+            //Added a promise so the start can be delayed if designer so wishes to wait before starting the engine.
+            return new Promise((resolve, reject)=> {
+                this.onEventBinding().then(() => {
+                    hamonengine.util.logger.debug("[hamonengine.core.engine.load] Event binding completed.");
+                });
+    
+                //Load resources.
+                this.onloadResources().then(() => {
+                    this._resourcesLoaded = true;
+                    hamonengine.util.logger.debug("[hamonengine.core.engine.load] Load resources completed.");
+                    resolve();
+                }).catch(error => {
+                    hamonengine.util.logger.debug("[hamonengine.core.engine.load] Failed!");
+                    this.stop();
+                    reject();
+                });
+            })
         }
         /**
          * Starts the engine.
@@ -165,11 +171,19 @@ hamonengine.core = hamonengine.core || {};
         // Internal Events
         //--------------------------------------------------------
         /**
+         * An internal event that occurs before loading has started.
+         * You can use this event to display static images that have already been loaded.
+         */
+        onPreload() {
+            hamonengine.util.logger.debug("[hamonengine.core.engine.onPreload]");
+        }
+        /**
          * An internal event that occurs when attempting to load resources.
-         * @returns {object} a promise that the resource has loaded successfully.
+         * @return {object} a promise that the resource has loaded successfully.
          */
         onloadResources() {
             hamonengine.util.logger.debug("[hamonengine.core.engine.onloadResources]");
+            return Promise.resolve();
         }
         /**
          * Starts binding the events.
