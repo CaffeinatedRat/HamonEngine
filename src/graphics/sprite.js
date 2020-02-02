@@ -58,7 +58,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._scaleVector = new hamonengine.geometry.vector2(1.0,1.0);
             
             this._spriteOrientation = SPRITE_ORIENTATION.NORMAL;
-            this._wrappingTestPattern = false;
+            this._showDiagnosisLines = false;
             this._maxWrapping = 0;
 
             hamonengine.util.logger.debug(`[hamonengine.graphics.sprite.constructor] Starting Dimensions: {${this._dimensions.toString()}}`);
@@ -82,18 +82,16 @@ hamonengine.graphics = hamonengine.graphics || {};
             return this._theta;
         }
         /**
-         * Returns true if the sprite should show the wrapping test pattern.
-         * NOTE: The wrap feature must be enabled on the layer.
+         * Returns true if the sprite should show outlines and orientation lines.
          */
-        get wrappingTestPattern() {
-            return this._wrappingTestPattern;
+        get showDiagnosisLines() {
+            return this._showDiagnosisLines;
         }
         /**
-         * Enables or disabled the test pattern.
-         * NOTE: The wrap feature must be enabled on the layer.
+         * Enables or disabled the lines that outline the sprite and show its orientation.
          */
-        set wrappingTestPattern(v) {
-            this._wrappingTestPattern = v;
+        set showDiagnosisLines(v) {
+            this._showDiagnosisLines = v;
         }
         /**
          * Sets the maximum amount of times the sprite can wrap.
@@ -115,7 +113,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._theta = properties.theta;
             this._scaleVector = properties._scaleVector;
             this._spriteOrientation = properties._spriteOrientation;
-            this._wrappingTestPattern = properties._wrappingTestPattern;
+            this._showDiagnosisLines = properties._showDiagnosisLines;
         }
         /**
          * Makes a copy of the sprite.
@@ -226,12 +224,8 @@ hamonengine.graphics = hamonengine.graphics || {};
                 layer.context.translate(-xCenterOffset, -yCenterOffset);
             }
 
-            //Shows the wrapping test pattern.
-            if ((layer.wrapHorizontal || layer.wrapVertical) && this.wrappingTestPattern) {
-                this.drawRaw(layer, elapsedTimeInMilliseconds, x + layer.viewPort.width * 0.25, y, width, height);
-                this.drawRaw(layer, elapsedTimeInMilliseconds, x - layer.viewPort.width * 0.25, y, width, height);
-                this.drawRaw(layer, elapsedTimeInMilliseconds, x, y + layer.viewPort.height * 0.25, width, height);
-                this.drawRaw(layer, elapsedTimeInMilliseconds, x, y - layer.viewPort.height * 0.25, width, height);
+            if (this.showDiagnosisLines) {
+                this.drawDiagnosisOutlines(layer, elapsedTimeInMilliseconds, x, y, width, height);
             }
 
             //Draw the main sprite.
@@ -318,6 +312,64 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Restore the previous state.
             layer.restore();
+        }
+        drawDiagnosisOutlines(layer, elapsedTimeInMilliseconds, x, y, width, height) {
+
+            //Find the center of the sprite.
+            let xCenterOffset = Math.bitRound(width/2) + x;
+            let yCenterOffset = Math.bitRound(height/2) + y;
+
+            //Shows the wrapping test pattern.
+            if (layer.wrapHorizontal || layer.wrapVertical) {
+
+                layer.context.strokeStyle = 'red';
+                layer.context.lineWidth = 2;
+
+                //(X,0)
+                layer.context.beginPath();
+                layer.context.moveTo(xCenterOffset, yCenterOffset);
+                layer.context.lineTo(xCenterOffset + layer.viewPort.width, yCenterOffset);
+                layer.context.stroke();
+
+                //(-X,0)
+                layer.context.beginPath();
+                layer.context.moveTo(xCenterOffset, yCenterOffset);
+                layer.context.lineTo(xCenterOffset - layer.viewPort.width, yCenterOffset);
+                layer.context.stroke();
+
+                //(0,Y)
+                layer.context.beginPath();
+                layer.context.moveTo(xCenterOffset, yCenterOffset);
+                layer.context.lineTo(xCenterOffset, yCenterOffset + layer.viewPort.height);
+                layer.context.stroke();
+
+                //(0,-Y)
+                layer.context.beginPath();
+                layer.context.moveTo(xCenterOffset, yCenterOffset);
+                layer.context.lineTo(xCenterOffset, yCenterOffset - layer.viewPort.height);
+                layer.context.stroke();
+
+                this.drawRaw(layer, elapsedTimeInMilliseconds, x + layer.viewPort.width, y, width, height);
+                this.drawRaw(layer, elapsedTimeInMilliseconds, x - layer.viewPort.width, y, width, height);
+                this.drawRaw(layer, elapsedTimeInMilliseconds, x, y + layer.viewPort.height, width, height);
+                this.drawRaw(layer, elapsedTimeInMilliseconds, x, y - layer.viewPort.height, width, height);
+
+                //Draw the layer boundaries raw so we can see how the canvas is being affected by the various transformations.
+                layer.context.strokeStyle = 'red';
+                layer.context.moveTo(xCenterOffset, yCenterOffset);
+                layer.context.strokeRect(xCenterOffset - layer.viewPort.width / 2, 
+                    yCenterOffset - layer.viewPort.height /2, 
+                    layer.viewPort.width, 
+                    layer.viewPort.height);
+            }
+
+            //Show an outline of the sprite.
+            layer.context.strokeStyle = 'red';
+            layer.context.strokeRect(x, y, width, height);
+
+            //Draw the layer boundaries raw so we can see how the canvas is being affected by the various transformations.
+            layer.context.strokeStyle = 'white';
+            layer.context.strokeRect(layer.viewPort.x, layer.viewPort.y, layer.viewPort.width, layer.viewPort.height);
         }
     }
 })();
