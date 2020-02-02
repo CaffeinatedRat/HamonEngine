@@ -48,7 +48,7 @@ hamonengine.math = hamonengine.math || {};
          * An ascending comparison function that uses the comparison operators.
          * @param {*} a 
          * @param {*} b 
-         * @returns {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
+         * @return {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
          */
         static ascending(a, b) {
             return ((a == b) ? 0 : ((a < b) ? -1 : 1));
@@ -57,7 +57,7 @@ hamonengine.math = hamonengine.math || {};
          * An descending comparison function that uses the comparison operators.
          * @param {*} a 
          * @param {*} b 
-         * @returns {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
+         * @return {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
          */
         static descending(a, b) {
             return ((a == b) ? 0 : ((a < b) ? 1 : -1));

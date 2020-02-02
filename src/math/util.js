@@ -45,7 +45,7 @@ hamonengine.math = hamonengine.math || {};
      * Uses a bitwise operation hack to round the number up.
      * This will only work with signed integers and will fail with values greater than ((2 ^ 32) / 2) - 1
      * @param {number} x to round
-     * @returns {number} rounded.
+     * @return {number} rounded.
      */
     Math.bitRound = (x) => {
         return ((0.5 + x) << 0);
@@ -54,7 +54,7 @@ hamonengine.math = hamonengine.math || {};
     /**
      * Truncates a value quickier than using Math.Round.  WARNING: This will only work with signed integers and will fail with values greater than ((2 ^ 32) / 2) - 1.</summary>
      * @param {number} x to truncate
-     * @returns {number} truncated value
+     * @return {number} truncated value
      */
     Math.truncate = (x) => {
         return ((x >= Math.maxInt32) ? Math.maxInt32 : (~~x));
@@ -63,7 +63,7 @@ hamonengine.math = hamonengine.math || {};
     /**
      * Square and return the number supplied.
      * @param {number} x value to square.
-     * @returns {number} squared value.
+     * @return {number} squared value.
      */
     Math.sqr = (x) => {
         return x * x;
@@ -72,7 +72,7 @@ hamonengine.math = hamonengine.math || {};
     /**
      * Convert degrees to radians.
      * @param {number} degrees to convert to radians.
-     * @returns {number} radian value.
+     * @return {number} radian value.
      */
     Math.toRadians = (degrees) => {
         return (degrees * Math.PI / 180);
@@ -81,7 +81,7 @@ hamonengine.math = hamonengine.math || {};
     /**
      * Convert radians to degrees.
      * @param {number} radians to convert to degrees.
-     * @returns {number} degree value.
+     * @return {number} degree value.
      */
     Math.toRadians = (radians) => {
         return (radians * 180 / Math.PI);

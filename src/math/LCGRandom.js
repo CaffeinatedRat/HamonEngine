@@ -51,7 +51,7 @@ hamonengine.math = hamonengine.math || {};
         }
         /**
          * Returns a random number based on the seed supplied.
-         * @returns {number} Returns a random number.
+         * @return {number} Returns a random number.
          */
         random () {
             // X1 = (a * X0 + c) % m where a = 214013, c = 2531011, m = 2^32

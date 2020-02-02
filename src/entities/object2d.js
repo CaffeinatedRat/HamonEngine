@@ -131,7 +131,7 @@ hamonengine.entities = hamonengine.entities || {};
          * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
          * @param {number} x 
          * @param {number} y 
-         * @returns {number} a COLLISION_TYPES 
+         * @return {number} a COLLISION_TYPES 
          */
         isCollision(x, y) {
             //Negate the position of the object.
