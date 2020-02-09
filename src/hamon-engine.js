@@ -227,7 +227,7 @@ hamonengine.core = hamonengine.core || {};
 
         //--------------------------------------------------------
         // Events
-        //--------------------------------------------------------       
+        //--------------------------------------------------------
         onMouseClick(e, layer) {
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseClick] '${e}'`);
         }
