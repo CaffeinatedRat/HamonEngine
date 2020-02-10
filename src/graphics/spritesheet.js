@@ -29,22 +29,14 @@ hamonengine.graphics = hamonengine.graphics || {};
 
 (function() {
 
-    const IMAGE_STATES = {
-        UNLOADED: 0,
-        LOADING: 1,
-        COMPLETE: 2,
-        ERROR: 3
-    };
-
     hamonengine.graphics.spritesheet = class {
         constructor(options) {
             options = options || {};
 
             //Sprites sheet and sprites.
-            this._imageResource = new Image();
+            this._imageResource = new hamonengine.graphics.imageext();
             this._sprites = {};
             this._spriteIndex = [];
-            this._state = IMAGE_STATES.UNLOADED;
         }
         /**
          * Returns the number of sprites in the sheet.
@@ -56,7 +48,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Determines if the spritesheet is ready.
          */
         get isLoaded() {
-            return this._state === IMAGE_STATES.COMPLETE;
+            return this._imageResource.isLoaded();
         }
         //--------------------------------------------------------
         // Methods
@@ -66,63 +58,54 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {*} spriteSheetMetadata metadata.
          */
         load(spriteSheetMetadata) {
-            
-            return new Promise((resolve, reject) => {
-                this._imageResource.src = spriteSheetMetadata.spritesheetUrl;
-                this._state = IMAGE_STATES.LOADING;
-                
-                //Handle a successful loading event and resolve the promise.
-                this._imageResource.addEventListener('load', () => {
-                    this._state = IMAGE_STATES.COMPLETE;
-                    resolve();
-                }, false);
 
-                //Handle errors and reject the promise.
-                this._imageResource.addEventListener('error', (error) => {
-                    this._state = IMAGE_STATES.ERROR;
-                    let imagePath = error && error.path && error.path.length > 0 && error.path[0].src || '';
-                    let errorMsg = `The image '${imagePath}' could not be loaded.`;
-                    reject(errorMsg, error);
-                }, false);
+            //Start the image resource loading and get the promise to complete.
+            let resourceLoadingPromise = this._imageResource.load(spriteSheetMetadata.spritesheetUrl);
 
-                //Load all of the static sprites from the metadata.
-                spriteSheetMetadata.sprites.forEach((spriteMetadata) => {
-                    this._spriteIndex.push(spriteMetadata.name);
-                    this._sprites[spriteMetadata.name] = new hamonengine.graphics.sprite({
-                        image: this._imageResource,
-                        name: spriteMetadata.name,
-                        dimensions: new hamonengine.geometry.rect({
-                            x: spriteMetadata.x,
-                            y: spriteMetadata.y,
-                            width: spriteMetadata.width,
-                            height: spriteMetadata.height
-                        })
-                    });
-                });
+            //--------------------------------------------------------------------------
+            // Continue loading spritesheet information while the resources are loading.
+            //--------------------------------------------------------------------------
 
-                //Load all of the animated sprites from the metadata.
-                spriteSheetMetadata.animSprites.forEach(animSpriteMetadata => {
-                    let animatedSprite = new hamonengine.graphics.animsprite({
-                        animationRate: animSpriteMetadata.animationRate,
-                    });
-
-                    //Load all of the frames from this animated sprite.
-                    animSpriteMetadata.frames.forEach(frameMetadata => {
-                        animatedSprite.addFrame(new hamonengine.graphics.sprite({
-                            image: this._imageResource,
-                            name: frameMetadata.name,
-                            dimensions: new hamonengine.geometry.rect({
-                                x: frameMetadata.x,
-                                y: frameMetadata.y,
-                                width: frameMetadata.width,
-                                height: frameMetadata.height
-                            })
-                        }));
-                    });
-                    this._spriteIndex.push(animSpriteMetadata.name);
-                    this._sprites[animSpriteMetadata.name] = animatedSprite;
+            //Load all of the static sprites from the metadata.
+            spriteSheetMetadata.sprites.forEach((spriteMetadata) => {
+                this._spriteIndex.push(spriteMetadata.name);
+                this._sprites[spriteMetadata.name] = new hamonengine.graphics.sprite({
+                    image: this._imageResource,
+                    name: spriteMetadata.name,
+                    dimensions: new hamonengine.geometry.rect({
+                        x: spriteMetadata.x,
+                        y: spriteMetadata.y,
+                        width: spriteMetadata.width,
+                        height: spriteMetadata.height
+                    })
                 });
             });
+
+            //Load all of the animated sprites from the metadata.
+            spriteSheetMetadata.animSprites.forEach(animSpriteMetadata => {
+                let animatedSprite = new hamonengine.graphics.animsprite({
+                    animationRate: animSpriteMetadata.animationRate,
+                });
+
+                //Load all of the frames from this animated sprite.
+                animSpriteMetadata.frames.forEach(frameMetadata => {
+                    animatedSprite.addFrame(new hamonengine.graphics.sprite({
+                        image: this._imageResource,
+                        name: frameMetadata.name,
+                        dimensions: new hamonengine.geometry.rect({
+                            x: frameMetadata.x,
+                            y: frameMetadata.y,
+                            width: frameMetadata.width,
+                            height: frameMetadata.height
+                        })
+                    }));
+                });
+                this._spriteIndex.push(animSpriteMetadata.name);
+                this._sprites[animSpriteMetadata.name] = animatedSprite;
+            });
+
+            //Return our promise to complete.
+            return resourceLoadingPromise;
         }
         /**
          * Returns the sprite based on the name.

@@ -42,7 +42,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (options instanceof hamonengine.graphics.sprite) {
                 options = {
                     name: options.name,
-                    image: options._image,
+                    image: options._image && options._image.copy(),
                     dimensions: options._dimensions,
                     theta: options.theta
                 }
@@ -59,6 +59,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             
             this._spriteOrientation = SPRITE_ORIENTATION.NORMAL;
             this._showDiagnosisLines = false;
+            this._showFullImage = false;
             this._maxWrapping = 0;
 
             hamonengine.util.logger.debug(`[hamonengine.graphics.sprite.constructor] Starting Dimensions: {${this._dimensions.toString()}}`);
@@ -94,6 +95,18 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._showDiagnosisLines = v;
         }
         /**
+         * Returns true if the full image is being shown.
+         */
+        get showFullImage() {
+            return this._showFullImage;
+        }
+        /**
+         * Enables or disabled showing the full image.
+         */
+        set showFullImage(v) {
+            this._showFullImage = v;
+        }
+        /**
          * Sets the maximum amount of times the sprite can wrap.
          * @param {number} v
          */
@@ -114,6 +127,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._scaleVector = properties._scaleVector;
             this._spriteOrientation = properties._spriteOrientation;
             this._showDiagnosisLines = properties._showDiagnosisLines;
+            this._showFullImage = properties._showFullImage;
         }
         /**
          * Makes a copy of the sprite.
@@ -152,6 +166,17 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._spriteOrientation = hamonengine.util.bitwise.toggle(this._spriteOrientation, SPRITE_ORIENTATION.FLIPPED, state);
         }
         /**
+         * Blends the sprite with the specific color with the specific blending operation.
+         * @param {number} r red channel ranging from 0-255.
+         * @param {number} g green channel ranging from 0-255.
+         * @param {number} b blue channel ranging from 0-255.
+         * @param {number} a alpha channel ranging from 0-255.
+         * @param {number} blendingOps (BLENDING_OPS) blending operation to perform.
+         */
+        blendColor(r=0, g=0, b=0, a=0, blendingOps) {
+            this._image.blendColorRegion(r,g,b,a, this._dimensions, blendingOps);
+        }
+        /**
          * Draws the sprite at the specific location with the current width & height without any transformations applied.
          * @param {object} layer to draw upon.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
@@ -162,18 +187,28 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         drawRaw(layer, elapsedTimeInMilliseconds, x, y, width=this._dimensions.width, height=this._dimensions.height) {
             if (this._image.complete) {
-                //hamonengine.util.logger.debug("[sprite.drawRaw]");
-                layer.context.drawImage(this._image,
-                    this._dimensions.x,
-                    this._dimensions.y,
-                    this._dimensions.width,
-                    this._dimensions.height,
-                    //Normalize x & y as integers.
-                    Math.bitRound(x),
-                    Math.bitRound(y),
-                    //Normalize the width & height;
-                    Math.bitRound(width),
-                    Math.bitRound(height));
+                if (this.showFullImage) {
+                    layer.context.drawImage(this._image.image,
+                        //Normalize x & y as integers.
+                        Math.bitRound(x),
+                        Math.bitRound(y),
+                        //Normalize the width & height;
+                        Math.bitRound(width),
+                        Math.bitRound(height));
+                }
+                else {
+                    layer.drawImage(this._image,
+                        this._dimensions.x,
+                        this._dimensions.y,
+                        this._dimensions.width,
+                        this._dimensions.height,
+                        //Normalize x & y as integers.
+                        Math.bitRound(x),
+                        Math.bitRound(y),
+                        //Normalize the width & height;
+                        Math.bitRound(width),
+                        Math.bitRound(height));
+                }
             }
         }
         /**
@@ -320,7 +355,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} y cooridnate to draw at.
          * @param {number} width the optional width of the sprite.
          * @param {number} height the option height of the sprite.
-         */        
+         */
         drawDiagnosisOutlines(layer, elapsedTimeInMilliseconds, x, y, width, height) {
 
             //Find the center of the sprite.

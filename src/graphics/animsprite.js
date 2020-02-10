@@ -35,7 +35,8 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.graphics.animsprite) {
                 options = {
-                    frames: options._frames,
+                    //Make sure to copy the frames otherwise the old references will linger.
+                    frames: options._frames.map(frame => frame.copy()),
                     animationRate: options._animationRate,
                     animationCycles: options._animationCycles
                 };
@@ -131,6 +132,17 @@ hamonengine.graphics = hamonengine.graphics || {};
         addFrame(frame) {
             hamonengine.util.logger.debug("[hamonengine.graphics.animsprite.animsprite.addFrame]");
             this._frames.push(frame);
+        }
+        /**
+         * Blends the sprite with the specific color with the specific blending operation.
+         * @param {number} r red channel ranging from 0-255.
+         * @param {number} g green channel ranging from 0-255.
+         * @param {number} b blue channel ranging from 0-255.
+         * @param {number} a alpha channel ranging from 0-255.
+         * @param {number} blendingOps (BLENDING_OPS) blending operation to perform.
+         */
+        blendColor(r=0, g=0, b=0, a=0, blendingOps) {
+            this._frames.forEach(frame => frame.blendColor(r,g,b,a, blendingOps));
         }
         /**
          * Draws the sprite at the specific location, width & height.

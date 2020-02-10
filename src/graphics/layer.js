@@ -294,5 +294,31 @@ hamonengine.graphics = hamonengine.graphics || {};
         endPainting () {
             this.reset();
         }
+        /**
+         * A wrapper method that draws the image (where the image can be a CanvasImageSource derived class or a hamonengine.graphics.imageext) based on the dimension parameters provided.
+         * Refer to the details that can be found at MDN: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+         * @param {*} image 
+         * @param {*} sourceX 
+         * @param {*} sourceY 
+         * @param {*} sourceWidth 
+         * @param {*} sourceHeight 
+         * @param {*} destinationX 
+         * @param {*} destinationY 
+         * @param {*} destinationWidth 
+         * @param {*} destinationHeight 
+         */
+        drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, destinationX, destinationY, destinationWidth, destinationHeight) {
+            if (image.complete) {
+                this.context.drawImage((image instanceof hamonengine.graphics.imageext) ? image.image : image,
+                    sourceX,
+                    sourceY,
+                    sourceWidth,
+                    sourceHeight,
+                    destinationX,
+                    destinationY,
+                    destinationWidth,
+                    destinationHeight);
+            }
+        }
     }
 })();
