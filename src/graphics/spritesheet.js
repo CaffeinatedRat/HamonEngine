@@ -136,7 +136,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} index of the sprite to return.
          */
         getSpriteByOrdinal(index) {
-            return this._sprites[this._spriteIndex[index]];
+            return this._sprites[this._spriteIndex[index]].copy();
         }
     }
 })();
