@@ -101,9 +101,8 @@ hamonengine.graphics = hamonengine.graphics || {};
         //--------------------------------------------------------
         /**
          * Makes a copy of the sprite.
-         * @param {*} properties 
          */
-        copy(properties) {
+        copy() {
             return new hamonengine.graphics.animsprite(this);
         }
         /**
