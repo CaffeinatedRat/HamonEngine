@@ -51,8 +51,8 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._state = IMAGE_STATES.UNLOADED;
             
             //Internal data.
-            this._sourceData = null;
             this._backbufferResource = null;
+            this._backbufferCtx = null;
 
             hamonengine.util.logger.debug(`[hamonengine.graphics.imageext.constructor] Starting State: {${this._state}}`);
         }
@@ -130,13 +130,34 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Creates a new canvas.
+         * @param {number} width of the canvas.
+         * @param {number} height of the canvas.
          * @returns {object} a newly created canvas
          */
-        createNewCanvas() {
+        static createNewCanvas(width, height) {
             let canvas = document.createElement('canvas');
-            canvas.setAttribute('width', this.rawImage.width);
-            canvas.setAttribute('height', this.rawImage.height);
+            canvas.setAttribute('width', width);
+            canvas.setAttribute('height', height);
             return canvas;
+        }
+        /**
+         * Gets the image data of our raw image.
+         * @param {object} region of the raw image to get.
+         * @returns {object} ImageData of our raw image.
+         */
+        getImageData(region) {
+                //Create a new canvas if this is the first time we're blending.
+                this._backbufferResource = this._backbufferResource || hamonengine.graphics.imageext.createNewCanvas(this.rawImage.width, this.rawImage.height);
+                
+                //Draw the raw image to our modified canvas.
+                this._backbufferCtx = this._backbufferCtx || this._backbufferResource.getContext('2d');
+                this._backbufferCtx.drawImage(this.rawImage, 0, 0);
+
+                //Normalize the dimensions.
+                region = region || new hamonengine.geometry.rect();
+
+                //Gather the source.
+                return this._backbufferCtx.getImageData(region.x, region.y, region.width || this.rawImage.width, region.height || this.rawImage.height);
         }
         /**
          * Blends the image with the color supplied, for the region supplied.
@@ -151,19 +172,8 @@ hamonengine.graphics = hamonengine.graphics || {};
  
             if (this.complete) {
 
-                //Create a new canvas if this is the first time we're blending.
-                this._backbufferResource = this._backbufferResource || this.createNewCanvas();
-                
-                //Draw the image to our modified canvas.
-                let backbufferCtx = this._backbufferResource.getContext('2d');
-                backbufferCtx.drawImage(this.rawImage, 0, 0);
-
-                //Normalize the dimensions.
-                region = region || new hamonengine.geometry.rect();
-
-                //Get the source data once...
-                //TODO: Handle the region changes between calls.
-                this._sourceData = this._sourceData || backbufferCtx.getImageData(region.x, region.y, region.width || this.rawImage.width, region.height || this.rawImage.height);
+                //Gather the source.
+                let sourceData = this.getImageData(region);
 
                 //Get the blending method.
                 let blendingMethod = (s, d) => (s > 0) ? s : d;
@@ -187,10 +197,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                     case BLENDING_OPS.XOR:
                         blendingMethod = (s, d) => (s > 0) ? Math.min(s ^ d, 255) : d;
                         break;
+
+                    case BLENDING_OPS.DIFFERENCE:
+                        blendingMethod = (s, d) => (s > 0) ? Math.min(s - d, 255) : d;
+                        break;
                 }
 
                 //Blend the colors.
-                let data = this._sourceData.data;
+                let data = sourceData.data;
                 for (let i = 0; i < data.length; i += 4) {
                     data[i]     = blendingMethod(r, data[i]);  //Red
                     data[i + 1] = blendingMethod(g, data[i+1]);//Green
@@ -199,7 +213,35 @@ hamonengine.graphics = hamonengine.graphics || {};
                 }
 
                 //Render the blending into the backbuffer.
-                backbufferCtx.putImageData(this._sourceData, region.x, region.y);
+                this._backbufferCtx.putImageData(sourceData, region.x, region.y);
+            }
+        }
+        /**
+         * Adjusts the channels for each color.
+         * @param {number} r red channel ranging from 0.0-1.0.
+         * @param {number} g green channel ranging from 0.0-1.0.
+         * @param {number} b blue channel ranging from 0.0-1.0.
+         * @param {number} a alpha channel ranging from 0.0-1.0.
+         * @param {object} region (hamonengine.geometry.rect) dimension to blend.
+         */
+        adjustColorChannel(r=1.0, g=1.0, b=1.0, a=1.0, region) {
+ 
+            if (this.complete) {
+
+                //Gather the source.
+                let sourceData = this.getImageData(region);
+
+                //Adjust the colors.
+                let data = sourceData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i]   = Math.bitRound(data[i] * r); //Red
+                    data[i+1] = Math.bitRound(data[i+1] * g); //Green
+                    data[i+2] = Math.bitRound(data[i+2] * b); //Blue
+                    data[i+3] = Math.bitRound(data[i+3] * a); //Alpha
+                }
+
+                //Render the blending into the backbuffer.
+                this._backbufferCtx.putImageData(sourceData, region.x, region.y);
             }
         }
     }

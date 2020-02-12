@@ -177,6 +177,16 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._image.blendColorRegion(r,g,b,a, this._dimensions, blendingOps);
         }
         /**
+         * Adjusts the channels for each color.
+         * @param {number} r red channel ranging from 0.0-1.0.
+         * @param {number} g green channel ranging from 0.0-1.0.
+         * @param {number} b blue channel ranging from 0.0-1.0.
+         * @param {number} a alpha channel ranging from 0.0-1.0.
+         */
+        adjustColorChannel(r=1.0, g=1.0, b=1.0, a=1.0) {
+            this._image.adjustColorChannel(r,g,b,a, this._dimensions);
+        }
+        /**
          * Draws the sprite at the specific location with the current width & height without any transformations applied.
          * @param {object} layer to draw upon.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 

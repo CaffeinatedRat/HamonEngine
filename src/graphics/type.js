@@ -33,5 +33,6 @@ const BLENDING_OPS = {
     MULTIPLY: 2,
     OR: 3,
     AND: 4,
-    XOR: 5
+    XOR: 5,
+    DIFFERENCE: 6
 };
