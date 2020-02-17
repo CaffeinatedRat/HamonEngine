@@ -187,6 +187,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._image.adjustColorChannel(r,g,b,a, this._dimensions);
         }
         /**
+         * Performs a bitblit between two sprites where this is the destination and the source sprite is passed in.
+         * @param {*} sprite to bitblit with.
+         * @param {number} transparency the intensity of the pixel's transparency. 0.0 - 1.0 where 0 is transparent and 1 is opaque.
+         */
+        bitblit(sprite, transparency=1.0) {
+            this._image.bitblit(sprite._image, sprite._dimensions, this._dimensions, transparency);
+        }
+        /**
          * Draws the sprite at the specific location with the current width & height without any transformations applied.
          * @param {object} layer to draw upon.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 

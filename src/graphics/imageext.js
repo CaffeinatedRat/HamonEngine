@@ -132,12 +132,16 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Creates a new canvas.
          * @param {number} width of the canvas.
          * @param {number} height of the canvas.
+         * @param {string} id the name of the canvas.
          * @returns {object} a newly created canvas
          */
-        static createNewCanvas(width, height) {
+        static createNewCanvas(width, height, id) {
             let canvas = document.createElement('canvas');
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
+            if (id) {
+                canvas.setAttribute('id', id);
+            }
             return canvas;
         }
         /**
@@ -242,6 +246,61 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                 //Render the blending into the backbuffer.
                 this._backbufferCtx.putImageData(sourceData, region.x, region.y);
+            }
+        }
+        /**
+         * Performs a bitblit between two images where this is the destination and the source image is passed in.
+         * @param {*} imageData to bitblit with.
+         * @param {*} srcRegion the area to bitblit from.
+         * @param {*} destRegion the area to bitblit onto.
+         * @param {number} transparency the intensity of the pixel's transparency. 0.0 - 1.0 where 0 is transparent and 1 is opaque.
+         */
+        bitblit(imageData, srcRegion, destRegion, transparency=1.0) {
+            if (this.complete) {
+
+                //Normalize the image.
+                if (imageData instanceof hamonengine.graphics.imageext) {
+                    imageData = imageData.rawImage;
+                }
+
+                //Normalize the transparency.
+                transparency = Math.max(Math.min(transparency, 1.0), 0.0);
+
+                //Get the destination.
+                let destImageData = this.getImageData(destRegion);
+
+                //Get the canvas and source.
+                let targetCanavs = hamonengine.graphics.imageext.createNewCanvas(imageData.width, imageData.height);
+                let targetCtx = targetCanavs.getContext('2d');
+                targetCtx.drawImage(imageData, 0, 0);
+                let srcImageData = targetCtx.getImageData(srcRegion.x, srcRegion.y, srcRegion.width, srcRegion.height);
+
+                //Get data references.
+                let destData = destImageData.data;
+                let srcData = srcImageData.data;
+
+                //Always iterate through the shortest width & height.
+                let minHeight = Math.max(srcRegion.height, destRegion.height);
+                let minWidth = Math.max(srcRegion.width, destRegion.width);
+
+                //Iterate through each row, then column.
+                for (let row = 0; row < minHeight; row++) {
+                    for (let col = 0; col < minWidth; col++) {
+                        let destIndex = (row * destRegion.width + col) * 4;
+                        let srcIndex = (row * srcRegion.width + col) * 4;
+                        
+                        //Calculate the complement, as long as the alpha channel is not transparent.
+                        let transparencyComplement = (srcData[srcIndex+3] > 0) ? (1.0 - transparency) : 1.0;
+                        destData[destIndex] = Math.bitRound(destData[destIndex] * transparencyComplement + srcData[srcIndex] * transparency);
+                        destData[destIndex+1] = Math.bitRound(destData[destIndex+1] * transparencyComplement + srcData[srcIndex+1] * transparency);
+                        destData[destIndex+2] = Math.bitRound(destData[destIndex+2] * transparencyComplement + srcData[srcIndex+2] * transparency);
+                        //Always enforce opaque pixels during a bitblit.
+                        destData[destIndex+3] = 255;
+                    }
+                }
+
+                //Render the bitblit image.
+                this._backbufferCtx.putImageData(destImageData, destRegion.x, destRegion.y);
             }
         }
     }
