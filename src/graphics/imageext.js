@@ -296,7 +296,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                         destData[destIndex+2] = Math.bitRound(destData[destIndex+2] * transparencyComplement + srcData[srcIndex+2] * transparency);
                         
                         //Blend the alpha channel so that the source & destination's alpha channels are preserved.
-                        destData[destIndex+3] = Math.bitRound(destData[destIndex+3] * transparencyComplement + srcData[srcIndex+3] * transparency);
+                        destData[destIndex+3] = Math.bitRound(destData[destIndex+3] * (1.0 - transparency) + srcData[srcIndex+3] * transparency);
                     }
                 }
 
