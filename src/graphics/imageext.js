@@ -294,8 +294,9 @@ hamonengine.graphics = hamonengine.graphics || {};
                         destData[destIndex] = Math.bitRound(destData[destIndex] * transparencyComplement + srcData[srcIndex] * transparency);
                         destData[destIndex+1] = Math.bitRound(destData[destIndex+1] * transparencyComplement + srcData[srcIndex+1] * transparency);
                         destData[destIndex+2] = Math.bitRound(destData[destIndex+2] * transparencyComplement + srcData[srcIndex+2] * transparency);
-                        //Always enforce opaque pixels during a bitblit.
-                        destData[destIndex+3] = 255;
+                        
+                        //Blend the alpha channel so that the source & destination's alpha channels are preserved.
+                        destData[destIndex+3] = Math.bitRound(destData[destIndex+3] * transparencyComplement + srcData[srcIndex+3] * transparency);
                     }
                 }
 
