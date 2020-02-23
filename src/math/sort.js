@@ -51,7 +51,7 @@ hamonengine.math = hamonengine.math || {};
          * @return {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
          */
         static ascending(a, b) {
-            return ((a == b) ? 0 : ((a < b) ? -1 : 1));
+            return a === b ? 0 : (a < b ? -1 : 1);
         }
         /**
          * An descending comparison function that uses the comparison operators.
@@ -60,7 +60,7 @@ hamonengine.math = hamonengine.math || {};
          * @return {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
          */
         static descending(a, b) {
-            return ((a == b) ? 0 : ((a < b) ? 1 : -1));
+            return a === b ? 0 : (a < b ? 1 : -1);
         }
         /**
          * Performs an internal quicksort based on the array supplied and the left & right position within that array.
