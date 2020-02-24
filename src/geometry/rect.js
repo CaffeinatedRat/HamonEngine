@@ -47,8 +47,8 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
-         * @param {number} x coordinate
-         * @param {number} y coordinate
+         * @param {number} x position coordinate
+         * @param {number} y position coordinate
          * @return {number} a COLLISION_TYPES
          */
         isPointCollision(x, y) {
@@ -63,6 +63,37 @@ hamonengine.geometry = hamonengine.geometry || {};
             }
 
             return COLLISION_TYPES.NONE;
+        }
+        /**
+         * Determines if target shape is outside of the current shape, based on its position, and returns its direction.
+         * @param {number} x position coordinate
+         * @param {number} y position coordinate
+         * @param {object} shape to evaluated based on the coordinates.
+         * @returns {object} a hamonengine.geometry.vector2 that contains the direction.
+         */
+        isShapeOutside(x, y, shape) {
+
+            let outsideDirection = new hamonengine.geometry.vector2();
+
+            if (x + shape.x < this.x) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -x: (${shape.x}, ${shape.y})`);
+                outsideDirection.x = -1;
+            }
+            else if (x + shape.width > this.x + this.width) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +x: (${shape.x}, ${shape.y})`);
+                outsideDirection.x = 1;
+            }
+
+            if (y + shape.y < this.y) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -y: (${shape.x}, ${shape.y})`);
+                outsideDirection.y = -1;
+            }
+            else if (y + shape.height > this.y + this.height) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +y: (${shape.x}, ${shape.y})`);
+                outsideDirection.y = 1;
+            }
+
+            return outsideDirection;
         }
     }
 })();

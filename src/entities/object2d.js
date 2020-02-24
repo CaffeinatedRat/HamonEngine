@@ -189,6 +189,14 @@ hamonengine.entities = hamonengine.entities || {};
             return this.boundingShape.isPointCollision(x,y);
         }
         /**
+         * Determines if the object is outside of this object's bounding shape and returns the direction.
+         * @param {*} object to evaluate
+         * @return {object} a (hamonengine.geometry.vector2) that provides a direction of where the shape is outside.
+         */
+        isObjectOutside(object) {
+            return this.boundingShape.isShapeOutside(object.position.x, object.position.y, object.boundingShape);
+        }
+        /**
          * Draws the object at the specific location, width & height.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
