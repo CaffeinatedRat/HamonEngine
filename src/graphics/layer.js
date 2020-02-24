@@ -71,12 +71,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
 
             //Set the viewport to the size of the layer by default.
-            this._viewPort = options.viewPort || new hamonengine.geometry.rect({
-                x: 0,
-                y: 0,
-                width: this._canvas.width,
-                height: this._canvas.height
-            });
+            this._viewPort = options.viewPort || new hamonengine.geometry.rect(0, 0, this._canvas.width, this._canvas.height);
 
             //By default, the layer was not reset.
             this._wasReset = false;

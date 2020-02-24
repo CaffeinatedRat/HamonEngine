@@ -48,7 +48,7 @@ hamonengine.entities = hamonengine.entities || {};
             this._theta = options.theta || 0.0;
 
             //Determine if the object is solid or transparent.
-            this._isSolid = (options.isSolid === undefined) ? false : true; 
+            this._isSolid = (options.isSolid === undefined) ? true : false;
 
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Name: ${this.name}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Dimensions {Width: ${this.width}, Height: ${this.height}}`);
@@ -57,6 +57,7 @@ hamonengine.entities = hamonengine.entities || {};
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Theta: ${this.theta}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Movement Rate: ${this._movementRate}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] isSolid: ${this.isSolid}`);
+
         }
         //--------------------------------------------------------
         // Properties
@@ -115,7 +116,7 @@ hamonengine.entities = hamonengine.entities || {};
         get boundingShape() {
             //Load this on demand.
             //If the boundingShape was not defined on creation then create one by default, on demand, to use the width & height of the object2d.
-            this._boundingShape = this._boundingShape || new hamonengine.geometry.rect({ x: 0, y: 0, width: this.width, height: this.height});
+            this._boundingShape = this._boundingShape || new hamonengine.geometry.rect(0, 0, this.width, this.height);
             return this._boundingShape;
         }
         /**
@@ -128,10 +129,11 @@ hamonengine.entities = hamonengine.entities || {};
         // Methods
         //--------------------------------------------------------
         /**
-         * Moves the sprite.
+         * Moves the object.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
+         * @param {object} movementVector the movement vector to move the object. 
          */
-        move(elapsedTimeInMilliseconds) {
+        move(elapsedTimeInMilliseconds, movementVector=null) {
             this.position.x += this._movementRate * this.direction.x * elapsedTimeInMilliseconds;
             this.position.y += this._movementRate * this.direction.y * elapsedTimeInMilliseconds;
         }
@@ -145,14 +147,14 @@ hamonengine.entities = hamonengine.entities || {};
             //Negate the position of the object.
             x -= this.position.x;
             y -= this.position.y;
-            return this.boundingShape.isCollision(x,y);
+            return this.boundingShape.isPointCollision(x,y);
         }
         /**
          * Draws the object at the specific location, width & height.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
         render(elapsedTimeInMilliseconds) {
-
+            
         }
     }
 })();

@@ -29,14 +29,12 @@ hamonengine.geometry = hamonengine.geometry || {};
 
 (function() {
     hamonengine.geometry.rect = class {
-        constructor(options) {
-            options = options || {};
-
+        constructor(x=0, y=0, width=0, height=0) {
             //Image properties.
-            this.x = options.x || 0;
-            this.y = options.y || 0;
-            this.width = options.width || 0;
-            this.height = options.height || 0;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
         }
         //--------------------------------------------------------
         // Methods
@@ -53,7 +51,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {number} y coordinate
          * @return {number} a COLLISION_TYPES
          */
-        isCollision(x, y) {
+        isPointCollision(x, y) {
             //Determine if the coordinates are in the bounding box.
             if ((x === this.x || x === this.width) && (y === this.y || y === this.height)) {
                 hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isCollision] EDGE: (${x}, ${y})`);

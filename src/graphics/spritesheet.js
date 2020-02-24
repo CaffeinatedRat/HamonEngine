@@ -72,12 +72,12 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this._sprites[spriteMetadata.name] = new hamonengine.graphics.sprite({
                     image: this._imageResource,
                     name: spriteMetadata.name,
-                    dimensions: new hamonengine.geometry.rect({
-                        x: spriteMetadata.x,
-                        y: spriteMetadata.y,
-                        width: spriteMetadata.width,
-                        height: spriteMetadata.height
-                    })
+                    dimensions: new hamonengine.geometry.rect(
+                        spriteMetadata.x,
+                        spriteMetadata.y,
+                        spriteMetadata.width,
+                        spriteMetadata.height
+                    )
                 });
             });
 
@@ -92,12 +92,12 @@ hamonengine.graphics = hamonengine.graphics || {};
                     animatedSprite.addFrame(new hamonengine.graphics.sprite({
                         image: this._imageResource,
                         name: frameMetadata.name,
-                        dimensions: new hamonengine.geometry.rect({
-                            x: frameMetadata.x,
-                            y: frameMetadata.y,
-                            width: frameMetadata.width,
-                            height: frameMetadata.height
-                        })
+                        dimensions: new hamonengine.geometry.rect(
+                            frameMetadata.x,
+                            frameMetadata.y,
+                            frameMetadata.width,
+                            frameMetadata.height
+                        )
                     }));
                 });
                 this._spriteIndex.push(animSpriteMetadata.name);
