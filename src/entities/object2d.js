@@ -50,6 +50,9 @@ hamonengine.entities = hamonengine.entities || {};
             //Determine if the object is solid or transparent.
             this._isSolid = (options.isSolid === undefined) ? true : false;
 
+            //Determine if the object is moveable.  If it is not, the movement process is excluded.
+            this._isMoveable = (options.isMoveable === undefined) ? false : true;
+
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Name: ${this.name}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Dimensions {Width: ${this.width}, Height: ${this.height}}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Direction: {x: ${this.direction.x}, y: ${this.direction.y}}`);
@@ -57,6 +60,7 @@ hamonengine.entities = hamonengine.entities || {};
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Theta: ${this.theta}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Movement Rate: ${this._movementRate}`);
             hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] isSolid: ${this.isSolid}`);
+            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] isMoveable: ${this.isMoveable}`);
 
         }
         //--------------------------------------------------------
@@ -120,6 +124,12 @@ hamonengine.entities = hamonengine.entities || {};
             return this._boundingShape;
         }
         /**
+         * Returns true if the object is moveable.
+         */
+        get isMoveable() {
+            return this._isMoveable;
+        }        
+        /**
          * Returns true if the object's state is solid.
          */
         get isSolid() {
@@ -134,8 +144,22 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {object} movementVector the movement vector to move the object. 
          */
         move(elapsedTimeInMilliseconds, movementVector=null) {
-            this.position.x += this._movementRate * this.direction.x * elapsedTimeInMilliseconds;
-            this.position.y += this._movementRate * this.direction.y * elapsedTimeInMilliseconds;
+            if (this.isMoveable) {
+                //Calculate the movement vector if one is not passed.
+                movementVector = movementVector || this.calcMove(elapsedTimeInMilliseconds);
+                this.position.x += movementVector.x;
+                this.position.y += movementVector.y;
+            }
+        }
+        /**
+         * Calculates the movement of the object, without moving it, based on its direction vector.
+         * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
+         */
+        calcMove(elapsedTimeInMilliseconds) {
+            return new hamonengine.geometry.vector2(
+                this._movementRate * this.direction.x * elapsedTimeInMilliseconds,
+                this._movementRate * this.direction.y * elapsedTimeInMilliseconds
+            );
         }
         /**
          * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
