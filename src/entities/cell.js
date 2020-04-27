@@ -97,6 +97,11 @@ hamonengine.entities = hamonengine.entities || {};
          */
         process(elapsedTimeInMilliseconds) {
             if (this.objects) {
+
+                //Keep a collection of collisions that have already occurred.
+                //If we imagine each object as a point in undirected graph, then each edge is a computed collision.
+                //If we detect a known collision edge then we can skip any redundant collision calculation.
+                let collisionsEdges = new Set();
                 this.objects.forEach((object)=> {
 
                     if (object.isMoveable) {
@@ -104,23 +109,54 @@ hamonengine.entities = hamonengine.entities || {};
                         
                         //Determine if the object is outside of the cell and correct it if necessary.
                         if (this.isSolid) {
-                            let collisionVector = this.isObjectOutside(object);
+
+                            //Get the adjusted coordinates.
+                            let adjustedPosition = hamonengine.geometry.vector2.clone(object.position);
+                            let collisionVector = this.isObjectInside(object);
                             if (collisionVector.x < 0) {
-                                object.position.x = this.boundingShape.x - object.boundingShape.x;
+                                adjustedPosition.x = this.boundingShape.x - object.boundingShape.x;
                             }
                             else if (collisionVector.x > 0) {
-                                object.position.x = this.boundingShape.width - object.boundingShape.width;
+                                adjustedPosition.x = this.boundingShape.width - object.boundingShape.right;
                             }
 
                             if (collisionVector.y < 0) {
-                                object.position.y = this.boundingShape.y - object.boundingShape.y;
+                                adjustedPosition.y = this.boundingShape.y - object.boundingShape.y;
                             }
                             else if (collisionVector.y > 0) {
-                                object.position.y = this.boundingShape.height - object.boundingShape.height;
+                                adjustedPosition.y = this.boundingShape.height - object.boundingShape.bottom;
                             }
 
+                            //Handle an environmental collision and stop processing if false is returned.
+                            if (!object.onEnvironmentCollision(adjustedPosition, this)) {
+                                return;
+                            }
                         }
                     }
+
+                    //Handle collision with siblings.
+                    //TimeComplexity: All Cases -- O(n^2)
+                    this.objects.forEach((siblingObject)=> {
+                        //Ignore the current object.
+                        if (object !== siblingObject) {
+
+                            //Determine if we've already calculated the the collision between these two objects.
+                            let edgeName = `${object.name}->${siblingObject.name}`;
+                            
+                            //Calculate the collision between two objects only once.
+                            if (!collisionsEdges.has(edgeName)) {
+
+                                //Determine if this object has collided with its sibling.
+                                if (object.isObjectCollision(siblingObject) !== COLLISION_TYPES.NONE) {
+                                    console.log(`${object.name} collides with: ${siblingObject.name}`);
+                                }
+
+                                collisionsEdges.add(edgeName);
+                                //Since the edgeName is a directed edge, we need to create the inverse to create an undirected edge.
+                                collisionsEdges.add(`${siblingObject.name}->${object.name}`);
+                            }
+                        }
+                    });
                 });
             }
         }
@@ -135,7 +171,7 @@ hamonengine.entities = hamonengine.entities || {};
                 this._zIndexSorter.quickSort(this._objects);
                 this.objects && this.objects.forEach((object)=> {
                     object.render(layer, elapsedTimeInMilliseconds);
-                });    
+                });
             }
         }
     }
