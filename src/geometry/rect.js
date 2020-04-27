@@ -30,20 +30,34 @@ hamonengine.geometry = hamonengine.geometry || {};
 (function() {
     hamonengine.geometry.rect = class {
         constructor(x=0, y=0, width=0, height=0) {
-            //Image properties.
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
         }
         //--------------------------------------------------------
+        // Properties
+        //--------------------------------------------------------
+        /**
+         * Gets the calculated right value.
+         */
+        get right() {
+            return this.x + this.width;
+        }
+        /**
+         * Gets the calculated bottom value.
+         */
+        get bottom() {
+            return this.y + this.height;
+        }
+        //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
         /**
-         * Renders the coordinates.
+         * Outputs the rect's coordinates as a string.
          */
         toString() {
-            return `x: ${this.x} y: ${this.y} width: ${this.width} height: ${this.height}`;
+            return `{x: ${this.x}, y: ${this.y}, width: ${this.width}, height: ${this.height}}`;
         }
         /**
          * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
@@ -57,39 +71,44 @@ hamonengine.geometry = hamonengine.geometry || {};
                 hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isCollision] EDGE: (${x}, ${y})`);
                 return COLLISION_TYPES.EDGE;
             }
+            
             if (x > this.x && x < this.width && y > this.y && y < this.height) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isCollision] Inside: (${x}, ${y})`);
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isCollision] INSIDE: (${x}, ${y})`);
                 return COLLISION_TYPES.INSIDE;
             }
 
             return COLLISION_TYPES.NONE;
         }
         /**
-         * Determines if target shape is outside of the current shape, based on its position, and returns its direction.
-         * @param {number} x position coordinate
-         * @param {number} y position coordinate
+         * Determines if target shape is outside of the current shape and returns a direction if the shape extends outside.
+         * The direction is a normalized vector in the direction the shape is extending towards.
+         * For example if the shape extends beyond the left side of this shape then the x-cooridnate will be -1.
+         * If the shape extends beyond the bottom side of this shape then the y-cooridnate will be +1.
+         * @param {object} position location of the shape being tested.
          * @param {object} shape to evaluated based on the coordinates.
          * @returns {object} a hamonengine.geometry.vector2 that contains the direction.
          */
-        isShapeOutside(x, y, shape) {
+        isShapeInside(position, shape) {
 
             let outsideDirection = new hamonengine.geometry.vector2();
 
-            if (x + shape.x < this.x) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -x: (${shape.x}, ${shape.y})`);
+            let xOffset = position.x + shape.x;
+            let yOffset = position.y + shape.y;
+            if (xOffset < this.x) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = -1;
             }
-            else if (x + shape.width > this.x + this.width) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +x: (${shape.x}, ${shape.y})`);
+            else if (position.x + shape.right > this.right) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = 1;
             }
 
-            if (y + shape.y < this.y) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -y: (${shape.x}, ${shape.y})`);
+            if (yOffset < this.y) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = -1;
             }
-            else if (y + shape.height > this.y + this.height) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +y: (${shape.x}, ${shape.y})`);
+            else if (position.y + shape.bottom > this.bottom) {
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = 1;
             }
 
