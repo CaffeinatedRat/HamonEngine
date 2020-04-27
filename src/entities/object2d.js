@@ -189,12 +189,23 @@ hamonengine.entities = hamonengine.entities || {};
             return this.boundingShape.isPointCollision(x,y);
         }
         /**
-         * Determines if the object is outside of this object's bounding shape and returns the direction.
-         * @param {*} object to evaluate
+         * Determines if the object has collided with noather.
+         * @param {object} object to calculate the collision with.
+         * @return {number} a COLLISION_TYPES 
+         */
+        isObjectCollision(object) {
+            return this.isCollision(object.position.x, object.position.y);
+        }
+        /**
+         * Determines if the targetObject is inside of this object's bounding shape and returns a direction if the object extends outside.
+         * The direction is a normalized vector in the direction the targetObject is extending towards.
+         * For example if the targetObject extends beyond the left side of this object then the x-cooridnate will be -1.
+         * If the targetObject extends beyond the bottom side of this object then the y-cooridnate will be +1.
+         * @param {*} targetObject to evaluate
          * @return {object} a (hamonengine.geometry.vector2) that provides a direction of where the shape is outside.
          */
-        isObjectOutside(object) {
-            return this.boundingShape.isShapeOutside(object.position.x, object.position.y, object.boundingShape);
+        isObjectInside(targetObject) {
+            return this.boundingShape.isShapeInside(targetObject.position, targetObject.boundingShape);
         }
         /**
          * Draws the object at the specific location, width & height.
@@ -202,6 +213,29 @@ hamonengine.entities = hamonengine.entities || {};
          */
         render(elapsedTimeInMilliseconds) {
             
+        }
+        /**
+         * Outputs the objects as a string.
+         */
+        toString() {
+            return `{name: '${this.name}', position: '${this.position}'}`;
+        }
+        //--------------------------------------------------------
+        // Events
+        //--------------------------------------------------------
+        /**
+         * An event that is triggered when the object has a collision with its environment.
+         * @param {object} position a psotion vector that has been adjusted to keep the object within the environment.
+         * @param {number} y coordinate that has been adjusted to keep the object within the environment.
+         * @param {object} environmentObject the collision is occuring within. 
+         * @returns {boolean} false to halt all processing.
+         */
+        onEnvironmentCollision(position, environmentObject) {
+            this._position = position;
+            return true;
+        }
+        onObjectCollision(x, y, object) {
+
         }
     }
 })();
