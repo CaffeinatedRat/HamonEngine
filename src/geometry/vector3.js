@@ -39,10 +39,17 @@ hamonengine.geometry = hamonengine.geometry || {};
         // Methods
         //--------------------------------------------------------
         /**
-         * Renders the coordinates.
+         * Clones the target vector.
+         * @param {object} vector to be cloned.
+         */
+        static clone(vector) {
+            return new hamonengine.geometry.vector3(vector.x, vector.y, vector.z);
+        }
+        /**
+         * Outputs the vector's coordinates as a string.
          */
         toString() {
-            return `x: ${this.x} y: ${this.y} z: ${this.z}`;
+            return `{x: '${this.x}', y: '${this.y}', z: '${this.z}'}`;
         }
         /**
          * Returns the length of the vector.
