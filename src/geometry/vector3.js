@@ -30,10 +30,19 @@ hamonengine.geometry = hamonengine.geometry || {};
 (function() {
 
     hamonengine.geometry.vector3 = class {
-        constructor(x,y,z) {
-            this.x = x || 0.0;
-            this.y = y || 0.0;
-            this.z = z || 0.0;
+        constructor(x=0.0,y=0.0,z=0.0) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+        //--------------------------------------------------------
+        // Properties
+        //--------------------------------------------------------
+        /**
+         * Returns the length of the vector.
+         */
+        get length() {
+            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
         }
         //--------------------------------------------------------
         // Methods
@@ -52,16 +61,10 @@ hamonengine.geometry = hamonengine.geometry || {};
             return `{x: '${this.x}', y: '${this.y}', z: '${this.z}'}`;
         }
         /**
-         * Returns the length of the vector.
-         */
-        length() {
-            return Math.sqrt(Math.sqr(this.x) + Math.sqr(this.y) + Math.sqr(this.z));
-        }
-        /**
          * Normalizes the vector and returns a new instace of the vector.
          */
         normalize() {
-            let l = this.length(); 
+            let l = this.length; 
             return new hamonengine.geometry.vector3(this.x / l, this.y / l, this.z / l);
         }
         /**

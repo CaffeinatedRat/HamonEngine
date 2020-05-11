@@ -29,9 +29,24 @@ hamonengine.geometry = hamonengine.geometry || {};
 
 (function() {
     hamonengine.geometry.vector2 = class {
-        constructor(x,y) {
-            this.x = x || 0.0;
-            this.y = y || 0.0;
+        constructor(x=0.0,y=0.0) {
+            this.x = x;
+            this.y = y;
+        }
+        //--------------------------------------------------------
+        // Properties
+        //--------------------------------------------------------
+        /**
+         * Returns the length of the vector.
+         */
+        get length() {
+            return Math.sqrt(this.x * this.x + this.y * this.y); 
+        }
+        /**
+         * Returns the angle in radians from the origin.
+         */
+        get theta() {
+            return (Math.atan2(this.y, this.x) + Math.PI2) % Math.PI2;
         }
         //--------------------------------------------------------
         // Methods
@@ -50,23 +65,30 @@ hamonengine.geometry = hamonengine.geometry || {};
             return `{x: '${this.x}', y: '${this.y}'}`;
         }
         /**
-         * Returns the length of the vector.
-         */
-        length() {
-            return Math.sqrt(Math.sqr(this.x) + Math.sqr(this.y)); 
-        }
-        /**
-         * Returns the angle in radians from the origin.
-         */
-        theta() {
-            return (Math.atan2(this.y, this.x) + Math.PI2) % Math.PI2;
-        }
-        /**
-         * Normalizes the vector and returns a new instace of the vector.
+         * Normalizes the vector and returns a new instace of the unit vector.
          */
         normalize() {
-            let l = this.length(); 
+            let l = this.length; 
             return new hamonengine.geometry.vector2(this.x / l, this.y / l);
+        }
+        /**
+         * Creates a new instance of a unit vector normal from this vector.
+         * @param {number} coordinateSystem to use left or right.  This is left by default.
+         */
+        normal(coordinateSystem = COORDINATE_SYSTEM.LEFT) {
+            let l = this.length; 
+            if (coordinateSystem === COORDINATE_SYSTEM.LEFT) {
+                //Where θ = PI/2
+                //x' = x * cos(θ) - y * sin(θ) = x*0 - y*1 = -y
+                //y' = x * sin(θ) + y * cos(θ) = x*1 - y*0 = x
+                return new hamonengine.geometry.vector2(-this.y / l, this.x / l);
+            }
+            else {
+                //Where θ = PI3/2
+                //x' = x * cos(θ) - y * sin(θ) = x*0 - y*-1 = y
+                //y' = x * sin(θ) + y * cos(θ) = x*-1 - y*0 = -x
+                return new hamonengine.geometry.vector2(this.y / l, -this.x / l);
+            }
         }
         /**
          * Returns an instance of the mirrored vector across the x-axis.

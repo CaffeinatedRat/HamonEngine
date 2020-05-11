@@ -33,3 +33,7 @@ const COLLISION_TYPES = {
     INSIDE: 2
 };
 
+const COORDINATE_SYSTEM = {
+    LEFT: 0,
+    RIGHT: 1
+}
