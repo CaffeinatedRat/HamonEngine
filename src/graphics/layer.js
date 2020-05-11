@@ -315,5 +315,53 @@ hamonengine.graphics = hamonengine.graphics || {};
                     destinationHeight);
             }
         }
+        drawPolygon(polygon, sourceX = 0, sourceY = 0, lineWidth=1, color='white', drawNormals=false) {
+            this.context.lineWidth = lineWidth;
+            this.context.strokeStyle = color;
+            
+            this.context.beginPath();
+
+            for(let index = 0; index < polygon.vertices.length; index++) {
+                let x = Math.bitRound(sourceX + polygon.vertices[index].x);
+                let y = Math.bitRound(sourceY + polygon.vertices[index].y);
+
+                if (index === 0) {
+                    this.context.moveTo(x, y);
+                }
+                else {
+                    this.context.lineTo(x, y);
+                }
+            }
+
+            //Complete the shape and draw the polygon.
+            this.context.closePath();
+            this.context.stroke();
+
+            if (drawNormals) {
+
+                this.context.strokeStyle = 'white';
+
+                for(let index = 0; index < polygon.vertices.length; index++) {
+
+                    //Get the current vertex and edge.
+                    let vertex = polygon.vertices[index];
+                    let edge = polygon.edges[index];
+
+                    //Find the coordinates to begin the normal.
+                    //The normal will start at the middle of the edge.
+                    let x = Math.bitRound(sourceX + vertex.x + edge.x / 2);
+                    let y = Math.bitRound(sourceY + vertex.y + edge.y / 2);
+
+                    this.context.beginPath();
+                    this.context.moveTo(x, y);
+
+                    //Find the normal for the current edge and draw a line to it.
+                    let normal = polygon.normals[index];
+                    let normalSize = Math.bitRound(edge.length / 2);
+                    this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
+                    this.context.stroke();
+                }
+            }
+        }
     }
 })();
