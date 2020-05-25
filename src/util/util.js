@@ -53,15 +53,15 @@ hamonengine.util = hamonengine.util || {
             if (state !== undefined) {
                 if (state) {
                     //Turn on the bit.
-                    return value | bitToToggle;
+                    return value | (1 << bitToToggle);
                 }
 
                 //Turn off the bit.
-                return value & ~bitToToggle;
+                return value & ~(1 << bitToToggle);
             }
 
             //Toggle the bitValue
-            return value ^ bitToToggle;
+            return value ^ (1 << bitToToggle);
         }
         /**
          * Determines if the bit is set in the value.
@@ -69,7 +69,8 @@ hamonengine.util = hamonengine.util || {
          * @param {number} bitToCheck to find in the value.
          */
         static isSet(value, bitToCheck) {
-            return (value & bitToCheck) === bitToCheck;
+            let valueToCheck = 1 << bitToCheck;
+            return (value & valueToCheck) === valueToCheck;
         }
     }
 
