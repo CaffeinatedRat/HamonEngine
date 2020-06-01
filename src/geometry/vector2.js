@@ -65,7 +65,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return `{x: '${this.x}', y: '${this.y}'}`;
         }
         /**
-         * Normalizes the vector and returns a new instace of the unit vector.
+         * Normalizes and returns a unit vector.
          */
         normalize() {
             let l = this.length; 
@@ -138,7 +138,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * vresults = 0i +  ((this.x * v.y) - (this.y * v.x))j
          */
         crossProduct(v) {
-            return new hamonengine.geometry.vector3(0, 0, (this.x * v.y) - (this.y * v.x)); 
+            return new hamonengine.geometry.vector3(0, 0, (this.x * v.y) - (this.y * v.x));
         }
     }
 })();

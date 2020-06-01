@@ -61,7 +61,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return `{x: '${this.x}', y: '${this.y}', z: '${this.z}'}`;
         }
         /**
-         * Normalizes the vector and returns a new instace of the vector.
+         * Normalizes and returns a unit vector.
          */
         normalize() {
             let l = this.length; 
