@@ -87,9 +87,9 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {object} objects to add to the collection.
          */
         addObjects(objects) {
-            objects.forEach(object => {
-                this._objects.push(object);
-            });
+            for(let i = 0; i < objects.length; i++) {
+                this._objects.push(objects[i]);
+            }
         }
         /**
          * Processes all of the objects within the cell.
@@ -102,8 +102,8 @@ hamonengine.entities = hamonengine.entities || {};
                 //If we imagine each object as a point in undirected graph, then each edge is a computed collision.
                 //If we detect a known collision edge then we can skip any redundant collision calculation.
                 let collisionsEdges = new Set();
-                this.objects.forEach((object)=> {
-
+                for (let i = 0; i < this.objects.length; i++) {
+                    let object = this.objects[i];
                     if (object.isMoveable) {
                         object.move(elapsedTimeInMilliseconds);
                         
@@ -136,7 +136,8 @@ hamonengine.entities = hamonengine.entities || {};
 
                     //Handle collision with siblings.
                     //TimeComplexity: All Cases -- O(n^2)
-                    this.objects.forEach((siblingObject)=> {
+                    for (let i = 0; i < this.objects.length; i++) {
+                        let siblingObject = this.objects[i];
                         //Ignore the current object.
                         if (object !== siblingObject) {
 
@@ -156,8 +157,8 @@ hamonengine.entities = hamonengine.entities || {};
                                 collisionsEdges.add(`${siblingObject.name}->${object.name}`);
                             }
                         }
-                    });
-                });
+                    };
+                };
             }
         }
         /**
@@ -169,9 +170,11 @@ hamonengine.entities = hamonengine.entities || {};
             if (this.objects) {
                 //Sort objects by their z-index to perform the painter's algorithm.
                 this._zIndexSorter.quickSort(this._objects);
-                this.objects && this.objects.forEach((object)=> {
-                    object.render(layer, elapsedTimeInMilliseconds);
-                });
+                if (this.objects) { 
+                    for (let i = 0; i < this.objects.length; i++) {
+                        this.objects[i].render(layer, elapsedTimeInMilliseconds);
+                    };
+                }
             }
         }
     }

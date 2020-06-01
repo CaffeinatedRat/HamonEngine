@@ -67,7 +67,8 @@ hamonengine.graphics = hamonengine.graphics || {};
             //--------------------------------------------------------------------------
 
             //Load all of the static sprites from the metadata.
-            spriteSheetMetadata.sprites.forEach((spriteMetadata) => {
+            for(let i = 0; i < spriteSheetMetadata.sprites.length; i++) {
+                let spriteMetadata = spriteSheetMetadata.sprites[i];
                 this._spriteIndex.push(spriteMetadata.name);
                 this._sprites[spriteMetadata.name] = new hamonengine.graphics.sprite({
                     image: this._imageResource,
@@ -79,16 +80,18 @@ hamonengine.graphics = hamonengine.graphics || {};
                         spriteMetadata.height
                     )
                 });
-            });
+            }
 
             //Load all of the animated sprites from the metadata.
-            spriteSheetMetadata.animSprites.forEach(animSpriteMetadata => {
+            for (let i = 0; i < spriteSheetMetadata.animSprites.length; i++) {
+                let animSpriteMetadata = spriteSheetMetadata.animSprites[i];
                 let animatedSprite = new hamonengine.graphics.animsprite({
                     animationRate: animSpriteMetadata.animationRate,
                 });
 
                 //Load all of the frames from this animated sprite.
-                animSpriteMetadata.frames.forEach(frameMetadata => {
+                for (let j = 0; j < animSpriteMetadata.frames.length; j++) {
+                    let frameMetadata = animSpriteMetadata.frames[j];
                     animatedSprite.addFrame(new hamonengine.graphics.sprite({
                         image: this._imageResource,
                         name: frameMetadata.name,
@@ -99,10 +102,11 @@ hamonengine.graphics = hamonengine.graphics || {};
                             frameMetadata.height
                         )
                     }));
-                });
+                };
+
                 this._spriteIndex.push(animSpriteMetadata.name);
                 this._sprites[animSpriteMetadata.name] = animatedSprite;
-            });
+            }
 
             //Return our promise to complete.
             return resourceLoadingPromise;

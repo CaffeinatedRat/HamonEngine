@@ -141,7 +141,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} blendingOps (BLENDING_OPS) blending operation to perform.
          */
         blendColor(r=0, g=0, b=0, a=0, blendingOps) {
-            this._frames.forEach(frame => frame.blendColor(r,g,b,a, blendingOps));
+            for(let i = 0 ; i < this._frames.length; i++) {
+                this._frames[i].blendColor(r,g,b,a, blendingOps);
+            }
         }
         /**
          * Adjusts the channels for each color.
@@ -151,7 +153,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} a alpha channel ranging from 0.0-1.0.
          */
         adjustColorChannel(r=1.0, g=1.0, b=1.0, a=1.0) {
-            this._frames.forEach(frame => frame.adjustColorChannel(r,g,b,a));
+            for(let i = 0 ; i < this._frames.length; i++) {
+                this._frames[i].adjustColorChannel(r,g,b,a);
+            }
         }
         /**
          * Draws the sprite at the specific location, width & height.

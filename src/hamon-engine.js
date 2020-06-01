@@ -57,7 +57,8 @@ hamonengine.core = hamonengine.core || {};
             //Add support for multiple layers that will house our canvas, and other drawing components.
             this._layers = {};
             let index = 0;
-            options.canvas.forEach((canvas)=> {
+            for (let i = 0; i < options.canvas.length; i ++) {
+                let canvas = options.canvas[i];
                 let canvasName = canvas.name || `${cavnas_default_name}${index++}`;
                 this._layers[canvasName]= new hamonengine.graphics.layer({
                     name: canvasName,
@@ -67,7 +68,7 @@ hamonengine.core = hamonengine.core || {};
                     enableImageSmoothing: options.enableImageSmoothing,
                     clipToViewPort: canvas.clipToViewPort
                 });
-            });
+            };
 
             this._resourcesLoaded = false;
 

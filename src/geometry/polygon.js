@@ -42,7 +42,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             this._centerVector = null;
 
             //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
-            this._vertices = [];
+            this._vertices = options.vertices || [];
             this._edges = [];
             this._normals = [];
             
@@ -110,9 +110,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         toString() {
             let vertexString = '';
-            this._vertices.forEach(vertex => {
-                vertexString += `${vertexString !== '' ? ',' : ''}${vertex.toString()}`;
-            });
+            for (let i = 0; i < this._vertices.length; i++) {
+                vertexString += `${vertexString !== '' ? ',' : ''}${this._vertices[i].toString()}`;
+            };
             return `[${vertexString}]`;
         }
         /**
@@ -135,9 +135,9 @@ hamonengine.geometry = hamonengine.geometry || {};
             translateVector = translateVector || new hamonengine.geometry.vector2(0, 0);
 
             let newVertices = [];
-            this.vertices.forEach(vertex => {
-                newVertices.push(vertex.add(translateVector));
-            });
+            for (let i = 0; i < this.vertices.length; i++) {
+                newVertices.push(this.vertices[i].add(translateVector));
+            };
 
             //Return a new instance of the polygon as to preserve the original.
             return new hamonengine.geometry.polygon({
@@ -161,19 +161,18 @@ hamonengine.geometry = hamonengine.geometry || {};
             //x' = x * cos(θ) - y * sin(θ) = x*0 - y*1 = -y
             //y' = x * sin(θ) + y * cos(θ) = x*1 - y*0 = x
             let newVertices = [];
-            this.vertices.forEach(vertex => {
-                
+            for (let i = 0 ; i < this.vertices.length; i++) {
                 //Adjust/translate the vertex based on the offset.
-                let xOffset = vertex.x - offsetVector.x;
-                let yOffset = vertex.y - offsetVector.y;
+                let xOffset = this.vertices[i].x - offsetVector.x;
+                let yOffset = this.vertices[i].y - offsetVector.y;
 
                 //Perform the rotation on each vertex.
                 x = (xOffset * cosTheta) - (yOffset * sinTheta);
                 y = (xOffset * sinTheta) + (yOffset * cosTheta);
                 
                 //Restore the vertex's position.
-                newVertices.push(new hamonengine.geometry.vector2(vertex.x, vertex.y));
-            });
+                newVertices.push(new hamonengine.geometry.vector2(x + offsetVector.x, y + offsetVector.y));
+            };
 
             //Return a new instance of the polygon as to preserve the original.
             return new hamonengine.geometry.polygon({
@@ -198,9 +197,9 @@ hamonengine.geometry = hamonengine.geometry || {};
             scaleVector = scaleVector || new hamonengine.geometry.vector2(0, 0);
 
             let newVertices = [];
-            this.vertices.forEach(vertex => {
-                newVertices.push(vertex.multiplyVector(scaleVector));
-            });
+            for (let i = 0; i < this.vertices.length; i++) {
+                newVertices.push(this.vertices[i].multiplyVector(scaleVector));
+            };
 
             //Return a new instance of the polygon as to preserve the original.
             return new hamonengine.geometry.polygon({
@@ -237,12 +236,12 @@ hamonengine.geometry = hamonengine.geometry || {};
         static calcCenter(vertices=[]) {
             let xMax = NaN, xMin = NaN;
             let yMax = NaN, yMin = NaN;
-            vertices.forEach(vertex => {
-                xMax = xMax > vertex.x ? xMax : vertex.x;
-                xMin = xMin < vertex.x ? xMin : vertex.x;
-                yMax = yMax > vertex.y ? yMax : vertex.y;
-                yMin = yMin < vertex.y ? yMin : vertex.y;
-            });
+            for (let i = 0; i < vertices.length; i++) {
+                xMax = xMax > vertices[i].x ? xMax : vertices[i].x;
+                xMin = xMin < vertices[i].x ? xMin : vertices[i].x;
+                yMax = yMax > vertices[i].y ? yMax : vertices[i].y;
+                yMin = yMin < vertices[i].y ? yMin : vertices[i].y;
+            };
 
             return new hamonengine.geometry.vector2((xMax - xMin) / 2, (yMax - yMin) / 2);
         }
