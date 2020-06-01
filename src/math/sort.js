@@ -34,7 +34,7 @@ hamonengine.math = hamonengine.math || {};
 
             //Default to the ascending comparison function if one is not supplied.
             if (!options.compareFunc)
-                this._compareFunc = sort.ascending;
+                this._compareFunc = hamonengine.math.sort.sort.ascending;
             else
                 this._compareFunc = options.compareFunc;
         }
@@ -64,7 +64,7 @@ hamonengine.math = hamonengine.math || {};
         }
         /**
          * Performs an internal quicksort based on the array supplied and the left & right position within that array.
-         * @param {function} compareFunction the comparison function.
+         * @param {object} compareFunction the comparison function.
          * @param {*} arr An array of values to sort.
          * @param {*} left The left location to start with.
          * @param {*} right The right location to start with.

@@ -167,8 +167,8 @@ hamonengine.geometry = hamonengine.geometry || {};
                 let yOffset = this.vertices[i].y - offsetVector.y;
 
                 //Perform the rotation on each vertex.
-                x = (xOffset * cosTheta) - (yOffset * sinTheta);
-                y = (xOffset * sinTheta) + (yOffset * cosTheta);
+                let x = (xOffset * cosTheta) - (yOffset * sinTheta);
+                let y = (xOffset * sinTheta) + (yOffset * cosTheta);
                 
                 //Restore the vertex's position.
                 newVertices.push(new hamonengine.geometry.vector2(x + offsetVector.x, y + offsetVector.y));
