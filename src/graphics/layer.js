@@ -44,14 +44,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             //DOM Contexts.
             if (!this._canvasId) {
                 console.error(`[hamonengine.graphics.layer.constructor] Invalid canvasId: '${this._canvasId}' unable to create the engine!`);
-                throw 'Cannot create the engine';
+                throw 'Cannot create the layer';
             }
 
             this._canvas = document.getElementById(this._canvasId);
 
             if (!this._canvas) {
                 console.error(`[hamonengine.graphics.layer.constructor] Invalid canvas: '${this._canvasId}' unable to create the engine!`);
-                throw 'Cannot create the engine';
+                throw 'Cannot create the layer';
             }
 
             //Try to get the 2d context.
@@ -67,7 +67,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             if (!this._canvasContext) {
                 console.error(`[hamonengine.graphics.layer.constructor] Unable to get the 2d context: '${this._canvasId}' unable to create the engine!`);
-                throw 'Cannot create the engine';
+                throw 'Cannot create the layer';
             }
 
             //Set the viewport to the size of the layer by default.
@@ -315,6 +315,16 @@ hamonengine.graphics = hamonengine.graphics || {};
                     destinationHeight);
             }
         }
+        /**
+         * A wrapper method that draws the polygon object (hamonengine.geometry.polygon) based on the dimension parameters provided.
+         * Refer to the details that can be found at MDN: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+         * @param {*} polygon object to draw.
+         * @param {*} sourceX coordinate of where to draw the polygon.
+         * @param {*} sourceY coordinate of where to draw the polygon.
+         * @param {number} lineWidth width of the polygon's lines.
+         * @param {string} color of the polygon's lines.
+         * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
+         */
         drawPolygon(polygon, sourceX = 0, sourceY = 0, lineWidth=1, color='white', drawNormals=false) {
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
