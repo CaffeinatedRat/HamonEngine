@@ -64,7 +64,7 @@ hamonengine.math = hamonengine.math || {};
         }
         /**
          * Performs an internal quicksort based on the array supplied and the left & right position within that array.
-         * @param {object} compareFunction the comparison function.
+         * @param {Function} compareFunction the comparison function.
          * @param {*} arr An array of values to sort.
          * @param {*} left The left location to start with.
          * @param {*} right The right location to start with.

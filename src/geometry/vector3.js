@@ -49,7 +49,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         //--------------------------------------------------------
         /**
          * Clones the target vector.
-         * @param {object} vector to be cloned.
+         * @param {Object} vector to be cloned.
          */
         static clone(vector) {
             return new hamonengine.geometry.vector3(vector.x, vector.y, vector.z);

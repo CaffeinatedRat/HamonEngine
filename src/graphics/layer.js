@@ -40,6 +40,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._wrapVertical = options.wrapVertical !== undefined ? options.wrapVertical : false;
             this._wrapHorizontal = options.wrapHorizontal !== undefined ? options.wrapHorizontal : false;
             this._clipToViewPort = options.clipToViewPort !== undefined ? options.clipToViewPort : true;
+            this._enableImageSmoothing = options.enableImageSmoothing !== undefined ? options.enableImageSmoothing : true;
 
             //DOM Contexts.
             if (!this._canvasId) {

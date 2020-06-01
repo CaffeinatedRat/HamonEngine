@@ -156,7 +156,7 @@ hamonengine.entities = hamonengine.entities || {};
         /**
          * Moves the object.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
-         * @param {object} movementVector the movement vector to move the object. 
+         * @param {Object} movementVector the movement vector to move the object. 
          */
         move(elapsedTimeInMilliseconds, movementVector=null) {
             if (this.isMoveable) {
@@ -190,7 +190,7 @@ hamonengine.entities = hamonengine.entities || {};
         }
         /**
          * Determines if the object has collided with noather.
-         * @param {object} object to calculate the collision with.
+         * @param {Object} object to calculate the collision with.
          * @return {number} a COLLISION_TYPES 
          */
         isObjectCollision(object) {
@@ -202,16 +202,17 @@ hamonengine.entities = hamonengine.entities || {};
          * For example if the targetObject extends beyond the left side of this object then the x-cooridnate will be -1.
          * If the targetObject extends beyond the bottom side of this object then the y-cooridnate will be +1.
          * @param {*} targetObject to evaluate
-         * @return {object} a (hamonengine.geometry.vector2) that provides a direction of where the shape is outside.
+         * @return {Object} a (hamonengine.geometry.vector2) that provides a direction of where the shape is outside.
          */
         isObjectInside(targetObject) {
             return this.boundingShape.isShapeInside(targetObject.position, targetObject.boundingShape);
         }
         /**
          * Draws the object at the specific location, width & height.
+         * @param {Object} layer to render the cell's objects to.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
-        render(elapsedTimeInMilliseconds) {
+        render(layer, elapsedTimeInMilliseconds) {
             
         }
         /**
@@ -225,9 +226,8 @@ hamonengine.entities = hamonengine.entities || {};
         //--------------------------------------------------------
         /**
          * An event that is triggered when the object has a collision with its environment.
-         * @param {object} position a psotion vector that has been adjusted to keep the object within the environment.
-         * @param {number} y coordinate that has been adjusted to keep the object within the environment.
-         * @param {object} environmentObject the collision is occuring within. 
+         * @param {Object} position a psotion vector that has been adjusted to keep the object within the environment.
+         * @param {Object} environmentObject the collision is occuring within. 
          * @returns {boolean} false to halt all processing.
          */
         onEnvironmentCollision(position, environmentObject) {

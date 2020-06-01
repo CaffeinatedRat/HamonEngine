@@ -53,6 +53,7 @@ hamonengine.core = hamonengine.core || {};
             this._state = ENGINE_STATES.STOPPED;
             this._startTimeStamp = 0;
             this._lastFrameTimeStamp = 0;
+            this._animationId = 0;
             
             //Add support for multiple layers that will house our canvas, and other drawing components.
             this._layers = {};
@@ -100,7 +101,7 @@ hamonengine.core = hamonengine.core || {};
         }
         /**
          * Preloads any resource loading.
-         * @return {object} a promise to complete resource loading.
+         * @return {Object} a promise to complete resource loading.
          */
         load() {
             hamonengine.util.logger.debug("[hamonengine.core.engine.load]");
@@ -111,15 +112,16 @@ hamonengine.core = hamonengine.core || {};
             this._state = ENGINE_STATES.LOADING;
             hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] State: ${this._state}`);
 
-            if (this._showFPS) {
+            //if (this._showFPS) {
                 //TODO: REMOVE Hardcoded id.
+                /*
                 this._stats = new Stats();
                 this._stats.domElement.style.position = 'absolute';
                 this._stats.domElement.style.left = '0px';
-                this._stats.domElement.style.top = '0px';
-                let parentElement = document.getElementById('canvas-wrapper');
-                parentElement.insertBefore(this._stats.domElement, parentElement.firstChild);
-            }
+                this._stats.domElement.style.top = '0px';*/
+                //let parentElement = document.getElementById('canvas-wrapper');
+                //parentElement.insertBefore(this._stats.domElement, parentElement.firstChild);
+            //}
 
             //Added a promise so the start can be delayed if designer so wishes to wait before starting the engine.
             return new Promise((resolve, reject)=> {
@@ -182,7 +184,7 @@ hamonengine.core = hamonengine.core || {};
         }
         /**
          * An internal event that occurs when attempting to load resources.
-         * @return {object} a promise that the resource has loaded successfully.
+         * @return {Object} a promise that the resource has loaded successfully.
          */
         onloadResources() {
             hamonengine.util.logger.debug("[hamonengine.core.engine.onloadResources]");
@@ -238,6 +240,7 @@ hamonengine.core = hamonengine.core || {};
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
         }
         onKeyEvent(type, keyCode, e, layer) {
+            e.preventDefault();
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
         onTouchEvent(type, e, touches, layer) {
@@ -254,7 +257,7 @@ hamonengine.core = hamonengine.core || {};
         }
         /**
          * A draw loop event that is triggered once the engine starts.
-         * @param {Number} timestampInMilliseconds elapsed since the origin.  See DOMHighResTimeStamp.
+         * @param {?number} timestampInMilliseconds elapsed since the origin.  See DOMHighResTimeStamp.
          */
         onDraw(timestampInMilliseconds) {
 
@@ -275,9 +278,9 @@ hamonengine.core = hamonengine.core || {};
                 //If this parameter is removed then the timestamp will always be zero.
                 this._animationId = window.requestAnimationFrame((scopedTimestampInMS) => {
                     this._state = ENGINE_STATES.RUNNING;
-                    this._showFPS && this._stats.begin();
+                    //this._showFPS && this._stats.begin();
                     this.onFrame(elapsedTimeInMilliseconds);
-                    this._showFPS && this._stats.end();
+                    //this._showFPS && this._stats.end();
                     this.onDraw(scopedTimestampInMS);
                 });
             }

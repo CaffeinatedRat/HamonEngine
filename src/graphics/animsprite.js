@@ -126,7 +126,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Adds a new frame.
-         * @param {object} frame to add.
+         * @param {Object} frame to add.
          */
         addFrame(frame) {
             hamonengine.util.logger.debug("[hamonengine.graphics.animsprite.animsprite.addFrame]");
@@ -140,7 +140,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} a alpha channel ranging from 0-255.
          * @param {number} blendingOps (BLENDING_OPS) blending operation to perform.
          */
-        blendColor(r=0, g=0, b=0, a=0, blendingOps) {
+        blendColor(r=0, g=0, b=0, a=0, blendingOps=BLENDING_OPS.REPLACE) {
             for(let i = 0 ; i < this._frames.length; i++) {
                 this._frames[i].blendColor(r,g,b,a, blendingOps);
             }
@@ -159,12 +159,12 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Draws the sprite at the specific location, width & height.
-         * @param {object} layer to draw upon.
+         * @param {Object} layer to draw upon.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          * @param {number} x coordinate to draw at.
          * @param {number} y cooridnate to draw at.
-         * @param {number} width the optional width of the sprite to scale.
-         * @param {number} height the option height of the sprite to scale.
+         * @param {?number} width the optional width of the sprite to scale.
+         * @param {?number} height the option height of the sprite to scale.
          */
         draw(layer, elapsedTimeInMilliseconds, x, y, width=null, height=null) {
 
@@ -178,7 +178,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this._enableAnimation) {
                 
                 //Based on the amount of time that has passed, determine the number of animation frames that have passed.
-                let numberOfFrames = parseInt(timeSinceLastFrame / this.animationRate);
+                let numberOfFrames = parseInt(timeSinceLastFrame / this.animationRate, 10);
 
                 //Calculate the number of animation cycles have elapsed during this animation frame.
                 let numberOfAnimationCycles = (this.index + numberOfFrames);
@@ -188,7 +188,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                     //Number of animation cycles accumulator.
                     //Keep a count of the total number of animation cycles.
-                    this._numberOfAnimationCycles += parseInt(numberOfAnimationCycles / this._frames.length);
+                    this._numberOfAnimationCycles += parseInt(numberOfAnimationCycles / this._frames.length, 10);
 
                     //Disable the animation if we have exceed the maxiumn number of animation cycles.
                     this._enableAnimation = (this._numberOfAnimationCycles <= this.animationCycles);

@@ -37,8 +37,7 @@ hamonengine.graphics = hamonengine.graphics || {};
     };
     
     hamonengine.graphics.imageext = class {
-        constructor(options) {
-            options = options || {}
+        constructor(options={}) {
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.graphics.imageext) {
                 options = {
@@ -107,7 +106,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * Attempts to load the image based on the url provided.
          * @param {string} src url of the image.
-         * @return {object} a promise to complete loading.
+         * @return {Object} a promise to complete loading.
          */
         load(src) {
             this.src = src;
@@ -124,7 +123,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     this._state = IMAGE_STATES.ERROR;
                     let imagePath = error && error.path && error.path.length > 0 && error.path[0].src || '';
                     let errorMsg = `The image '${imagePath}' could not be loaded.`;
-                    reject(errorMsg, error);
+                    reject(errorMsg);
                 }, false);
             });
         }
@@ -133,9 +132,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} width of the canvas.
          * @param {number} height of the canvas.
          * @param {string} id the name of the canvas.
-         * @returns {object} a newly created canvas
+         * @returns {Object} a newly created canvas
          */
-        static createNewCanvas(width, height, id) {
+        static createNewCanvas(width, height, id='') {
             let canvas = document.createElement('canvas');
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
@@ -146,8 +145,8 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Gets the image data of our raw image.
-         * @param {object} region of the raw image to get.
-         * @returns {object} ImageData of our raw image.
+         * @param {Object} region of the raw image to get.
+         * @returns {Object} ImageData of our raw image.
          */
         getImageData(region) {
                 //Create a new canvas if this is the first time we're blending.
@@ -169,10 +168,10 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} g green channel ranging from 0-255.
          * @param {number} b blue channel ranging from 0-255.
          * @param {number} a alpha channel ranging from 0-255.
-         * @param {object} region (hamonengine.geometry.rect) dimension to blend.
+         * @param {Object} region (hamonengine.geometry.rect) dimension to blend.
          * @param {number} blendingOps (BLENDING_OPS) blending operation to perform.
          */
-        blendColorRegion(r=0, g=0, b=0, a=0, region, blendingOps) {
+        blendColorRegion(r=0, g=0, b=0, a=0, region=null, blendingOps=BLENDING_OPS.REPLACE) {
  
             if (this.complete) {
 
@@ -226,9 +225,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} g green channel ranging from 0.0-1.0.
          * @param {number} b blue channel ranging from 0.0-1.0.
          * @param {number} a alpha channel ranging from 0.0-1.0.
-         * @param {object} region (hamonengine.geometry.rect) dimension to blend.
+         * @param {Object} region (hamonengine.geometry.rect) dimension to blend.
          */
-        adjustColorChannel(r=1.0, g=1.0, b=1.0, a=1.0, region) {
+        adjustColorChannel(r=1.0, g=1.0, b=1.0, a=1.0, region=null) {
  
             if (this.complete) {
 
@@ -250,9 +249,9 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Performs a bitblit between two images where this is the destination and the source image is passed in.
-         * @param {*} imageData to bitblit with.
-         * @param {*} srcRegion the area to bitblit from.
-         * @param {*} destRegion the area to bitblit onto.
+         * @param {Object} imageData to bitblit with.
+         * @param {Object} srcRegion the area to bitblit from.
+         * @param {Object} destRegion the area to bitblit onto.
          * @param {number} transparency the intensity of the pixel's transparency. 0.0 - 1.0 where 0 is transparent and 1 is opaque.
          */
         bitblit(imageData, srcRegion, destRegion, transparency=1.0) {

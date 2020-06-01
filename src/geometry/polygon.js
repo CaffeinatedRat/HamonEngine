@@ -127,8 +127,8 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Creates and returns a new instance of a translated polygon.
-         * @param {object} translateVector a translation vector (hamonengine.geometry.vector2) of where to move the polygon.
-         * @returns {object} translated polygon.
+         * @param {Object} translateVector a translation vector (hamonengine.geometry.vector2) of where to move the polygon.
+         * @returns {Object} translated polygon.
          */
         translate(translateVector) {
             //Normalize the translateVector.
@@ -147,8 +147,8 @@ hamonengine.geometry = hamonengine.geometry || {};
         /**
          * Creates and returns a new instance of a rotated polygon.
          * @param {number} theta angle to rotate in radians.
-         * @param {object} offsetVector an offset vector (hamonengine.geometry.vector2) of where to rotate.
-         * @returns {object} rotated polygon.
+         * @param {Object} offsetVector an offset vector (hamonengine.geometry.vector2) of where to rotate.
+         * @returns {Object} rotated polygon.
          */
         rotate(theta, offsetVector) {
             //Precalculate the sin & cos values of theta.
@@ -182,15 +182,15 @@ hamonengine.geometry = hamonengine.geometry || {};
         /**
          * Creates and returns a new instance of a rotated polygon around the center.
          * @param {number} theta angle to rotate in radians.
-         * @returns {object} rotated polygon.
+         * @returns {Object} rotated polygon.
          */
         rotateAtCenter(theta) {
             return this.rotate(theta, this.center)
         }
         /**
          * Creates and returns a new instance of a scaled polygon.
-         * @param {object} scaleVector a scale vector (hamonengine.geometry.vector2) to apply to the polygon.
-         * @returns {object} scaled polygon.
+         * @param {Object} scaleVector a scale vector (hamonengine.geometry.vector2) to apply to the polygon.
+         * @returns {Object} scaled polygon.
          */
         scale(scaleVector) {
             //Normalize the scaleVector.
@@ -208,8 +208,8 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Calculates a series of edges from a collection of vertices.
-         * @param {array} vertices a collection to generate edges from.
-         * @returns {array} a collection of edges.
+         * @param {Object} vertices a collection to generate edges from.
+         * @returns {Array} a collection of edges.
          */
         static calcEdges(vertices=[]) {
             let edges = [];
@@ -222,16 +222,16 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Calculate a series of normals from a collection of edges.
-         * @param {array} edges a collection to generate normals from.
-         * @returns {array} a collection of normals.
+         * @param {Array} edges a collection to generate normals from.
+         * @returns {Array} a collection of normals.
          */
         static calcNormals(edges=[]) {
             return edges.map(edge => edge.normal());
         }
         /**
          * Calculates the center of the polygon.
-         * @param {array} vertices a collection to generate the center from.
-         * @returns {object} a vector (hamonengine.geometry.vector2) containing the center of the polygon.
+         * @param {Array<Object>} vertices a collection to generate the center from.
+         * @returns {Object} a vector (hamonengine.geometry.vector2) containing the center of the polygon.
          */
         static calcCenter(vertices=[]) {
             let xMax = NaN, xMin = NaN;
@@ -247,7 +247,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Calculates and returns type of the shape whether it is convex or concave
-         * @param {array} vertices a collection to generate the shape type from.
+         * @param {Array} vertices a collection to generate the shape type from.
          * @returns {number} a value that determines (SHAPE_TYPE) whether concave or convex.
          */
         static calcShapeType(vertices=[]) {

@@ -84,9 +84,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * The direction is a normalized vector in the direction the shape is extending towards.
          * For example if the shape extends beyond the left side of this shape then the x-cooridnate will be -1.
          * If the shape extends beyond the bottom side of this shape then the y-cooridnate will be +1.
-         * @param {object} position location of the shape being tested.
-         * @param {object} shape to evaluated based on the coordinates.
-         * @returns {object} a hamonengine.geometry.vector2 that contains the direction.
+         * @param {Object} position location of the shape being tested.
+         * @param {Object} shape to evaluated based on the coordinates.
+         * @returns {Object} a hamonengine.geometry.vector2 that contains the direction.
          */
         isShapeInside(position, shape) {
 

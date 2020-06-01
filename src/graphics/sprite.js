@@ -173,7 +173,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} a alpha channel ranging from 0-255.
          * @param {number} blendingOps (BLENDING_OPS) blending operation to perform.
          */
-        blendColor(r = 0, g = 0, b = 0, a = 0, blendingOps) {
+        blendColor(r = 0, g = 0, b = 0, a = 0, blendingOps = BLENDING_OPS.REPLACE) {
             this._image.blendColorRegion(r, g, b, a, this._dimensions, blendingOps);
         }
         /**
@@ -196,7 +196,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Draws the sprite at the specific location with the current width & height without any transformations applied.
-         * @param {object} layer to draw upon.
+         * @param {Object} layer to draw upon.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          * @param {number} x coordinate to draw at.
          * @param {number} y cooridnate to draw at.
@@ -231,7 +231,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Draws the sprite at the specific location with the current width & height.
-         * @param {object} layer to draw upon.
+         * @param {Object} layer to draw upon.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds.
          * @param {number} x coordinate to draw at.
          * @param {number} y cooridnate to draw at.
@@ -293,7 +293,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Draws & handles the sprite wrapping.  This is more of an internal method.
-         * @param {object} layer to draw upon.
+         * @param {Object} layer to draw upon.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds.
          * @param {number} x coordinate to draw at.
          * @param {number} y cooridnate to draw at.
@@ -321,7 +321,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 let v1y = Math.bitRound(sinAngle * horizontalLength);
                 if (x - widthScaled <= layer.viewPort.x) {
                     //Keep wrapping until we reach the max condition.
-                    let wrapLoop = Math.abs(parseInt((x - widthScaled) / layer.viewPort.width)) + 1;
+                    let wrapLoop = Math.abs(parseInt((x - widthScaled) / layer.viewPort.width, 10)) + 1;
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P1: Draw an orthogonally RIGHT sprite relative to the world transformation [0 radians]
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x + v1x * wrapLoop, y + v1y * wrapLoop, width, height);
@@ -332,7 +332,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     }
                 }
                 else if (x + widthScaled >= layer.viewPort.width) {
-                    let wrapLoop = parseInt((x + widthScaled) / layer.viewPort.width);
+                    let wrapLoop = parseInt((x + widthScaled) / layer.viewPort.width, 10);
                     //Keep wrapping until we reach the map condition.
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P3: Draw an orthogonally LEFT sprite relative to the world transformation [PI radians]
@@ -356,7 +356,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 let v2y = Math.bitRound(cosAngle * verticalLength);
                 if (y - heightScaled <= layer.viewPort.y) {
                     //Keep wrapping until we reach the max condition.
-                    let wrapLoop = Math.abs(parseInt((y - heightScaled) / layer.viewPort.height)) + 1;
+                    let wrapLoop = Math.abs(parseInt((y - heightScaled) / layer.viewPort.height, 10)) + 1;
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P2: Draw an orthogonally DOWN sprite relative to the world transformation [PI/2 radians] (canvas y coordinates are inverted with +y down)
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x - v2x * wrapLoop, y + v2y * wrapLoop, width, height);
@@ -367,7 +367,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     }
                 }
                 else if (y + heightScaled >= layer.viewPort.height) {
-                    let wrapLoop = parseInt((y + heightScaled) / layer.viewPort.height);
+                    let wrapLoop = parseInt((y + heightScaled) / layer.viewPort.height, 10);
                     //Keep wrapping until we reach the map condition.
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P4: Draw an orthogonally UP sprite relative to the world transformation [3PI/2 radians] (canvas y coordinates are inverted with -y up)
@@ -382,7 +382,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Draws the diagnosis outlines.  This is more of an internal method.
-         * @param {object} layer to draw upon.
+         * @param {Object} layer to draw upon.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds.
          * @param {number} x coordinate to draw at.
          * @param {number} y cooridnate to draw at.

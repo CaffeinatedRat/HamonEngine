@@ -70,21 +70,21 @@ hamonengine.entities = hamonengine.entities || {};
         //--------------------------------------------------------
         /**
          * Adds a child to the collection.
-         * @param {object} child to add to the collection.
+         * @param {Object} child to add to the collection.
          */
         addChild(child) {
             this._children.push(child);
         }
         /**
          * Adds a child to the collection.
-         * @param {object} object to add to the collection.
+         * @param {Object} object to add to the collection.
          */
         addObject(object) {
             this._objects.push(object);
         }
         /**
          * Adds a collection child to the collection.  This must be an array.
-         * @param {object} objects to add to the collection.
+         * @param {Object} objects to add to the collection.
          */
         addObjects(objects) {
             for(let i = 0; i < objects.length; i++) {
@@ -163,7 +163,7 @@ hamonengine.entities = hamonengine.entities || {};
         }
         /**
          * Renders all of the objects within the cell.
-         * @param {object} layer to render the cell's objects to.
+         * @param {Object} layer to render the cell's objects to.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
         render(layer, elapsedTimeInMilliseconds) {
