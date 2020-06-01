@@ -28,14 +28,26 @@
 hamonengine.geometry = hamonengine.geometry || {};
 
 (function() {
+
+    const DIRTY_NORMAL = 0;
+    const DIRTY_CENTER = 1;
+    const DIRTY_EDGE = 2;
+    const DIRTY_SHAPE = 3;
+    const DIRTY_ALL = 15;
+
     hamonengine.geometry.polygon = class {
         constructor(options) {
             options = options || {};
-            this._vertices = options.vertices || [];
+
+            this._centerVector = null;
+
+            //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
+            this._vertices = [];
             this._edges = [];
             this._normals = [];
-            this._dirtyEdges = true;
-            this._dirtyNormals = true;
+            
+            this._dirty = DIRTY_ALL;
+            this._shapeType = SHAPE_TYPE.UNKNOWN;
         }
         //--------------------------------------------------------
         // Properties
@@ -50,10 +62,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the edges of this polygon.
          */
         get edges() {
-            if (this._dirtyEdges)
-            {
+            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_EDGE)) {
                 this._edges = hamonengine.geometry.polygon.calcEdges(this.vertices);
-                this._dirtyEdges = false;
+                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_EDGE, false);
             }
 
             return this._edges;
@@ -62,13 +73,34 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the normals of this polygon.
          */
         get normals() {
-            if (this._dirtyNormals)
-            {
+            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_NORMAL)) {
                 this._normals = hamonengine.geometry.polygon.calcNormals(this.edges);
-                this._dirtyNormals = false;
+                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_NORMAL, false);
             }
 
             return this._normals;
+        }
+        /**
+         * Returns a center vector, which is the center of the polygon.
+         */
+        get center() {
+            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_CENTER)) {
+                this._centerVector = hamonengine.geometry.polygon.calcCenter(this.vertices);
+                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_CENTER, false);
+            }
+
+            return this._centerVector;
+        }
+        /**
+         * Returns the type of the shape, CONCAVE or CONVEX.
+         */
+        get shapeType() {
+            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_SHAPE)) {
+                this._shapeType = hamonengine.geometry.polygon.calcShapeType(this.vertices);
+                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_SHAPE, false);
+            }
+
+            return this._shapeType;
         }
         //--------------------------------------------------------
         // Methods
@@ -85,12 +117,95 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Adds a vertex to the polygon.
-         * @param {object} vertex
+         * @param {number} x
+         * @param {number} y
          */
-        addVertex(vertex) {
-            this._vertices.push(vertex);
-            this._dirtyEdges = true;
-            this._dirtyNormals = true;
+        addVertex(x, y) {
+            //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
+            this._vertices.push(new hamonengine.geometry.vector2(x,y));
+            this._dirty = DIRTY_ALL;
+        }
+        /**
+         * Creates and returns a new instance of a translated polygon.
+         * @param {object} translateVector a translation vector (hamonengine.geometry.vector2) of where to move the polygon.
+         * @returns {object} translated polygon.
+         */
+        translate(translateVector) {
+            //Normalize the translateVector.
+            translateVector = translateVector || new hamonengine.geometry.vector2(0, 0);
+
+            let newVertices = [];
+            this.vertices.forEach(vertex => {
+                newVertices.push(vertex.add(translateVector));
+            });
+
+            //Return a new instance of the polygon as to preserve the original.
+            return new hamonengine.geometry.polygon({
+                vertices: newVertices
+            });
+        }
+        /**
+         * Creates and returns a new instance of a rotated polygon.
+         * @param {number} theta angle to rotate in radians.
+         * @param {object} offsetVector an offset vector (hamonengine.geometry.vector2) of where to rotate.
+         * @returns {object} rotated polygon.
+         */
+        rotate(theta, offsetVector) {
+            //Precalculate the sin & cos values of theta.
+            let sinTheta = Math.sin(theta), cosTheta = Math.cos(theta);
+            
+            //Normalize the offset.
+            offsetVector = offsetVector || new hamonengine.geometry.vector2(0, 0);
+
+            //2d Rotation Matrix
+            //x' = x * cos(θ) - y * sin(θ) = x*0 - y*1 = -y
+            //y' = x * sin(θ) + y * cos(θ) = x*1 - y*0 = x
+            let newVertices = [];
+            this.vertices.forEach(vertex => {
+                
+                //Adjust/translate the vertex based on the offset.
+                let xOffset = vertex.x - offsetVector.x;
+                let yOffset = vertex.y - offsetVector.y;
+
+                //Perform the rotation on each vertex.
+                x = (xOffset * cosTheta) - (yOffset * sinTheta);
+                y = (xOffset * sinTheta) + (yOffset * cosTheta);
+                
+                //Restore the vertex's position.
+                newVertices.push(new hamonengine.geometry.vector2(vertex.x, vertex.y));
+            });
+
+            //Return a new instance of the polygon as to preserve the original.
+            return new hamonengine.geometry.polygon({
+                vertices: newVertices
+            });
+        }
+        /**
+         * Creates and returns a new instance of a rotated polygon around the center.
+         * @param {number} theta angle to rotate in radians.
+         * @returns {object} rotated polygon.
+         */
+        rotateAtCenter(theta) {
+            return this.rotate(theta, this.center)
+        }
+        /**
+         * Creates and returns a new instance of a scaled polygon.
+         * @param {object} scaleVector a scale vector (hamonengine.geometry.vector2) to apply to the polygon.
+         * @returns {object} scaled polygon.
+         */
+        scale(scaleVector) {
+            //Normalize the scaleVector.
+            scaleVector = scaleVector || new hamonengine.geometry.vector2(0, 0);
+
+            let newVertices = [];
+            this.vertices.forEach(vertex => {
+                newVertices.push(vertex.multiplyVector(scaleVector));
+            });
+
+            //Return a new instance of the polygon as to preserve the original.
+            return new hamonengine.geometry.polygon({
+                vertices: newVertices
+            });
         }
         /**
          * Calculates a series of edges from a collection of vertices.
@@ -113,6 +228,52 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         static calcNormals(edges=[]) {
             return edges.map(edge => edge.normal());
+        }
+        /**
+         * Calculates the center of the polygon.
+         * @param {array} vertices a collection to generate the center from.
+         * @returns {object} a vector (hamonengine.geometry.vector2) containing the center of the polygon.
+         */
+        static calcCenter(vertices=[]) {
+            let xMax = NaN, xMin = NaN;
+            let yMax = NaN, yMin = NaN;
+            vertices.forEach(vertex => {
+                xMax = xMax > vertex.x ? xMax : vertex.x;
+                xMin = xMin < vertex.x ? xMin : vertex.x;
+                yMax = yMax > vertex.y ? yMax : vertex.y;
+                yMin = yMin < vertex.y ? yMin : vertex.y;
+            });
+
+            return new hamonengine.geometry.vector2((xMax - xMin) / 2, (yMax - yMin) / 2);
+        }
+        /**
+         * Calculates and returns type of the shape whether it is convex or concave
+         * @param {array} vertices a collection to generate the shape type from.
+         * @returns {number} a value that determines (SHAPE_TYPE) whether concave or convex.
+         */
+        static calcShapeType(vertices=[]) {
+            let signCounter = 0;
+            for(let i = 0; i < vertices.length; i++) {
+                
+                //Get three vertices so we can generate two consective vectors in our polygon.
+                //NOTE: These vertices are being stored as vectors, as to provide easy access to the vector help methods.
+                let p1 = vertices[i];
+                let p2 = vertices[(i + 1) % vertices.length];
+                let p3 = vertices[(i + 2) % vertices.length];
+
+                //Create our first two consecutive vectors (P1->P2, P2->P3).
+                let v1 = p2.subtract(p1);
+                let v2 = p3.subtract(p2);
+
+                //Calculate the cross-product between our two vectors.
+                //NOTE: Since these are 2d vectors, the results will be stored in the z-coordinate in a vector3 (hamonengine.geometry.vector3).
+                signCounter += v2.crossProduct(v1).z > 0 ? 1 : -1;
+            }
+
+            //If the number of sign counter addes up to the number of vertices then the sign did not change.
+            //Convex: If the sign was consistent for all calculated cross-product vectors.
+            //Concave: If the sign differred for 1 or more cross-product vectors.
+            return vertices.length === signCounter ? SHAPE_TYPE.CONVEX : SHAPE_TYPE.CONCAVE;
         }
     }
 })();

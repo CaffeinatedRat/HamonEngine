@@ -37,3 +37,9 @@ const COORDINATE_SYSTEM = {
     LEFT: 0,
     RIGHT: 1
 }
+
+const SHAPE_TYPE = {
+    UNKNOWN: 0,
+    CONVEX: 1,
+    CONCAVE: 2
+}
