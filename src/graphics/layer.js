@@ -27,7 +27,7 @@
 
 hamonengine.graphics = hamonengine.graphics || {};
 
-(function() {
+(function () {
 
     hamonengine.graphics.layer = class {
         constructor(options) {
@@ -61,7 +61,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     alpha: this._alpha
                 });
             }
-            catch(err) {
+            catch (err) {
             }
 
             this.enableImageSmoothing(options.enableImageSmoothing);
@@ -76,7 +76,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //By default, the layer was not reset.
             this._wasReset = false;
-            
+
             //By default, allows users of this layer to save the current transformation state.
             this._allowSaveStateEnabled = true;
 
@@ -121,13 +121,13 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * Get the width of the layer.
          */
-        get width () {
+        get width() {
             return this._canvas.width;
         }
         /**
          * Get the width of the layer.
          */
-        get height () {
+        get height() {
             return this._canvas.height;
         }
         /**
@@ -209,15 +209,15 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Toggles images smoothing.
          * @param {boolean} enable true to enable.
          */
-        enableImageSmoothing(enable=true) {
+        enableImageSmoothing(enable = true) {
             hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] EnableImageSmoothing: ${enable}`);
             this._enableImageSmoothing = enable;
-            try { 
+            try {
                 this.context.webkitImageSmoothingEnabled = enable;
                 this.context.mozImageSmoothingEnabled = enable;
                 this.context.imageSmoothingEnabled = enable;
-            } 
-            catch (err) { 
+            }
+            catch (err) {
 
             }
         }
@@ -228,9 +228,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {*} width to clear, set to viewport by default.
          * @param {*} height to clear, set to viewport by default.
          */
-        clear(x=this.viewPort.x, y=this.viewPort.y, width=this.viewPort.width, height=this.viewPort.height) {
+        clear(x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height) {
             this._wasReset = false;
-            this.context.clearRect(x,y,width,height);
+            this.context.clearRect(x, y, width, height);
         }
         /**
          * Resets the transformation.
@@ -244,13 +244,13 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * Saves the current transformation state.
          */
-        save () {
+        save() {
             this.allowSaveState && this.context.save();
         }
         /**
          * Restores the current transformation state.
          */
-        restore () {
+        restore() {
             this.allowSaveState && this.context.restore();
         }
         /**
@@ -259,13 +259,13 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {*} x coordinate, set to viewport by default.
          * @param {*} y coordinate, set to viewport by default.
          */
-        fillLayerImage(image, x=this.viewPort.x, y=this.viewPort.y) {
+        fillLayerImage(image, x = this.viewPort.x, y = this.viewPort.y) {
             this.context.drawImage(image, x, y, this.viewPort.width, this.viewPort.height);
         }
         /**
          * Begins default painting on this layer.
         */
-        beginPainting () {
+        beginPainting() {
             this.clear();
 
             if (this.borderColor) {
@@ -287,7 +287,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * Ends default painting on this layer.
         */
-        endPainting () {
+        endPainting() {
             this.reset();
         }
         /**
@@ -318,7 +318,6 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * A wrapper method that draws the polygon object (hamonengine.geometry.polygon) based on the dimension parameters provided.
-         * Refer to the details that can be found at MDN: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
          * @param {*} polygon object to draw.
          * @param {*} sourceX coordinate of where to draw the polygon.
          * @param {*} sourceY coordinate of where to draw the polygon.
@@ -326,13 +325,44 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} color of the polygon's lines.
          * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
          */
-        drawPolygon(polygon, sourceX = 0, sourceY = 0, lineWidth=1, color='white', drawNormals=false) {
+        drawPolygon(polygon, sourceX = 0, sourceY = 0, lineWidth = 1, color = 'white', drawNormals = false) {
+            this.simpleDrawPolygon(polygon, sourceX, sourceY, lineWidth, color, drawNormals);
+
+            //Handle polygon wrapping.
+            if (this.wrapVertical || this.wrapHorizontal) {
+                if (this.wrapHorizontal) {
+                    //Determine if the minimum vertex of a polygon extends beyond the minimum edge (left side) of the viewport.
+                    //If xOffset < 0 then draw the polygon on the right side of the viewport.
+                    let xOffset = (sourceX + polygon.min.x) - this.viewPort.x;
+                    if (xOffset < 0) {
+                        this.simpleDrawPolygon(polygon, (this.viewPort.width + xOffset), sourceY, lineWidth, color, drawNormals);
+                    }
+
+                    //Determine if the maximum vertex of a polygon extends beyond the maximum edge (right side) of the viewport.
+                    //If the xOffset value is less than zero than the vertex has extended beyond the viewport, so wrap it 
+                    xOffset = this.viewPort.width - (sourceX + polygon.max.x);
+                    if (xOffset < 0) {
+                        this.simpleDrawPolygon(polygon, (this.viewPort.x + xOffset), sourceY, lineWidth, color, drawNormals);
+                    }
+                }
+            }
+        }
+        /**
+         * A wrapper method that draws the polygon object (hamonengine.geometry.polygon) based on the dimension parameters provided.
+         * @param {*} polygon object to draw.
+         * @param {*} sourceX coordinate of where to draw the polygon.
+         * @param {*} sourceY coordinate of where to draw the polygon.
+         * @param {number} lineWidth width of the polygon's lines.
+         * @param {string} color of the polygon's lines.
+         * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
+         */
+        simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, lineWidth = 1, color = 'white', drawNormals = false) {
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
-            
+
             this.context.beginPath();
 
-            for(let index = 0; index < polygon.vertices.length; index++) {
+            for (let index = 0; index < polygon.vertices.length; index++) {
                 let x = Math.bitRound(sourceX + polygon.vertices[index].x);
                 let y = Math.bitRound(sourceY + polygon.vertices[index].y);
 
@@ -352,7 +382,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                 this.context.strokeStyle = 'white';
 
-                for(let index = 0; index < polygon.vertices.length; index++) {
+                for (let index = 0; index < polygon.vertices.length; index++) {
 
                     //Get the current vertex and edge.
                     let vertex = polygon.vertices[index];
