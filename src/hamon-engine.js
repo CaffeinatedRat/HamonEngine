@@ -240,19 +240,19 @@ hamonengine.core = hamonengine.core || {};
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
         }
         onKeyEvent(type, keyCode, e, layer) {
-            e.preventDefault();
+            e && e.preventDefault();
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
         onTouchEvent(type, e, touches, layer) {
-            e.preventDefault();
+            e && e.preventDefault();
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }
         onTouchEnd(e, layer) {
-            e.preventDefault();
+            e && e.preventDefault();
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchEnd] '${e}'`);
         }
         onTouchCancel(e, layer) {
-            e.preventDefault();
+            e && e.preventDefault();
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchCancel] '${e}'`);
         }
         /**
