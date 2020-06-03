@@ -30,7 +30,7 @@ hamonengine.geometry = hamonengine.geometry || {};
 (function() {
 
     const DIRTY_NORMAL = 0;
-    const DIRTY_CENTER = 1;
+    const DIRTY_DIMS = 1;
     const DIRTY_EDGE = 2;
     const DIRTY_SHAPE = 3;
     const DIRTY_ALL = 15;
@@ -39,13 +39,16 @@ hamonengine.geometry = hamonengine.geometry || {};
         constructor(options) {
             options = options || {};
 
-            this._centerVector = null;
-
             //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
             this._vertices = options.vertices || [];
             this._edges = [];
             this._normals = [];
-            
+            this._dimensions = {
+                center: null,
+                max: null,
+                min: null
+            };
+
             this._dirty = DIRTY_ALL;
             this._shapeType = SHAPE_TYPE.UNKNOWN;
         }
@@ -84,12 +87,31 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns a center vector, which is the center of the polygon.
          */
         get center() {
-            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_CENTER)) {
-                this._centerVector = hamonengine.geometry.polygon.calcCenter(this.vertices);
-                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_CENTER, false);
+            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+                this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
+                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
             }
-
-            return this._centerVector;
+            return this._dimensions.center;
+        }
+        /**
+         * Returns a max vector, which is the max x & y coordinates of the polygon.
+         */
+        get max() {
+            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+                this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
+                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
+            }
+            return this._dimensions.max;
+        }
+        /**
+         * Returns a min vector, which is the min x & y coordinates of the polygon.
+         */
+        get min() {
+            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+                this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
+                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
+            }
+            return this._dimensions.min;
         }
         /**
          * Returns the type of the shape, CONCAVE or CONVEX.
@@ -229,11 +251,14 @@ hamonengine.geometry = hamonengine.geometry || {};
             return edges.map(edge => edge.normal());
         }
         /**
-         * Calculates the center of the polygon.
+         * Calculates the dimensions of the polygon and returns the max, min & center vectors.
+         * The max vector that contains the minimum x & y coordinates of the polygon.
+         * The min vector that contains the minimum x & y coordinates of the polygon.
+         * The center vector that contains the center coordinates of the polygon.
          * @param {Array<Object>} vertices a collection to generate the center from.
-         * @returns {Object} a vector (hamonengine.geometry.vector2) containing the center of the polygon.
+         * @returns {Object} a complex object that returns the min, max & center vectors (hamonengine.geometry.vector2).
          */
-        static calcCenter(vertices=[]) {
+        static calcDimensions(vertices=[]) {
             let xMax = NaN, xMin = NaN;
             let yMax = NaN, yMin = NaN;
             for (let i = 0; i < vertices.length; i++) {
@@ -243,7 +268,11 @@ hamonengine.geometry = hamonengine.geometry || {};
                 yMin = yMin < vertices[i].y ? yMin : vertices[i].y;
             };
 
-            return new hamonengine.geometry.vector2((xMax - xMin) / 2, (yMax - yMin) / 2);
+            return {
+                max: new hamonengine.geometry.vector2(xMax, yMax),
+                min: new hamonengine.geometry.vector2(xMin, yMin),
+                center: new hamonengine.geometry.vector2((xMax - xMin) / 2, (yMax - yMin) / 2),
+            };
         }
         /**
          * Calculates and returns type of the shape whether it is convex or concave
