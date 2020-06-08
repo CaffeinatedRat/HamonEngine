@@ -275,7 +275,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Determine if viewport clipping is enabled.
             if (this.clipToViewPort) {
-                //Broken for readability
+                //Broken up for readability
                 //Only perform additional clip operations if the canvas & the viewport are not the same size.
                 if (this.viewPort.x !== 0 || this.viewPort.y !== 0 || this.viewPort.width !== this.width || this.viewPort.height !== this.height) {
                     this.context.beginPath();
