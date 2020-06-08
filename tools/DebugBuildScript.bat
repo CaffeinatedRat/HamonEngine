@@ -3,7 +3,7 @@ REM Order of compliation is important.
 
 cd ..
 java -jar "tools/closure-compiler-v20170626.jar" --output_manifest "build/manifest.MF"^
- --charset UTF-8 --debug --formatting=PRETTY_PRINT --create_source_map "build/source-map.js"^
+ --charset UTF-8 --debug --formatting="PRETTY_PRINT" --create_source_map "build/source-map.js"^
  --js_output_file="build/hamonengine.min.js" --js="src/global.js"^
  --js="src/util/util.js"^
  --js="src/math/util.js" --js="src/math/sort.js" --js="src/math/LCGRandom.js"^
