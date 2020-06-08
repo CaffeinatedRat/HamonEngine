@@ -310,6 +310,9 @@ hamonengine.graphics = hamonengine.graphics || {};
             let widthScaled = width * this._scaleVector.x;
             let heightScaled = height * this._scaleVector.y;
 
+            let wrappingDirection = new hamonengine.geometry.vector2();
+            let v1x, v1y, v2x, v2y;
+
             //Horizontal wrapping.
             if (layer.wrapHorizontal) {
                 //Inversely scale the length to the size of the sprite scaled horizontally relative to its local transformation.
@@ -317,13 +320,18 @@ hamonengine.graphics = hamonengine.graphics || {};
                 let horizontalLength = layer.viewPort.width / this._scaleVector.x * xOrientation;
 
                 //Rotate and scale the horizontal vector to keep our wrapping sprite on a horizontal plane with canvas not with the rotation plane so it appears at the edges of the screen.
-                let v1x = Math.bitRound(cosAngle * horizontalLength);
-                let v1y = Math.bitRound(sinAngle * horizontalLength);
+                v1x = Math.bitRound(cosAngle * horizontalLength);
+                v1y = Math.bitRound(sinAngle * horizontalLength);
+
+                //NOTE: The additional diff calculation between x & widthScaled is added to handle the additional wrapping loops, without it none of the wrapping loops will work beyond the first.
                 if (x - widthScaled <= layer.viewPort.x) {
+                    wrappingDirection.x = 1;
                     //Keep wrapping until we reach the max condition.
                     let wrapLoop = Math.abs(parseInt((x - widthScaled) / layer.viewPort.width, 10)) + 1;
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P1: Draw an orthogonally RIGHT sprite relative to the world transformation [0 radians]
+                        //NOTES: +v1x to draw the sprite to the right (+x-axis).  +v1y to offset the y-axis, where -theta results in a -v1y in Q4 & Q3 and +v1y in Q2 & Q1 (inverted due to the canvas) during the reverse rotation.
+                        //In otherwords it pushes the y-coordinate down between 0-PI & pushes the y-coordinate up between PI-2PI.
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x + v1x * wrapLoop, y + v1y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
@@ -332,10 +340,13 @@ hamonengine.graphics = hamonengine.graphics || {};
                     }
                 }
                 else if (x + widthScaled >= layer.viewPort.width) {
+                    wrappingDirection.x = -1;
                     let wrapLoop = parseInt((x + widthScaled) / layer.viewPort.width, 10);
-                    //Keep wrapping until we reach the map condition.
+                    //Keep wrapping until we reach the max condition.
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P3: Draw an orthogonally LEFT sprite relative to the world transformation [PI radians]
+                        //NOTES: -v1x to draw the sprite to the left (-x-axis).  -v1y to offset the y-axis, where -theta results in a -v1y in Q4 & Q3 and +v1y in Q2 & Q1 (inverted due to the canvas) during the reverse rotation.
+                        //In otherwords it pushes the y-coordinate down between 0-PI & pushes the y-coordinate up between PI-2PI.
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x - v1x * wrapLoop, y - v1y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
@@ -352,13 +363,18 @@ hamonengine.graphics = hamonengine.graphics || {};
                 let verticalLength = layer.viewPort.height / this._scaleVector.y * yOrientation;
 
                 //Rotate and scale the vertical vector to keep our wrapping sprite on a vertical plane with canvas not with the rotation plane so it appears at the edges of the screen.
-                let v2x = Math.bitRound(sinAngle * verticalLength);
-                let v2y = Math.bitRound(cosAngle * verticalLength);
+                v2x = Math.bitRound(sinAngle * verticalLength);
+                v2y = Math.bitRound(cosAngle * verticalLength);
+
+                //NOTE: The additional diff calculation between y & heightScaled is added to handle the additional wrapping loops, without it none of the wrapping loops will work beyond the first.
                 if (y - heightScaled <= layer.viewPort.y) {
+                    wrappingDirection.y = 1;
                     //Keep wrapping until we reach the max condition.
                     let wrapLoop = Math.abs(parseInt((y - heightScaled) / layer.viewPort.height, 10)) + 1;
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P2: Draw an orthogonally DOWN sprite relative to the world transformation [PI/2 radians] (canvas y coordinates are inverted with +y down)
+                        //NOTES: +v2y to draw the sprite down (+y-axis).  -v2x to offset the x-axis, where -theta results in a -v2x in Q4 & Q3 and -v2x in Q2 & Q1 during the reverse rotation.
+                        //In otherwords it pushes the x-coordinate left between 0-PI & pushes the x-coordinate right between PI-2PI.
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x - v2x * wrapLoop, y + v2y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
@@ -367,16 +383,29 @@ hamonengine.graphics = hamonengine.graphics || {};
                     }
                 }
                 else if (y + heightScaled >= layer.viewPort.height) {
+                    wrappingDirection.y = -1;
                     let wrapLoop = parseInt((y + heightScaled) / layer.viewPort.height, 10);
                     //Keep wrapping until we reach the map condition.
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P4: Draw an orthogonally UP sprite relative to the world transformation [3PI/2 radians] (canvas y coordinates are inverted with -y up)
+                        //NOTES: -v2y to draw the sprite up (-y-axis).  -v2x to offset the x-axis, where -theta results in a -v2x in Q4 & Q3 and -v2x in Q2 & Q1 during the reverse rotation.
+                        //In otherwords it pushes the x-coordinate left between 0-PI & pushes the x-coordinate right between PI-2PI.
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x + v2x * wrapLoop, y - v2y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
                             this.drawRaw(layer, elapsedTimeInMilliseconds, x + v2x * wrapLoop, y - v2y * wrapLoop, width, height);
                         }
                     }
+                }
+            }
+
+            //Handle the corner sprites if veritcal & horizontal wrapping are enabled. 
+            if (layer.wrapVertical && layer.wrapHorizontal) {
+                let xOffset = (x - wrappingDirection.y * v2x) + (wrappingDirection.x * v1x);
+                let yOffset = (y + wrappingDirection.y * v2y) + (wrappingDirection.x * v1y);
+
+                if (xOffset && yOffset) {
+                    this.drawRaw(layer, elapsedTimeInMilliseconds, xOffset, yOffset, width, height);
                 }
             }
         }
