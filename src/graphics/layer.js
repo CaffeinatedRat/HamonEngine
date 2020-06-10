@@ -30,8 +30,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 (function () {
 
     hamonengine.graphics.layer = class {
-        constructor(options) {
-            options = options || {};
+        constructor(options={}) {
 
             this._canvasId = options.canvasId || '';
             this._name = options.name || '';
@@ -291,17 +290,39 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.reset();
         }
         /**
+         * A method that draws text based on the dimension parameters provided.
+         * @param {string} text to draw.
+         * @param {number} sourceX coordinate of where to draw the text.
+         * @param {number} sourceY coordinate of where to draw the text.
+         * @param {string} font of the text.
+         * @param {string} color of the text.
+         * @param {number} textDrawType format to draw, by default this is TEXT_DRAW_TYPE.FILL.
+         */
+        drawText(text, sourceX=0, sourceY=0, font='16px serif', color='white', textDrawType=TEXT_DRAW_TYPE.FILL) {
+            this.context.font = font;
+            this.context.textBaseline = 'top';
+            if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
+                this.context.strokeStyle = color;
+                this.context.strokeText(text, sourceX, sourceY);
+            }
+            else {
+                this.context.fillStyle = color;
+                this.context.fillText(text, sourceX, sourceY);
+            }
+        }
+        /**
          * A wrapper method that draws the image (where the image can be a CanvasImageSource derived class or a hamonengine.graphics.imageext) based on the dimension parameters provided.
          * Refer to the details that can be found at MDN: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-         * @param {*} image 
-         * @param {*} sourceX 
-         * @param {*} sourceY 
-         * @param {*} sourceWidth 
-         * @param {*} sourceHeight 
-         * @param {*} destinationX 
-         * @param {*} destinationY 
-         * @param {*} destinationWidth 
-         * @param {*} destinationHeight 
+         * @param {object} image 
+         * @param {number} sourceX 
+         * @param {number} sourceY 
+         * @param {number} sourceY 
+         * @param {number} sourceWidth 
+         * @param {number} sourceHeight 
+         * @param {number} destinationX 
+         * @param {number} destinationY 
+         * @param {number} destinationWidth 
+         * @param {number} destinationHeight 
          */
         drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, destinationX, destinationY, destinationWidth, destinationHeight) {
             if (image.complete) {
@@ -317,10 +338,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
         }
         /**
-         * A wrapper method that draws the polygon object (hamonengine.geometry.polygon) based on the dimension parameters provided.
-         * @param {*} polygon object to draw.
-         * @param {*} sourceX coordinate of where to draw the polygon.
-         * @param {*} sourceY coordinate of where to draw the polygon.
+         * A method that draws the polygon object with wrapping (hamonengine.geometry.polygon) based on the dimension parameters provided.
+         * @param {object} polygon object to draw.
+         * @param {number} sourceX coordinate of where to draw the polygon.
+         * @param {number} sourceY coordinate of where to draw the polygon.
          * @param {number} lineWidth width of the polygon's lines.
          * @param {string} color of the polygon's lines.
          * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
@@ -329,29 +350,44 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.simpleDrawPolygon(polygon, sourceX, sourceY, lineWidth, color, drawNormals);
 
             //Handle polygon wrapping.
-            if (this.wrapVertical || this.wrapHorizontal) {
-                if (this.wrapHorizontal) {
-                    //Determine if the minimum vertex of a polygon extends beyond the minimum edge (left side) of the viewport.
-                    //If xOffset < 0 then draw the polygon on the right side of the viewport.
-                    let xOffset = (sourceX + polygon.min.x) - this.viewPort.x;
-                    if (xOffset < 0) {
-                        this.simpleDrawPolygon(polygon, (this.viewPort.width + xOffset), sourceY, lineWidth, color, drawNormals);
-                    }
+            if (this.wrapHorizontal) {
+                //DRAW RIGHT
+                //Determine if the minimum vertex of a polygon extends beyond the minimum edge (left side) of the viewport.
+                let xOffset = (sourceX + polygon.min.x) - this.viewPort.x;
+                if (xOffset <= 0) {
+                    this.simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, lineWidth, color, drawNormals);
+                }
 
-                    //Determine if the maximum vertex of a polygon extends beyond the maximum edge (right side) of the viewport.
-                    //If the xOffset value is less than zero than the vertex has extended beyond the viewport, so wrap it 
-                    xOffset = this.viewPort.width - (sourceX + polygon.max.x);
-                    if (xOffset < 0) {
-                        this.simpleDrawPolygon(polygon, (this.viewPort.x + xOffset), sourceY, lineWidth, color, drawNormals);
-                    }
+                //DRAW LEFT
+                //Determine if the maximum vertex of a polygon extends beyond the maximum edge (right side) of the viewport.
+                if (sourceX + polygon.width >= this.viewPort.width) {
+                    let xOffset = this.viewPort.width - (sourceX + polygon.min.x);
+                    this.simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, lineWidth, color, drawNormals);
+                }
+            }
+
+            //Handle polygon wrapping.
+            if (this.wrapVertical) {
+                //DRAW DOWN
+                //Determine if the minimum vertex of a polygon extends beyond the minimum edge (top side) of the viewport.
+                let yOffset = (sourceY + polygon.min.y) - this.viewPort.y;
+                if (yOffset <= 0) {
+                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, lineWidth, color, drawNormals);
+                }
+
+                //DRAW UP
+                //Determine if the maximum vertex of a polygon extends beyond the maximum edge (bottom side) of the viewport.
+                if (sourceY + polygon.height >= this.viewPort.height) {
+                    let yOffset = this.viewPort.height - (sourceY + polygon.min.y);
+                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, lineWidth, color, drawNormals);
                 }
             }
         }
         /**
-         * A wrapper method that draws the polygon object (hamonengine.geometry.polygon) based on the dimension parameters provided.
-         * @param {*} polygon object to draw.
-         * @param {*} sourceX coordinate of where to draw the polygon.
-         * @param {*} sourceY coordinate of where to draw the polygon.
+         * A method that draws the polygon object without wrapping (hamonengine.geometry.polygon) based on the dimension parameters provided.
+         * @param {object} polygon object to draw.
+         * @param {number} sourceX coordinate of where to draw the polygon.
+         * @param {number} sourceY coordinate of where to draw the polygon.
          * @param {number} lineWidth width of the polygon's lines.
          * @param {string} color of the polygon's lines.
          * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.

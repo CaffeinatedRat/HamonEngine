@@ -36,3 +36,8 @@ const BLENDING_OPS = {
     XOR: 5,
     DIFFERENCE: 6
 };
+
+const TEXT_DRAW_TYPE = {
+    STROKE: 0,
+    FILL: 1
+}
