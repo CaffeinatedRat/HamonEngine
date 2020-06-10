@@ -36,9 +36,7 @@ hamonengine.geometry = hamonengine.geometry || {};
     const DIRTY_ALL = 15;
 
     hamonengine.geometry.polygon = class {
-        constructor(options) {
-            options = options || {};
-
+        constructor(options={}) {
             //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
             this._vertices = options.vertices || [];
             this._edges = [];
@@ -112,6 +110,18 @@ hamonengine.geometry = hamonengine.geometry || {};
                 hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
             }
             return this._dimensions.min;
+        }
+        /**
+         * Returns the width of the polygon
+         */
+        get width() {
+            return this.max.x - this.min.x;
+        }
+        /**
+         * Returns the height of the polygon
+         */
+        get height() {
+            return this.max.y - this.min.y;
         }
         /**
          * Returns the type of the shape, CONCAVE or CONVEX.
