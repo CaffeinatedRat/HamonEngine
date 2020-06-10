@@ -29,9 +29,7 @@ hamonengine.entities = hamonengine.entities || {};
 
 (function() {
     hamonengine.entities.object2d = class {
-        constructor(options) {
-            options = options || {};
-
+        constructor(options={}) {
             //Object properties.
             this._name = options.name || '';
             this._boundingShape = options.boundingShape;

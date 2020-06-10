@@ -30,8 +30,8 @@ hamonengine.graphics = hamonengine.graphics || {};
 (function() {
 
     hamonengine.graphics.animsprite = class extends hamonengine.graphics.sprite {
-        constructor(options) {
-            super(options = options || {});
+        constructor(options={}) {
+            super(options);
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.graphics.animsprite) {
                 options = {

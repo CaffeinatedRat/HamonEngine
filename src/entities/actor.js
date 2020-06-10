@@ -30,8 +30,8 @@ hamonengine.entities = hamonengine.entities || {};
 (function() {
 
     hamonengine.entities.actor = class extends hamonengine.entities.object2d {
-        constructor(options) {
-            super (options = options || {});
+        constructor(options={}) {
+            super (options);
 
             //Options.
 

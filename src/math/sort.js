@@ -29,9 +29,7 @@ hamonengine.math = hamonengine.math || {};
 
 (function() {
     hamonengine.math.sort = class {
-        constructor(options) {
-            options = options || {};
-
+        constructor(options={}) {
             //Default to the ascending comparison function if one is not supplied.
             if (!options.compareFunc)
                 this._compareFunc = hamonengine.math.sort.sort.ascending;

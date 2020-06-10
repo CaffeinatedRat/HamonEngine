@@ -30,9 +30,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 (function() {
 
     hamonengine.graphics.spritesheet = class {
-        constructor(options) {
-            options = options || {};
-
+        constructor(options={}) {
             //Sprites sheet and sprites.
             this._imageResource = new hamonengine.graphics.imageext();
             this._sprites = {};

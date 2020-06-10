@@ -39,8 +39,7 @@ hamonengine.core = hamonengine.core || {};
     const VERSION = '0.1.0';
 
     hamonengine.core.engine = class {
-        constructor(options) {
-            options = options || {};
+        constructor(options={}) {
             
             hamonengine.util.logger.debug(`HamonEngine -- Using version: ${VERSION}`);
 

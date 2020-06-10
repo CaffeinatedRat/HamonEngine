@@ -36,8 +36,7 @@ hamonengine.graphics = hamonengine.graphics || {};
     };
 
     hamonengine.graphics.sprite = class {
-        constructor(options) {
-            options = options || {}
+        constructor(options={}) {
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.graphics.sprite) {
                 options = {
@@ -330,8 +329,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                     let wrapLoop = Math.abs(parseInt((x - widthScaled) / layer.viewPort.width, 10)) + 1;
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P1: Draw an orthogonally RIGHT sprite relative to the world transformation [0 radians]
-                        //NOTES: +v1x to draw the sprite to the right (+x-axis).  +v1y to offset the y-axis, where -theta results in a -v1y in Q4 & Q3 and +v1y in Q2 & Q1 (inverted due to the canvas) during the reverse rotation.
-                        //In otherwords it pushes the y-coordinate down between 0-PI & pushes the y-coordinate up between PI-2PI.
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x + v1x * wrapLoop, y + v1y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
@@ -345,8 +342,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                     //Keep wrapping until we reach the max condition.
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P3: Draw an orthogonally LEFT sprite relative to the world transformation [PI radians]
-                        //NOTES: -v1x to draw the sprite to the left (-x-axis).  -v1y to offset the y-axis, where -theta results in a -v1y in Q4 & Q3 and +v1y in Q2 & Q1 (inverted due to the canvas) during the reverse rotation.
-                        //In otherwords it pushes the y-coordinate down between 0-PI & pushes the y-coordinate up between PI-2PI.
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x - v1x * wrapLoop, y - v1y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
@@ -373,8 +368,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                     let wrapLoop = Math.abs(parseInt((y - heightScaled) / layer.viewPort.height, 10)) + 1;
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P2: Draw an orthogonally DOWN sprite relative to the world transformation [PI/2 radians] (canvas y coordinates are inverted with +y down)
-                        //NOTES: +v2y to draw the sprite down (+y-axis).  -v2x to offset the x-axis, where -theta results in a -v2x in Q4 & Q3 and -v2x in Q2 & Q1 during the reverse rotation.
-                        //In otherwords it pushes the x-coordinate left between 0-PI & pushes the x-coordinate right between PI-2PI.
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x - v2x * wrapLoop, y + v2y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
@@ -388,8 +381,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                     //Keep wrapping until we reach the map condition.
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P4: Draw an orthogonally UP sprite relative to the world transformation [3PI/2 radians] (canvas y coordinates are inverted with -y up)
-                        //NOTES: -v2y to draw the sprite up (-y-axis).  -v2x to offset the x-axis, where -theta results in a -v2x in Q4 & Q3 and -v2x in Q2 & Q1 during the reverse rotation.
-                        //In otherwords it pushes the x-coordinate left between 0-PI & pushes the x-coordinate right between PI-2PI.
                         this.drawRaw(layer, elapsedTimeInMilliseconds, x + v2x * wrapLoop, y - v2y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {

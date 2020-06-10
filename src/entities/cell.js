@@ -29,8 +29,7 @@ hamonengine.entities = hamonengine.entities || {};
 
 (function() {
     hamonengine.entities.cell = class extends hamonengine.entities.object2d {
-        constructor(options) {
-            options = options || {};
+        constructor(options={}) {
             super(options);
 
             //Cells are stationary
