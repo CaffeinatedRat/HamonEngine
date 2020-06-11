@@ -53,6 +53,7 @@ hamonengine.core = hamonengine.core || {};
             this._startTimeStamp = 0;
             this._lastFrameTimeStamp = 0;
             this._animationId = 0;
+            this._fpsCounter = new hamonengine.util.fpscounter();
             
             //Add support for multiple layers that will house our canvas, and other drawing components.
             this._layers = {};
@@ -88,6 +89,12 @@ hamonengine.core = hamonengine.core || {};
         get resourcesLoaded() {
             return this._resourcesLoaded;
         }
+        /**
+         * Returns the primrary FPS counter for the engine.
+         */
+        get fpsCounter() {
+            return this._fpsCounter;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -110,17 +117,6 @@ hamonengine.core = hamonengine.core || {};
 
             this._state = ENGINE_STATES.LOADING;
             hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] State: ${this._state}`);
-
-            //if (this._showFPS) {
-                //TODO: REMOVE Hardcoded id.
-                /*
-                this._stats = new Stats();
-                this._stats.domElement.style.position = 'absolute';
-                this._stats.domElement.style.left = '0px';
-                this._stats.domElement.style.top = '0px';*/
-                //let parentElement = document.getElementById('canvas-wrapper');
-                //parentElement.insertBefore(this._stats.domElement, parentElement.firstChild);
-            //}
 
             //Added a promise so the start can be delayed if designer so wishes to wait before starting the engine.
             return new Promise((resolve, reject)=> {
@@ -151,6 +147,7 @@ hamonengine.core = hamonengine.core || {};
                 this._state = ENGINE_STATES.STARTED;
                 hamonengine.util.logger.debug(`[hamonengine.core.engine.start] State: ${this._state}`);
 
+                this.fpsCounter.start();
                 this.onDraw(0);
             }
 
