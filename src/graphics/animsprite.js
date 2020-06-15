@@ -36,7 +36,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (options instanceof hamonengine.graphics.animsprite) {
                 options = {
                     //Make sure to copy the frames otherwise the old references will linger.
-                    frames: options._frames.map(frame => frame.copy()),
+                    frames: options._frames.map(frame => frame.clone()),
                     animationRate: options._animationRate,
                     animationCycles: options._animationCycles
                 };
@@ -100,9 +100,9 @@ hamonengine.graphics = hamonengine.graphics || {};
         // Methods
         //--------------------------------------------------------
         /**
-         * Makes a copy of the sprite.
+         * Makes a clone of the sprite.
          */
-        copy() {
+        clone() {
             return new hamonengine.graphics.animsprite(this);
         }
         /**

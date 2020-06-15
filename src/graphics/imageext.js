@@ -98,9 +98,9 @@ hamonengine.graphics = hamonengine.graphics || {};
         // Methods
         //--------------------------------------------------------
         /**
-         * Makes a copy of the imageext.
+         * Makes a clone of the imageext.
          */
-        copy() {
+        clone() {
             return new hamonengine.graphics.imageext(this);
         }
         /**

@@ -41,7 +41,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (options instanceof hamonengine.graphics.sprite) {
                 options = {
                     name: options.name,
-                    image: options._image && options._image.copy(),
+                    image: options._image && options._image.clone(),
                     dimensions: options._dimensions,
                     theta: options.theta
                 }
@@ -129,9 +129,9 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._showFullImage = properties._showFullImage;
         }
         /**
-         * Makes a copy of the sprite.
+         * Makes a clone of the sprite.
          */
-        copy() {
+        clone() {
             return new hamonengine.graphics.sprite(this);
         }
         /**
@@ -275,16 +275,66 @@ hamonengine.graphics = hamonengine.graphics || {};
                 layer.context.translate(-xCenterOffset, -yCenterOffset);
             }
 
-            if (this.showDiagnosisLines) {
-                this.drawDiagnosisOutlines(layer, elapsedTimeInMilliseconds, x, y, width, height);
+            //Sprite wrapping relative to the local sprite's transformation not to world transformations.
+            if (layer.wrapHorizontal || layer.wrapVertical) {
+                this.drawSpriteWrapping(layer, elapsedTimeInMilliseconds, x, y, width, height, xOrientation, yOrientation);
             }
 
             //Draw the main sprite.
             this.drawRaw(layer, elapsedTimeInMilliseconds, x, y, width, height);
 
-            //Sprite wrapping relative to the local sprite's transformation not to world transformations.
-            if (layer.wrapHorizontal || layer.wrapVertical) {
-                this.drawSpriteWrapping(layer, elapsedTimeInMilliseconds, x, y, width, height, xOrientation, yOrientation);
+            if (hamonengine.debug && this.showDiagnosisLines) {
+                //Find the center of the sprite.
+                let xCenterOffset = Math.bitRound(width / 2) + x;
+                let yCenterOffset = Math.bitRound(height / 2) + y;
+
+                //Shows the wrapping test pattern.
+                if (layer.wrapHorizontal || layer.wrapVertical) {
+
+                    layer.context.strokeStyle = 'red';
+                    layer.context.lineWidth = 2;
+
+                    //(X,0)
+                    layer.context.beginPath();
+                    layer.context.moveTo(xCenterOffset, yCenterOffset);
+                    layer.context.lineTo(xCenterOffset + layer.viewPort.width, yCenterOffset);
+                    layer.context.stroke();
+
+                    //(-X,0)
+                    layer.context.beginPath();
+                    layer.context.moveTo(xCenterOffset, yCenterOffset);
+                    layer.context.lineTo(xCenterOffset - layer.viewPort.width, yCenterOffset);
+                    layer.context.stroke();
+
+                    //(0,Y)
+                    layer.context.beginPath();
+                    layer.context.moveTo(xCenterOffset, yCenterOffset);
+                    layer.context.lineTo(xCenterOffset, yCenterOffset + layer.viewPort.height);
+                    layer.context.stroke();
+
+                    //(0,-Y)
+                    layer.context.beginPath();
+                    layer.context.moveTo(xCenterOffset, yCenterOffset);
+                    layer.context.lineTo(xCenterOffset, yCenterOffset - layer.viewPort.height);
+                    layer.context.stroke();
+
+                    this.drawRaw(layer, elapsedTimeInMilliseconds, x + layer.viewPort.width, y, width, height);
+                    this.drawRaw(layer, elapsedTimeInMilliseconds, x - layer.viewPort.width, y, width, height);
+                    this.drawRaw(layer, elapsedTimeInMilliseconds, x, y + layer.viewPort.height, width, height);
+                    this.drawRaw(layer, elapsedTimeInMilliseconds, x, y - layer.viewPort.height, width, height);
+
+                    //Draw the viewport relative to the sprite.
+                    layer.context.strokeStyle = 'white';
+                    layer.context.strokeRect(xCenterOffset - layer.viewPort.width / 2, yCenterOffset - layer.viewPort.height / 2, layer.viewPort.width, layer.viewPort.height);
+                }
+
+                //Show an outline of the sprite.
+                layer.context.strokeStyle = 'red';
+                layer.context.strokeRect(x, y, width, height);
+
+                //Draw the viewport raw relative to all the transformations.
+                layer.context.strokeStyle = 'cyan';
+                layer.context.strokeRect(layer.viewPort.x, layer.viewPort.y, layer.viewPort.width, layer.viewPort.height);
             }
 
             //Restore the previous state.
@@ -399,69 +449,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                     this.drawRaw(layer, elapsedTimeInMilliseconds, xOffset, yOffset, width, height);
                 }
             }
-        }
-        /**
-         * Draws the diagnosis outlines.  This is more of an internal method.
-         * @param {Object} layer to draw upon.
-         * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds.
-         * @param {number} x coordinate to draw at.
-         * @param {number} y cooridnate to draw at.
-         * @param {number} width the optional width of the sprite.
-         * @param {number} height the option height of the sprite.
-         */
-        drawDiagnosisOutlines(layer, elapsedTimeInMilliseconds, x, y, width, height) {
-
-            //Find the center of the sprite.
-            let xCenterOffset = Math.bitRound(width / 2) + x;
-            let yCenterOffset = Math.bitRound(height / 2) + y;
-
-            //Shows the wrapping test pattern.
-            if (layer.wrapHorizontal || layer.wrapVertical) {
-
-                layer.context.strokeStyle = 'red';
-                layer.context.lineWidth = 2;
-
-                //(X,0)
-                layer.context.beginPath();
-                layer.context.moveTo(xCenterOffset, yCenterOffset);
-                layer.context.lineTo(xCenterOffset + layer.viewPort.width, yCenterOffset);
-                layer.context.stroke();
-
-                //(-X,0)
-                layer.context.beginPath();
-                layer.context.moveTo(xCenterOffset, yCenterOffset);
-                layer.context.lineTo(xCenterOffset - layer.viewPort.width, yCenterOffset);
-                layer.context.stroke();
-
-                //(0,Y)
-                layer.context.beginPath();
-                layer.context.moveTo(xCenterOffset, yCenterOffset);
-                layer.context.lineTo(xCenterOffset, yCenterOffset + layer.viewPort.height);
-                layer.context.stroke();
-
-                //(0,-Y)
-                layer.context.beginPath();
-                layer.context.moveTo(xCenterOffset, yCenterOffset);
-                layer.context.lineTo(xCenterOffset, yCenterOffset - layer.viewPort.height);
-                layer.context.stroke();
-
-                this.drawRaw(layer, elapsedTimeInMilliseconds, x + layer.viewPort.width, y, width, height);
-                this.drawRaw(layer, elapsedTimeInMilliseconds, x - layer.viewPort.width, y, width, height);
-                this.drawRaw(layer, elapsedTimeInMilliseconds, x, y + layer.viewPort.height, width, height);
-                this.drawRaw(layer, elapsedTimeInMilliseconds, x, y - layer.viewPort.height, width, height);
-
-                //Draw the viewport relative to the sprite.
-                layer.context.strokeStyle = 'white';
-                layer.context.strokeRect(xCenterOffset - layer.viewPort.width / 2, yCenterOffset - layer.viewPort.height / 2, layer.viewPort.width, layer.viewPort.height);
-            }
-
-            //Show an outline of the sprite.
-            layer.context.strokeStyle = 'red';
-            layer.context.strokeRect(x, y, width, height);
-
-            //Draw the viewport raw relative to all the transformations.
-            layer.context.strokeStyle = 'cyan';
-            layer.context.strokeRect(layer.viewPort.x, layer.viewPort.y, layer.viewPort.width, layer.viewPort.height);
         }
     }
 })();

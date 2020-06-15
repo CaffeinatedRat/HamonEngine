@@ -37,6 +37,14 @@ hamonengine.geometry = hamonengine.geometry || {};
 
     hamonengine.geometry.polygon = class {
         constructor(options={}) {
+
+            //Handle copy-constructor operations.
+            if (options instanceof hamonengine.geometry.polygon) {
+                options = {
+                    vertices: options.vertices
+                }
+            }
+
             //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
             this._vertices = options.vertices || [];
             this._edges = [];
@@ -138,6 +146,13 @@ hamonengine.geometry = hamonengine.geometry || {};
         // Methods
         //--------------------------------------------------------
         /**
+         * Clones the polygon.
+         * @returns {Object} cloned polygon.
+         */
+        clone() {
+            return new hamonengine.geometry.polygon(this);
+        }
+        /**
          * Outputs the polygon's vertices as a string.
          */
         toString() {
@@ -237,6 +252,44 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.polygon({
                 vertices: newVertices
             });
+        }
+        /**
+         * Determines if this polygon collides with another.
+         * @param {object} polygon to test against.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where the collision occurs.
+         */
+        isCollision(polygon) {
+            if (!(polygon instanceof hamonengine.geometry.polygon)) {
+                throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
+            }
+
+            let normals = polygon.normals;
+            for(let i = 0; i < normals.length; i++) {
+                let projection1 = polygon. normals[i];
+            }
+        }
+        /**
+         * Projects the polygon onto the provided vector.
+         * @param {object} vector (hamonengine.geometry.vector2) to project onto.
+         */
+        project(vector) {
+            if (this._vertices.length > 0) {
+                let min = vector.dotProduct(this._vertices[0]);
+                let max = min;
+                for (let i = 1; i < this._vertices.length; i++) {
+                    let projection = vector.dotProduct(this._vertices[i]);
+                    if (projection < min) {
+                        min = projection;
+                    }
+                    else if (projection > max) {
+                        max = projection;
+                    }
+                }
+
+                return new hamonengine.geometry.vector2(min, max);
+            }
+
+            return new hamonengine.geometry.vector2();
         }
         /**
          * Calculates a series of edges from a collection of vertices.

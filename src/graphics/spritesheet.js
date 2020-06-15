@@ -114,14 +114,14 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} spriteName of sprite to return.
          */
         getSprite(spriteName) {
-            return this._sprites[spriteName].copy();
+            return this._sprites[spriteName].clone();
         }
         /**
          * Returns the sprite based on the ordinal value.
          * @param {number} index of the sprite to return.
          */
         getSpriteByOrdinal(index) {
-            return this._sprites[this._spriteIndex[index]].copy();
+            return this._sprites[this._spriteIndex[index]].clone();
         }
     }
 })();
