@@ -41,7 +41,7 @@ hamonengine.core = hamonengine.core || {};
     hamonengine.core.engine = class {
         constructor(options={}) {
             
-            hamonengine.util.logger.debug(`HamonEngine -- Using version: ${VERSION}`);
+            hamonengine.util.logger.info(`HamonEngine -- Using version: ${VERSION}`);
 
             //Options.
             this._movementRate = options.movementRate || 0.25;
@@ -110,7 +110,7 @@ hamonengine.core = hamonengine.core || {};
          * @return {Object} a promise to complete resource loading.
          */
         load() {
-            hamonengine.util.logger.debug("[hamonengine.core.engine.load]");
+            hamonengine.util.logger.info("[hamonengine.core.engine.load]");
 
             //Preform the preload.
             this.onPreload();
@@ -121,16 +121,16 @@ hamonengine.core = hamonengine.core || {};
             //Added a promise so the start can be delayed if designer so wishes to wait before starting the engine.
             return new Promise((resolve, reject)=> {
                 this.onEventBinding().then(() => {
-                    hamonengine.util.logger.debug("[hamonengine.core.engine.load] Event binding completed.");
+                    hamonengine.util.logger.info("[hamonengine.core.engine.load] Event binding completed.");
                 });
     
                 //Load resources.
                 this.onloadResources().then(() => {
                     this._resourcesLoaded = true;
-                    hamonengine.util.logger.debug("[hamonengine.core.engine.load] Load resources completed.");
+                    hamonengine.util.logger.info("[hamonengine.core.engine.load] Load resources completed.");
                     resolve(this);
                 }).catch(error => {
-                    hamonengine.util.logger.debug("[hamonengine.core.engine.load] Failed!");
+                    hamonengine.util.logger.info("[hamonengine.core.engine.load] Failed!");
                     this.stop();
                     reject();
                 });
@@ -140,7 +140,7 @@ hamonengine.core = hamonengine.core || {};
          * Starts the engine.
          */
         start() {
-            hamonengine.util.logger.debug("[hamonengine.core.engine.start]");
+            hamonengine.util.logger.info("[hamonengine.core.engine.start]");
 
             //Don't start the engine until we are in a loading state.
             if (this._state === ENGINE_STATES.LOADING) {
@@ -158,7 +158,7 @@ hamonengine.core = hamonengine.core || {};
          * Stops the engine.
          */
         stop() {
-            hamonengine.util.logger.debug("[hamonengine.core.engine.stop]");
+            hamonengine.util.logger.info("[hamonengine.core.engine.stop]");
             window.cancelAnimationFrame(this._animationId);
             this._animationId = 0;
             this._startTimeStamp = 0;
@@ -176,14 +176,14 @@ hamonengine.core = hamonengine.core || {};
          * You can use this event to display static images that have already been loaded.
          */
         onPreload() {
-            hamonengine.util.logger.debug("[hamonengine.core.engine.onPreload]");
+            hamonengine.util.logger.info("[hamonengine.core.engine.onPreload]");
         }
         /**
          * An internal event that occurs when attempting to load resources.
          * @return {Object} a promise that the resource has loaded successfully.
          */
         onloadResources() {
-            hamonengine.util.logger.debug("[hamonengine.core.engine.onloadResources]");
+            hamonengine.util.logger.info("[hamonengine.core.engine.onloadResources]");
             return Promise.resolve();
         }
         /**

@@ -27,5 +27,5 @@
 'use strict';
 
 var hamonengine = {
-    debug: false
+    debug: true
 };

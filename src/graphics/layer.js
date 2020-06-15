@@ -393,6 +393,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
          */
         simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, lineWidth = 1, color = 'white', drawNormals = false) {
+
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
 
@@ -414,7 +415,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.closePath();
             this.context.stroke();
 
-            if (drawNormals) {
+            if (hamonengine.debug && drawNormals) {
 
                 this.context.strokeStyle = 'white';
 

@@ -25,8 +25,17 @@
 //波紋
 'use strict';
 
+const LOG_TYPE = {
+    DISABLED: 0,
+    INFO: 1,
+    WARNING: 2,
+    CRITICAL: 4,
+    DEBUG: 8,
+    ALL: 15
+}
+
 hamonengine.util = hamonengine.util || {
-    debug: false
+    loggerlevel: LOG_TYPE.DISABLED
 };
 
 (function() {
@@ -36,8 +45,26 @@ hamonengine.util = hamonengine.util || {
          * @param {*} message 
          */
         static debug(message) {
-            if (hamonengine.util.debug) {
-                console.log(message);
+            if ((hamonengine.util.loggerlevel & LOG_TYPE.DEBUG) === LOG_TYPE.DEBUG) {
+                console.log( message);
+            }
+        }
+        /**
+         * Writes a message to the info log if enabled.
+         * @param {*} message 
+         */
+        static info(message) {
+            if ((hamonengine.util.loggerlevel & LOG_TYPE.INFO) === LOG_TYPE.INFO) {
+                console.info(message);
+            }
+        }
+        /**
+         * Writes a message to the warning log if enabled.
+         * @param {*} message 
+         */
+        static warning(message) {
+            if ((hamonengine.util.loggerlevel & LOG_TYPE.WARNING) === LOG_TYPE.WARNING) {
+                console.warning(message);
             }
         }
     }
