@@ -29,6 +29,9 @@ hamonengine.graphics = hamonengine.graphics || {};
 
 (function() {
 
+    /**
+     * This class represents a spritesheet.
+     */
     hamonengine.graphics.spritesheet = class {
         constructor(options={}) {
             //Sprites sheet and sprites.

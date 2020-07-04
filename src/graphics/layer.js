@@ -29,6 +29,9 @@ hamonengine.graphics = hamonengine.graphics || {};
 
 (function () {
 
+    /**
+     * This class represents a layer, a canvas wrapper class.
+     */
     hamonengine.graphics.layer = class {
         constructor(options={}) {
 

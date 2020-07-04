@@ -28,6 +28,9 @@
 hamonengine.entities = hamonengine.entities || {};
 
 (function() {
+    /**
+     * This class represents a 2d object.
+     */
     hamonengine.entities.object2d = class {
         constructor(options={}) {
             //Object properties.

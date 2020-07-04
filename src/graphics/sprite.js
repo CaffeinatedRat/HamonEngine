@@ -35,6 +35,9 @@ hamonengine.graphics = hamonengine.graphics || {};
         MIRRORED: 2
     };
 
+    /**
+     * This class represents a graphical sprite object.
+     */
     hamonengine.graphics.sprite = class {
         constructor(options={}) {
             //Handle copy-constructor operations.

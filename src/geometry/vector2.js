@@ -28,6 +28,9 @@
 hamonengine.geometry = hamonengine.geometry || {};
 
 (function() {
+    /**
+     * This class represents a two-dimensional vector.
+     */
     hamonengine.geometry.vector2 = class {
         constructor(x=0.0,y=0.0) {
             this.x = x;

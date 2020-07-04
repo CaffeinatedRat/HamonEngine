@@ -29,6 +29,9 @@ hamonengine.graphics = hamonengine.graphics || {};
 
 (function() {
 
+    /**
+     * This class represents a graphical animated sprite object.
+     */
     hamonengine.graphics.animsprite = class extends hamonengine.graphics.sprite {
         constructor(options={}) {
             super(options);

@@ -36,6 +36,9 @@ hamonengine.graphics = hamonengine.graphics || {};
         ERROR: 3
     };
     
+    /**
+     * This class represents an image extension wrapper that provides helper methods for handling image manipulation and canvas creation.
+     */
     hamonengine.graphics.imageext = class {
         constructor(options={}) {
             //Handle copy-constructor operations.
