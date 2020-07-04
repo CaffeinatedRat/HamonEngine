@@ -76,7 +76,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Creates a new instance of a unit vector normal from this vector.
-         * @param {number} coordinateSystem to use left or right.  This is left by default.
+         * @param {number} coordinateSystem to use left or right. This is left by default.
          */
         normal(coordinateSystem = COORDINATE_SYSTEM.LEFT) {
             let l = this.length; 
@@ -107,30 +107,35 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Adds v to the current vector and returns a new instance of the vector.
+         * @param {Object} v vector2 to add.
          */
         add(v) {
             return new hamonengine.geometry.vector2(this.x + v.x, this.y + v.y);
         }
         /**
          * Substracts v from the current vector and return a new instance of the vector.
+         * @param {Object} v vector2 to subtract.
          */
         subtract(v) {
             return new hamonengine.geometry.vector2(this.x - v.x, this.y - v.y);
         }
         /**
          * Multiples the current vector by a scalar value and returns a new instance of the vector.
+         * @param {Number} s scalar to multiply.
          */
         multiplyScalar(s) {
             return new hamonengine.geometry.vector2(this.x * s, this.y * s);
         }
         /**
          * Multiples the current vector by vector v and returns a new instance of the vector.
+         * @param {Object} v vector2 to multiply.
          */
         multiplyVector(v) {
             return new hamonengine.geometry.vector2(this.x * v.x, this.y * v.y);
         }
         /**
          * Performs a dot product operation on the current vector and vector v and returns a scalar value.
+         * @param {Object} v vector2
          */
         dotProduct(v) {
             return (this.x * v.x) + (this.y * v.y);
@@ -139,6 +144,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Performs a cross product operation on the current vector and vector v and returns a new instance of the vector.
          * NOTE: vresults = 0i + 0j + ((this.x * v.y) - (this.y * v.x))k, where k is the 3rd dimension not supported by 2-d vectors.
          * vresults = 0i +  ((this.x * v.y) - (this.y * v.x))j
+         * @param {Object} v vector2
          */
         crossProduct(v) {
             return new hamonengine.geometry.vector3(0, 0, (this.x * v.y) - (this.y * v.x));

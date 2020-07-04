@@ -71,30 +71,35 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Adds v to the current vector and returns a new instance of the vector.
+         * @param {Object} v vector3 to add.
          */
         add(v) {
             return new hamonengine.geometry.vector3(this.x + v.x, this.y + v.y, this.z + v.z);
         }
         /**
          * Substracts v from the current vector and return a new instance of the vector.
+         * @param {Object} v vector3 to subtract.
          */
         subtract(v) {
             return new hamonengine.geometry.vector3(this.x - v.x, this.y - v.y, this.z - v.z);
         }
         /**
          * Multiples the current vector by a scalar value and returns a new instance of the vector.
+         * @param {Number} s scalar to multiply.
          */
         multiplyScalar(s) {
             return new hamonengine.geometry.vector3(this.x * s, this.y * s, this.z * s);
         }
         /**
          * Multiples the current vector by vector v and returns a new instance of the vector.
+         * @param {Object} v vector3 to multiply.
          */
         multiplyVector(v) {
             return new hamonengine.geometry.vector3(this.x * v.x, this.y * v.y, this.z * v.z);
         }
         /**
          * Performs a dot product operation on the current vector and vector v and returns a scalar value.
+         * @param {Object} v vector3
          */
         dotProduct(v) {
             return (this.x * v.x) + (this.y * v.y) + (this.z * v.z);
@@ -103,6 +108,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Performs a cross product operation on the current vector and vector v and returns a new instance of the vector.
          * NOTE: vresults = 0i + 0j + ((this.x * v.y) - (this.y * v.x))k, where k is the 3rd dimension not supported by 2-d vectors.
          * vresults = 0i +  ((this.x * v.y) - (this.y * v.x))j
+         * @param {Object} v vector3
          */
         crossProduct(v) {
             return new hamonengine.geometry.vector3((this.y * v.z - this.z * v.y), (v.x * this.z - this.x * v.z), (this.x * v.y - this.y * v.x));
