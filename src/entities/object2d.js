@@ -83,6 +83,12 @@ hamonengine.entities = hamonengine.entities || {};
             return this._position;
         }
         /**
+         * Assigns the position as a vector2.
+         */
+        set position(v) {
+            this._position = v;
+        }
+        /**
          * Returns the direction as a vector2.
          */
         get direction () {
