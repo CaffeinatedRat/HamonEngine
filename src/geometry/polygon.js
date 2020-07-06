@@ -35,6 +35,9 @@ hamonengine.geometry = hamonengine.geometry || {};
     const DIRTY_SHAPE = 3;
     const DIRTY_ALL = 15;
 
+    /**
+     * This class represents a 2d polygon.
+     */
     hamonengine.geometry.polygon = class {
         constructor(options={}) {
 
@@ -254,7 +257,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             });
         }
         /**
-         * Determines if this polygon collides with another.
+         * Determines if this polygon collides with another using SAT (Separating Axis Theorem).
          * @param {object} polygon to test against.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where the collision occurs.
          */
@@ -263,21 +266,73 @@ hamonengine.geometry = hamonengine.geometry || {};
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
             }
 
-            let normals = polygon.normals;
-            for(let i = 0; i < normals.length; i++) {
-                let projection1 = polygon. normals[i];
+            let overlappingLength = NaN;
+            let mtvAxis;
+            let shapeInfo;
+
+            //Test Polygon1: Iterate through each normal, which will act as an axis to project upon.
+            let axisNormals = polygon.normals;
+            for(let i = 0; i < axisNormals.length; i++) {
+                //Project this polygon and the target polygon onto this axis normal.
+                let projection1 = this.project(axisNormals[i]);
+                let projection2 = polygon.project(axisNormals[i]);
+
+                //Determine if projection1 & projection2 are overlapping.
+                //An overlapping line is one that is valid or is a line.
+                let overlapping = projection1.overlap(projection2);
+                if (!overlapping.isLine) {
+                    //There is no overlapping on this axis so there is no collision detection.
+                    return false;
+                }
+                
+                //console.log(`axisNormal[${i}]: ${axisNormals[i].toString()} projection1: ${projection1.toString()} projection2: ${projection2.toString()} overlapping.length: ${overlapping.length}`);
+
+                //If we reach here then its possible that a collision may still occur.
+                if(isNaN(overlappingLength) || overlapping.length < overlappingLength){
+                    overlappingLength = overlapping.length;
+                    mtvAxis = axisNormals[i];
+                    shapeInfo = 'polygon';
+                }
             }
+
+            //Test Polygon2: Iterate through each normal, which will act as an axis to project upon.
+            axisNormals = this.normals;
+            for(let i = 0; i < axisNormals.length; i++) {
+                //Project this polygon and the target polygon onto this axis normal.
+                let projection1 = this.project(axisNormals[i]);
+                let projection2 = polygon.project(axisNormals[i]);
+
+                //Determine if projection1 & projection2 are overlapping.
+                //An overlapping line is one that is valid or is a line.
+                let overlapping = projection1.overlap(projection2);
+                if (!overlapping.isLine) {
+                    //There is no overlapping on this axis so there is no collision detection.
+                    return false;
+                }
+                
+                //If we reach here then its possible that a collision may still occur.
+                if(isNaN(overlappingLength) || overlapping.length < overlappingLength){
+                    overlappingLength = overlapping.length;
+                    mtvAxis = axisNormals[i];
+                    shapeInfo = 'this';
+                }
+            }
+
+            let mtv = mtvAxis.clone();
+            //mtv.overlappingLength = overlappingLength;
+            //mtv.shapeInfo = shapeInfo;
+            return mtv; //mtv.multiplyScalar(overlappingLength);
         }
         /**
-         * Projects the polygon onto the provided vector.
+         * Projects the polygon onto the provided vector and returns an object of {min, max}.
          * @param {object} vector (hamonengine.geometry.vector2) to project onto.
          */
         project(vector) {
-            if (this._vertices.length > 0) {
-                let min = vector.dotProduct(this._vertices[0]);
-                let max = min;
-                for (let i = 1; i < this._vertices.length; i++) {
-                    let projection = vector.dotProduct(this._vertices[i]);
+            let min = 0, max = 0;
+            if (this.vertices.length > 0) {
+                max = min = vector.dotProduct(this.vertices[0]);
+                for (let i = 1; i < this.vertices.length; i++) {
+                    let projection = vector.dotProduct(this.vertices[i]);
                     if (projection < min) {
                         min = projection;
                     }
@@ -285,11 +340,10 @@ hamonengine.geometry = hamonengine.geometry || {};
                         max = projection;
                     }
                 }
-
-                return new hamonengine.geometry.vector2(min, max);
             }
-
-            return new hamonengine.geometry.vector2();
+            
+            //Returns a 1d line that contains a min & max only.
+            return new hamonengine.geometry.line(min, max);
         }
         /**
          * Calculates a series of edges from a collection of vertices.
