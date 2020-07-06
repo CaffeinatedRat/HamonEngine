@@ -62,6 +62,12 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.vector2(vector.x, vector.y);
         }
         /**
+         * Clones this vector2.
+         */
+        clone() {
+            return hamonengine.geometry.vector2.clone(this);
+        }
+        /**
          * Outputs the vector's coordinates as a string.
          */
         toString() {
@@ -104,6 +110,12 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         flip() {
             return new hamonengine.geometry.vector2(this.x, -this.y);
+        }
+        /**
+         * Returns an inverted vector2.
+         */
+        invert() {
+            return new hamonengine.geometry.vector2(-this.x, -this.y);
         }
         /**
          * Adds v to the current vector and returns a new instance of the vector.

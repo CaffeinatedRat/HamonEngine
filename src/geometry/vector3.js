@@ -57,6 +57,12 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.vector3(vector.x, vector.y, vector.z);
         }
         /**
+         * Clones this vector3.
+         */
+        clone() {
+            return hamonengine.geometry.vector3.clone(this);
+        }
+        /**
          * Outputs the vector's coordinates as a string.
          */
         toString() {
@@ -68,6 +74,12 @@ hamonengine.geometry = hamonengine.geometry || {};
         normalize() {
             let l = this.length; 
             return new hamonengine.geometry.vector3(this.x / l, this.y / l, this.z / l);
+        }
+        /**
+         * Returns an inverted vector3.
+         */
+        invert() {
+            return new hamonengine.geometry.vector2(-this.x, -this.y, -this.z);
         }
         /**
          * Adds v to the current vector and returns a new instance of the vector.
