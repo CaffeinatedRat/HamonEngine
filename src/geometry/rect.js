@@ -88,20 +88,24 @@ hamonengine.geometry = hamonengine.geometry || {};
          * For example if the shape extends beyond the left side of this shape then the x-cooridnate will be -1.
          * If the shape extends beyond the bottom side of this shape then the y-cooridnate will be +1.
          * @param {Object} position location of the shape being tested.
-         * @param {Object} shape to evaluated based on the coordinates.
+         * @param {Object} rect to evaluated based on the coordinates.
          * @returns {Object} a hamonengine.geometry.vector2 that contains the direction.
          */
-        isShapeInside(position, shape) {
+        isShapeInside(position, rect) {
+
+            if (!rect instanceof hamonengine.geometry.rect) {
+                hamonengine.util.logger.warning(`[hamonengine.geometry.rect.isShapeInside] The rect parameter is not of type hamonengine.geometry.rect!`);
+            }
 
             let outsideDirection = new hamonengine.geometry.vector2();
 
-            let xOffset = position.x + shape.x;
-            let yOffset = position.y + shape.y;
+            let xOffset = position.x + rect.x;
+            let yOffset = position.y + rect.y;
             if (xOffset < this.x) {
                 hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = -1;
             }
-            else if (position.x + shape.right > this.right) {
+            else if (position.x + rect.right > this.right) {
                 hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = 1;
             }
@@ -110,7 +114,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = -1;
             }
-            else if (position.y + shape.bottom > this.bottom) {
+            else if (position.y + rect.bottom > this.bottom) {
                 hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = 1;
             }
