@@ -73,7 +73,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         normalize() {
             let l = this.length; 
-            return new hamonengine.geometry.vector3(this.x / l, this.y / l, this.z / l);
+            return (l > 0) ? new  hamonengine.geometry.vector3(this.x / l, this.y / l, this.z / l) : new hamonengine.geometry.vector3();
         }
         /**
          * Returns an inverted vector3.
@@ -113,7 +113,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Performs a dot product operation on the current vector and vector v and returns a scalar value.
          * @param {Object} v vector3
          */
-        dotProduct(v) {
+        dot(v) {
             return (this.x * v.x) + (this.y * v.y) + (this.z * v.z);
         }
         /**
@@ -122,7 +122,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * vresults = 0i +  ((this.x * v.y) - (this.y * v.x))j
          * @param {Object} v vector3
          */
-        crossProduct(v) {
+        cross(v) {
             return new hamonengine.geometry.vector3((this.y * v.z - this.z * v.y), (v.x * this.z - this.x * v.z), (this.x * v.y - this.y * v.x));
         }
     }

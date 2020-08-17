@@ -268,7 +268,6 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             let overlappingLength = NaN;
             let mtvAxis;
-            let shapeInfo;
 
             //Test Polygon1: Iterate through each normal, which will act as an axis to project upon.
             let axisNormals = polygon.normals;
@@ -281,17 +280,14 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //An overlapping line is one that is valid or is a line.
                 let overlapping = projection1.overlap(projection2);
                 if (!overlapping.isLine) {
-                    //There is no overlapping on this axis so there is no collision detection.
-                    return false;
+                    //Return an empty MTV.
+                    return new hamonengine.geometry.vector2();
                 }
                 
-                //console.log(`axisNormal[${i}]: ${axisNormals[i].toString()} projection1: ${projection1.toString()} projection2: ${projection2.toString()} overlapping.length: ${overlapping.length}`);
-
                 //If we reach here then its possible that a collision may still occur.
                 if(isNaN(overlappingLength) || overlapping.length < overlappingLength){
                     overlappingLength = overlapping.length;
                     mtvAxis = axisNormals[i];
-                    shapeInfo = 'polygon';
                 }
             }
 
@@ -306,22 +302,20 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //An overlapping line is one that is valid or is a line.
                 let overlapping = projection1.overlap(projection2);
                 if (!overlapping.isLine) {
-                    //There is no overlapping on this axis so there is no collision detection.
-                    return false;
+                    //Return an empty MTV.
+                    return new hamonengine.geometry.vector2();
                 }
                 
                 //If we reach here then its possible that a collision may still occur.
                 if(isNaN(overlappingLength) || overlapping.length < overlappingLength){
                     overlappingLength = overlapping.length;
                     mtvAxis = axisNormals[i];
-                    shapeInfo = 'this';
                 }
             }
 
-            let mtv = mtvAxis.clone();
-            //mtv.overlappingLength = overlappingLength;
-            //mtv.shapeInfo = shapeInfo;
-            return mtv; //mtv.multiplyScalar(overlappingLength);
+            //Return an MTV.
+            let mtvAxisClone = mtvAxis && mtvAxis.clone();
+            return mtvAxisClone.multiply(overlappingLength);
         }
         /**
          * Projects the polygon onto the provided vector and returns an object of {min, max}.
@@ -330,9 +324,9 @@ hamonengine.geometry = hamonengine.geometry || {};
         project(vector) {
             let min = 0, max = 0;
             if (this.vertices.length > 0) {
-                max = min = vector.dotProduct(this.vertices[0]);
+                max = min = vector.dot(this.vertices[0]);
                 for (let i = 1; i < this.vertices.length; i++) {
-                    let projection = vector.dotProduct(this.vertices[i]);
+                    let projection = vector.dot(this.vertices[i]);
                     if (projection < min) {
                         min = projection;
                     }

@@ -77,8 +77,8 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Normalizes and returns a unit vector.
          */
         normalize() {
-            let l = this.length; 
-            return new hamonengine.geometry.vector2(this.x / l, this.y / l);
+            let l = this.length;
+            return (l > 0) ? new hamonengine.geometry.vector2(this.x / l, this.y / l) : new hamonengine.geometry.vector2();
         }
         /**
          * Creates a new instance of a unit vector normal from this vector.
@@ -132,6 +132,13 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.vector2(this.x - v.x, this.y - v.y);
         }
         /**
+         * Multiples the current vector by a scalar value or a passed vector returns a new instance of the vector.
+         * @param {any} vos a vector or scalar value.
+         */
+        multiply(vos) {
+            return (vos instanceof hamonengine.geometry.vector2) ? this.multiplyVector(vos) : this.multiplyScalar(vos);
+        }
+        /**
          * Multiples the current vector by a scalar value and returns a new instance of the vector.
          * @param {Number} s scalar to multiply.
          */
@@ -149,7 +156,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Performs a dot product operation on the current vector and vector v and returns a scalar value.
          * @param {Object} v vector2
          */
-        dotProduct(v) {
+        dot(v) {
             return (this.x * v.x) + (this.y * v.y);
         }
         /**
@@ -158,7 +165,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * vresults = 0i +  ((this.x * v.y) - (this.y * v.x))j
          * @param {Object} v vector2
          */
-        crossProduct(v) {
+        cross(v) {
             return new hamonengine.geometry.vector3(0, 0, (this.x * v.y) - (this.y * v.x));
         }
     }
