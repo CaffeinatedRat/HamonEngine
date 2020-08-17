@@ -74,7 +74,7 @@ hamonengine.math = hamonengine.math || {};
      * @param {number} degrees to convert to radians.
      * @return {number} radian value.
      */
-    Math.toRadians = (degrees) => {
+    Math.toDegrees = (degrees) => {
         return (degrees * Math.PI / 180);
     }
 
