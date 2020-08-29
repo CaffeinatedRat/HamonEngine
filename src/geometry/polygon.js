@@ -104,6 +104,8 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Returns a max vector, which is the max x & y coordinates of the polygon.
+         * NOTE: This is not the maximum vertex in the polygon, but rather the maximum x & y point in the polygon as a whole.
+         * For example: For a polygon of (0,0), (70,-10), (50,50), (0,50) the maximum value will be (70, 50) which is not a vertex in the polygon.
          */
         get max() {
             if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
@@ -114,6 +116,8 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Returns a min vector, which is the min x & y coordinates of the polygon.
+         * NOTE: This is not the minimum vertex in the polygon, but rather the minmum x & y point in the polygon as a whole.
+         * For example: For a polygon of (0,0), (70,-10), (50,50), (0,50) the minimum value will be (0, -10) which is not a vertex in the polygon.
          */
         get min() {
             if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
@@ -165,6 +169,18 @@ hamonengine.geometry = hamonengine.geometry || {};
             };
             return `[${vertexString}]`;
         }
+        /**
+         * Transforms this polygon into a bounding rect around the polygon by using the max & minimum points around or on the polygon.
+         * @return {object} an instance of hamonengine.geometry.rect.
+         */
+        toRect() {
+            return new hamonengine.geometry.rect(
+                this.min.x,
+                this.min.y,
+                this.max.x,
+                this.max.y
+            );
+        }     
         /**
          * Adds a vertex to the polygon.
          * @param {number} x
@@ -257,9 +273,10 @@ hamonengine.geometry = hamonengine.geometry || {};
             });
         }
         /**
-         * Determines if this polygon collides with another using SAT (Separating Axis Theorem).
+         * Determines if this polygon collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
+         * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
          * @param {object} polygon to test against.
-         * @returns {object} a MTV (Minimum Translation Vector) that determines where the collision occurs.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
         isCollision(polygon) {
             if (!(polygon instanceof hamonengine.geometry.polygon)) {
@@ -314,8 +331,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             }
 
             //Return an MTV.
-            let mtvAxisClone = mtvAxis && mtvAxis.clone();
-            return mtvAxisClone.multiply(overlappingLength);
+            return mtvAxis.multiply(overlappingLength);
         }
         /**
          * Projects the polygon onto the provided vector and returns an object of {min, max}.
@@ -406,7 +422,7 @@ hamonengine.geometry = hamonengine.geometry || {};
 
                 //Calculate the cross-product between our two vectors.
                 //NOTE: Since these are 2d vectors, the results will be stored in the z-coordinate in a vector3 (hamonengine.geometry.vector3).
-                signCounter += v2.crossProduct(v1).z > 0 ? 1 : -1;
+                signCounter += v2.cross(v1).z > 0 ? 1 : -1;
             }
 
             //If the number of sign counter addes up to the number of vertices then the sign did not change.
