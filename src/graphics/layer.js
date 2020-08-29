@@ -341,11 +341,44 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
         }
         /**
+         * A method that draws the rect object with no wrapping (hamonengine.geometry.rect) based on the dimension parameters provided.
+         * More complex drawing should be accomplished with the drawPolygon method.
+         * @param {object} rect object to draw.
+         * @param {number} sourceX coordinate of where to draw the polygon (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the polygon (Optional and set to zero).
+         * @param {number} lineWidth width of the polygon's lines  (Optional and set to 1).
+         * @param {string} color of the polygon's lines.
+         * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
+         */
+        drawRect(rect, sourceX = 0, sourceY = 0, lineWidth = 1, color = 'white') {
+            
+            if (!(rect instanceof hamonengine.geometry.rect)) {
+                throw "Parameter polygon is not of type hamonengine.geometry.rect.";
+            }
+
+            this.context.lineWidth = lineWidth;
+            this.context.strokeStyle = color;
+
+            let x = rect.x + sourceX;
+            let y = rect.y + sourceY;
+
+            this.context.beginPath();
+
+            this.context.moveTo(x, y);
+            this.context.lineTo(x + rect.width, y);
+            this.context.lineTo(x + rect.width, y + rect.height);
+            this.context.lineTo(x, y + rect.height);
+
+            //Complete the shape and draw the rect.
+            this.context.closePath();
+            this.context.stroke();
+        }
+        /**
          * A method that draws the polygon object with wrapping (hamonengine.geometry.polygon) based on the dimension parameters provided.
          * @param {object} polygon object to draw.
-         * @param {number} sourceX coordinate of where to draw the polygon.
-         * @param {number} sourceY coordinate of where to draw the polygon.
-         * @param {number} lineWidth width of the polygon's lines.
+         * @param {number} sourceX coordinate of where to draw the polygon (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the polygon (Optional and set to zero).
+         * @param {number} lineWidth width of the polygon's lines  (Optional and set to 1).
          * @param {string} color of the polygon's lines.
          * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
          */
@@ -389,13 +422,17 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * A method that draws the polygon object without wrapping (hamonengine.geometry.polygon) based on the dimension parameters provided.
          * @param {object} polygon object to draw.
-         * @param {number} sourceX coordinate of where to draw the polygon.
-         * @param {number} sourceY coordinate of where to draw the polygon.
-         * @param {number} lineWidth width of the polygon's lines.
+         * @param {number} sourceX coordinate of where to draw the polygon (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the polygon (Optional and set to zero).
+         * @param {number} lineWidth width of the polygon's lines  (Optional and set to 1).
          * @param {string} color of the polygon's lines.
          * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
          */
         simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, lineWidth = 1, color = 'white', drawNormals = false) {
+
+            if (!(polygon instanceof hamonengine.geometry.polygon)) {
+                throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
+            }
 
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
