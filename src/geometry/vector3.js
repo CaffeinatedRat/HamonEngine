@@ -125,5 +125,18 @@ hamonengine.geometry = hamonengine.geometry || {};
         cross(v) {
             return new hamonengine.geometry.vector3((this.y * v.z - this.z * v.y), (v.x * this.z - this.x * v.z), (this.x * v.y - this.y * v.x));
         }
+        /**
+         * Determines if this vector is equal to the passed vector.
+         * @param {object} v vector3 to test.
+         */
+        equals(v) {
+            return this.x === v.x && this.y === v.y && this.z === v.z;
+        }
     }
+
+    //Constants
+    hamonengine.geometry.vector3.X_AXIS_NORMAL = new hamonengine.geometry.vector3(1,0,0);
+    hamonengine.geometry.vector3.Y_AXIS_NORMAL = new hamonengine.geometry.vector3(0,1,0);
+    hamonengine.geometry.vector3.Z_AXIS_NORMAL = new hamonengine.geometry.vector3(0,0,1);
+    
 })();

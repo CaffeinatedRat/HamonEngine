@@ -28,6 +28,7 @@
 hamonengine.geometry = hamonengine.geometry || {};
 
 (function() {
+
     /**
      * This class represents a two-dimensional vector.
      */
@@ -168,5 +169,17 @@ hamonengine.geometry = hamonengine.geometry || {};
         cross(v) {
             return new hamonengine.geometry.vector3(0, 0, (this.x * v.y) - (this.y * v.x));
         }
+        /**
+         * Determines if this vector is equal to the passed vector.
+         * @param {object} v vector2 to test.
+         */
+        equals(v) {
+            return this.x === v.x && this.y === v.y;
+        }
     }
+
+    //Constants
+    hamonengine.geometry.vector2.X_AXIS_NORMAL = new hamonengine.geometry.vector2(1,0);
+    hamonengine.geometry.vector2.Y_AXIS_NORMAL = new hamonengine.geometry.vector2(0,1);
+
 })();
