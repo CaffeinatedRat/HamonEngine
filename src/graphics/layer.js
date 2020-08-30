@@ -33,16 +33,19 @@ hamonengine.graphics = hamonengine.graphics || {};
      * This class represents a layer, a canvas wrapper class.
      */
     hamonengine.graphics.layer = class {
-        constructor(options={}) {
+        constructor(options = {}) {
 
             this._canvasId = options.canvasId || '';
             this._name = options.name || '';
+
             this._alpha = options.alpha !== undefined ? options.alpha : false;
             this._allowEventBinding = options.allowEventBinding !== undefined ? options.allowEventBinding : false;
             this._wrapVertical = options.wrapVertical !== undefined ? options.wrapVertical : false;
             this._wrapHorizontal = options.wrapHorizontal !== undefined ? options.wrapHorizontal : false;
             this._clipToViewPort = options.clipToViewPort !== undefined ? options.clipToViewPort : true;
             this._enableImageSmoothing = options.enableImageSmoothing !== undefined ? options.enableImageSmoothing : true;
+            this._invertYAxis = options.invertYAxis !== undefined ? options.invertYAxis : false;
+            this._invertXAxis = options.invertXAxis !== undefined ? options.invertXAxis : false;
 
             //DOM Contexts.
             if (!this._canvasId) {
@@ -119,6 +122,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         get canvas() {
             return this._canvas;
+        }
+        /**
+         * Returns true if the layer is clipping to the viewport.
+         */
+        get clipToViewPort() {
+            return this._clipToViewPort;
         }
         /**
          * Get the width of the layer.
@@ -199,10 +208,28 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._viewPortBorderColor = v;
         }
         /**
-         * Returns true if the layer is clipping to the viewport.
+        * Returns true if the Y-Axis is inverted.
+        */
+        get invertYAxis() {
+            return this._invertYAxis;
+        }
+        /**
+         * Inverts the Y-Axis if true.
          */
-        get clipToViewPort() {
-            return this._clipToViewPort;
+        set invertYAxis(v) {
+            this._invertYAxis = v;
+        }
+        /**
+         * Returns true if the X-Axis is inverted.
+         */
+        get invertXAxis() {
+            return this._invertXAxis;
+        }
+        /**
+         * Inverts the X-Axis if true.
+         */
+        set invertXAxis(v) {
+            this._invertXAxis = v;
         }
         //--------------------------------------------------------
         // Methods
@@ -301,7 +328,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} color of the text.
          * @param {number} textDrawType format to draw, by default this is TEXT_DRAW_TYPE.FILL.
          */
-        drawText(text, sourceX=0, sourceY=0, font='16px serif', color='white', textDrawType=TEXT_DRAW_TYPE.FILL) {
+        drawText(text, sourceX = 0, sourceY = 0, font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL) {
             this.context.font = font;
             this.context.textBaseline = 'top';
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
@@ -351,9 +378,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
          */
         drawRect(rect, sourceX = 0, sourceY = 0, lineWidth = 1, color = 'white') {
-            
+
             if (!(rect instanceof hamonengine.geometry.rect)) {
-                throw "Parameter polygon is not of type hamonengine.geometry.rect.";
+                throw "Parameter rect is not of type hamonengine.geometry.rect.";
             }
 
             this.context.lineWidth = lineWidth;
@@ -362,12 +389,20 @@ hamonengine.graphics = hamonengine.graphics || {};
             let x = rect.x + sourceX;
             let y = rect.y + sourceY;
 
+            if (this.invertYAxis) {
+                y = this.viewPort.height - y;
+            }
+
+            if (this.invertXAxis) {
+                x = this.viewPort.width - x;
+            }
+
             this.context.beginPath();
 
             this.context.moveTo(x, y);
             this.context.lineTo(x + rect.width, y);
-            this.context.lineTo(x + rect.width, y + rect.height);
-            this.context.lineTo(x, y + rect.height);
+            this.context.lineTo(x + rect.width, (y + rect.height));
+            this.context.lineTo(x, (y + rect.height));
 
             //Complete the shape and draw the rect.
             this.context.closePath();
@@ -443,6 +478,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                 let x = Math.bitRound(sourceX + polygon.vertices[index].x);
                 let y = Math.bitRound(sourceY + polygon.vertices[index].y);
 
+                if (this.invertYAxis) {
+                    y = this.viewPort.height - y;
+                }
+
+                if (this.invertXAxis) {
+                    x = this.viewPort.width - x;
+                }
+
                 if (index === 0) {
                     this.context.moveTo(x, y);
                 }
@@ -470,12 +513,31 @@ hamonengine.graphics = hamonengine.graphics || {};
                     let x = Math.bitRound(sourceX + vertex.x + edge.x / 2);
                     let y = Math.bitRound(sourceY + vertex.y + edge.y / 2);
 
+                    if (this.invertYAxis) {
+                        y = this.viewPort.height - y;
+                    }
+
+                    if (this.invertXAxis) {
+                        x = this.viewPort.width - x;
+                    }
+
                     this.context.beginPath();
                     this.context.moveTo(x, y);
 
                     //Find the normal for the current edge and draw a line to it.
                     let normal = polygon.normals[index];
                     let normalSize = Math.bitRound(edge.length / 2);
+                    
+                    //NOTE: Invert the normal's coordinates as the y-axis of the normal is calculated based on the standard cartesian system.
+                    normal = normal.invert();
+                    if (this.invertYAxis) {
+                        normal.y = -normal.y;
+                    }
+
+                    if (this.invertXAxis) {
+                        normal.x = -normal.x;
+                    }
+
                     this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
                     this.context.stroke();
                 }
