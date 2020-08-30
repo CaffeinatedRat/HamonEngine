@@ -64,7 +64,7 @@ hamonengine.util = hamonengine.util || {
          */
         static warning(message) {
             if ((hamonengine.util.loggerlevel & LOG_TYPE.WARNING) === LOG_TYPE.WARNING) {
-                console.warning(message);
+                console.warn(message);
             }
         }
     }
