@@ -184,35 +184,23 @@ hamonengine.entities = hamonengine.entities || {};
             );
         }
         /**
-         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
-         * @param {number} x coordinate
-         * @param {number} y coordinate
-         * @return {number} a COLLISION_TYPES 
-         */
-        isCollision(x, y) {
-            //Negate the position of the object.
-            x -= this.position.x;
-            y -= this.position.y;
-            return this.boundingShape.isPointCollision(x,y);
-        }
-        /**
          * Determines if the object has collided with noather.
          * @param {Object} object to calculate the collision with.
          * @return {number} a COLLISION_TYPES 
          */
-        isObjectCollision(object) {
-            return this.isCollision(object.position.x, object.position.y);
+        isCollision(object) {
+            return this.boundingShape.isCollision(object);
         }
         /**
-         * Determines if the targetObject is inside of this object's bounding shape and returns a direction if the object extends outside.
+         * Determines if the targetObject is contained in this object's bounding shape and returns a MTV (Minimum Translation Vector).
          * The direction is a normalized vector in the direction the targetObject is extending towards.
          * For example if the targetObject extends beyond the left side of this object then the x-cooridnate will be -1.
          * If the targetObject extends beyond the bottom side of this object then the y-cooridnate will be +1.
          * @param {*} targetObject to evaluate
          * @return {Object} a (hamonengine.geometry.vector2) that provides a direction of where the shape is outside.
          */
-        isObjectInside(targetObject) {
-            return this.boundingShape.isShapeInside(targetObject.position, targetObject.boundingShape);
+        isContained(targetObject) {
+            return this.boundingShape.isContained(targetObject.position, targetObject.boundingShape);
         }
         /**
          * Draws the object at the specific location, width & height.

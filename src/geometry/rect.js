@@ -28,11 +28,21 @@
 hamonengine.geometry = hamonengine.geometry || {};
 
 (function() {
+
     /**
      * This class represents a rectangle polygon.
      */
     hamonengine.geometry.rect = class {
         constructor(x=0, y=0, width=0, height=0) {
+
+            //Handle copy-constructor operations.
+            if (x instanceof hamonengine.geometry.rect) {
+                x = x.x;
+                y = x.y;
+                width = x.width;
+                height = x.height;
+            }
+
             this.x = x;
             this.y = y;
             this.width = width;
@@ -57,44 +67,135 @@ hamonengine.geometry = hamonengine.geometry || {};
         // Methods
         //--------------------------------------------------------
         /**
+         * Clones the rect.
+         * @returns {Object} cloned rect.
+         */
+        clone() {
+            return new hamonengine.geometry.rect(this);
+        }        
+        /**
          * Outputs the rect's coordinates as a string.
          */
         toString() {
             return `{x: ${this.x}, y: ${this.y}, width: ${this.width}, height: ${this.height}}`;
         }
         /**
-         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
-         * @param {number} x position coordinate
-         * @param {number} y position coordinate
-         * @return {number} a COLLISION_TYPES
+         * Transforms this rect into a polygon object.
+         * @return {object} an instance of hamonengine.geometry.polygon.
          */
-        isPointCollision(x, y) {
-            //Determine if the coordinates are in the bounding box.
-            if ((x === this.x || x === this.width) && (y === this.y || y === this.height)) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isCollision] EDGE: (${x}, ${y})`);
-                return COLLISION_TYPES.EDGE;
-            }
-            
-            if (x > this.x && x < this.width && y > this.y && y < this.height) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isCollision] INSIDE: (${x}, ${y})`);
-                return COLLISION_TYPES.INSIDE;
-            }
-
-            return COLLISION_TYPES.NONE;
+        toPolygon() {
+            return new hamonengine.geometry.polygon({
+                vertices: [
+                    new hamonengine.geometry.vector2(this.x, this.y),
+                    new hamonengine.geometry.vector2(this.x + this.width, this.y),
+                    new hamonengine.geometry.vector2(this.x + this.width, this.y + this.height),
+                    new hamonengine.geometry.vector2(this.x, this.y + this.height)
+                ]
+            });
         }
         /**
-         * Determines if target shape is outside of the current shape and returns a direction if the shape extends outside.
-         * The direction is a normalized vector in the direction the shape is extending towards.
+         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * NOTE: The shape must be of the type hamonengine.geometry.rect or hamonengine.geometry.polygon
+         * @param {Object} shape to evaluated based on the coordinates.
+         * @return {number} a COLLISION_TYPES
+         */        
+        isCollision(shape) {
+            if (shape instanceof hamonengine.geometry.rect) {
+                return this.isCollisionRect(shape);
+            }
+            else if (shape instanceof hamonengine.geometry.polygon) {
+                return this.isCollisionPolygon(shape);
+            }
+
+            return new hamonengine.geometry.vector2(0,0);
+        }
+        /**
+         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * NOTE: The shape must be of the type hamonengine.geometry.rect
+         * @param {Object} otherRect to evaluated based on the coordinates.
+         * @return {number} a COLLISION_TYPES
+         */
+        isCollisionRect(otherRect) {
+            if (!(otherRect instanceof hamonengine.geometry.rect)) {
+                hamonengine.util.logger.warning(`[hamonengine.geometry.rect.isCollision] The otherRect parameter is not of type hamonengine.geometry.rect!`);
+            }
+           
+            let overlappingLength = NaN;
+            let mtvAxis;
+
+            // ---------------------------------------------
+            // Check the Y-Axis collision.
+            // ---------------------------------------------
+
+            //A rect is an untransformed polygon with 4 set vertices.
+            //Project this rect onto the normal of the x-axis, which would be the y-axis.
+            let this_YAxisProection = new hamonengine.geometry.line(this.y, this.y + this.height);
+            //Project otherRect onto the normal of the x-axis, which would be the y-axis.
+            let other_YAxisProection = new hamonengine.geometry.line(otherRect.y, otherRect.y + otherRect.height);
+
+            //Determine if projection1 & projection2 are overlapping.
+            //An overlapping line is one that is valid or is a line.
+            let overlappingYAxis = this_YAxisProection.overlap(other_YAxisProection);
+            if (!overlappingYAxis.isLine) {
+                //Return an empty MTV.
+                return new hamonengine.geometry.vector2();
+            }
+            
+            //If we reach here then its possible that a collision may still occur.
+            if(isNaN(overlappingLength) || overlappingYAxis.length < overlappingLength){
+                overlappingLength = overlappingYAxis.length;
+                mtvAxis = hamonengine.geometry.vector2.Y_AXIS_NORMAL;
+            }
+
+            // ---------------------------------------------
+            // Check the X-Axis collision.
+            // ---------------------------------------------
+
+            //Project this rect onto the normal of the y-axis, which would be the x-axis.
+            let this_XAxisProjection = new hamonengine.geometry.line(this.x, this.x + this.width);
+
+            //Project otherRect onto the normal of the y-axis, which would be the x-axis.
+            let other_XAxisProjection = new hamonengine.geometry.line(otherRect.x, otherRect.x + otherRect.width);
+
+            //Determine if projection1 & projection2 are overlapping.
+            //An overlapping line is one that is valid or is a line.
+            let overlappingXAxis = this_XAxisProjection.overlap(other_XAxisProjection);
+            if (!overlappingXAxis.isLine) {
+                //Return an empty MTV.
+                return new hamonengine.geometry.vector2();
+            }
+            
+            //If we reach here then its possible that a collision may still occur.
+            if(isNaN(overlappingLength) || overlappingXAxis.length < overlappingLength){
+                overlappingLength = overlappingXAxis.length;
+                mtvAxis = hamonengine.geometry.vector2.X_AXIS_NORMAL;
+            }
+
+            //Return an MTV.
+            return mtvAxis.multiply(overlappingLength);
+        }
+        /**
+         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * NOTE: The shape must be of the type hamonengine.geometry.polygon
+         * @param {Object} polygon to evaluated based on the coordinates.
+         * @return {number} a COLLISION_TYPES
+         */
+        isCollisionPolygon(polygon) {          
+            //Allow the polygon object to handle the polygon collision logic.
+            return polygon.isCollision(this.toPolygon());
+        }        
+        /**
+         * Determines if target rect is contained of the current rect and returns a MTV (Minimum Translation Vector).
          * For example if the shape extends beyond the left side of this shape then the x-cooridnate will be -1.
          * If the shape extends beyond the bottom side of this shape then the y-cooridnate will be +1.
          * @param {Object} position location of the shape being tested.
          * @param {Object} rect to evaluated based on the coordinates.
-         * @returns {Object} a hamonengine.geometry.vector2 that contains the direction.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isShapeInside(position, rect) {
+        isContained(position, rect) {
 
-            if (!rect instanceof hamonengine.geometry.rect) {
-                hamonengine.util.logger.warning(`[hamonengine.geometry.rect.isShapeInside] The rect parameter is not of type hamonengine.geometry.rect!`);
+            if (!(rect instanceof hamonengine.geometry.rect)) {
+                hamonengine.util.logger.warning(`[hamonengine.geometry.rect.isContained] The rect parameter is not of type hamonengine.geometry.rect!`);
             }
 
             let outsideDirection = new hamonengine.geometry.vector2();
@@ -102,20 +203,20 @@ hamonengine.geometry = hamonengine.geometry || {};
             let xOffset = position.x + rect.x;
             let yOffset = position.y + rect.y;
             if (xOffset < this.x) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -x: (${xOffset}, ${yOffset})`);
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isContained] Outside -x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = -1;
             }
             else if (position.x + rect.right > this.right) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +x: (${xOffset}, ${yOffset})`);
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isContained] Outside +x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = 1;
             }
 
             if (yOffset < this.y) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside -y: (${xOffset}, ${yOffset})`);
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isContained] Outside -y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = -1;
             }
             else if (position.y + rect.bottom > this.bottom) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isShapeOutside] Outside +y: (${xOffset}, ${yOffset})`);
+                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isContained] Outside +y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = 1;
             }
 

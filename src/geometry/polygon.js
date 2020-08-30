@@ -177,8 +177,8 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.rect(
                 this.min.x,
                 this.min.y,
-                this.max.x,
-                this.max.y
+                this.max.x - this.min.x,
+                this.max.y - this.min.y
             );
         }     
         /**
@@ -273,12 +273,29 @@ hamonengine.geometry = hamonengine.geometry || {};
             });
         }
         /**
+         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * NOTE: The shape must be of the type hamonengine.geometry.rect or hamonengine.geometry.polygon
+         * @param {Object} shape to evaluated based on the coordinates.
+         * @return {number} a COLLISION_TYPES
+         */        
+        isCollision(shape) {
+            if (shape instanceof hamonengine.geometry.rect) {
+                return this.isCollisionRect(shape);
+            }
+            else if (shape instanceof hamonengine.geometry.polygon) {
+                return this.isCollisionPolygon(shape);
+            }
+
+            return new hamonengine.geometry.vector2(0,0);
+        }     
+        /**
          * Determines if this polygon collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
          * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
+         * NOTE: The shape must be of the type hamonengine.geometry.polygon
          * @param {object} polygon to test against.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollision(polygon) {
+        isCollisionPolygon(polygon) {
             if (!(polygon instanceof hamonengine.geometry.polygon)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
             }
@@ -333,6 +350,32 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Return an MTV.
             return mtvAxis.multiply(overlappingLength);
         }
+        /**
+         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * NOTE: The shape must be of the type hamonengine.geometry.rect
+         * @param {Object} rect to evaluated based on the coordinates.
+         * @return {number} a COLLISION_TYPES
+         */        
+        isCollisionRect(rect) {
+            //Allow the rect object to handle the rect collision logic.
+            return rect.isCollision(this.toRect());
+        }
+        /**
+         * Determines if target polygon is contained within another polygon and returns a MTV (Minimum Translation Vector).
+         * @param {Object} position location of the shape being tested.
+         * @param {Object} polygon to evaluated based on the coordinates.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
+         */
+        isContained(position, polygon) {
+
+            if (!(polygon instanceof hamonengine.geometry.polygon)) {
+                hamonengine.util.logger.warning(`[hamonengine.geometry.polygon.isContained] The polygon parameter is not of type hamonengine.geometry.polygon!`);
+            }
+
+            //TODO: Add containment logic.
+            let outsideDirection = new hamonengine.geometry.vector2();
+            return outsideDirection;
+        }            
         /**
          * Projects the polygon onto the provided vector and returns an object of {min, max}.
          * @param {object} vector (hamonengine.geometry.vector2) to project onto.

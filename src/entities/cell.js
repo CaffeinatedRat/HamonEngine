@@ -111,7 +111,7 @@ hamonengine.entities = hamonengine.entities || {};
 
                             //Get the adjusted coordinates.
                             let adjustedPosition = hamonengine.geometry.vector2.clone(object.position);
-                            let collisionVector = this.isObjectInside(object);
+                            let collisionVector = this.isContained(object);
                             if (collisionVector.x < 0) {
                                 adjustedPosition.x = this.boundingShape.x - object.boundingShape.x;
                             }
@@ -147,9 +147,10 @@ hamonengine.entities = hamonengine.entities || {};
                             if (!collisionsEdges.has(edgeName)) {
 
                                 //Determine if this object has collided with its sibling.
+                                /*
                                 if (object.isObjectCollision(siblingObject) !== COLLISION_TYPES.NONE) {
                                     hamonengine.util.logger.debug(`${object.name} collides with: ${siblingObject.name}`);
-                                }
+                                }*/
 
                                 collisionsEdges.add(edgeName);
                                 //Since the edgeName is a directed edge, we need to create the inverse to create an undirected edge.
