@@ -34,15 +34,6 @@ hamonengine.geometry = hamonengine.geometry || {};
      */
     hamonengine.geometry.rect = class {
         constructor(x=0, y=0, width=0, height=0) {
-
-            //Handle copy-constructor operations.
-            if (x instanceof hamonengine.geometry.rect) {
-                x = x.x;
-                y = x.y;
-                width = x.width;
-                height = x.height;
-            }
-
             this.x = x;
             this.y = y;
             this.width = width;
@@ -71,7 +62,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Object} cloned rect.
          */
         clone() {
-            return new hamonengine.geometry.rect(this);
+            return new hamonengine.geometry.rect(this.x, this.y, this.width, this.height);
         }        
         /**
          * Outputs the rect's coordinates as a string.
