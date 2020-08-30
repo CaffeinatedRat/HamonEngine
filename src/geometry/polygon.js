@@ -357,8 +357,8 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @return {number} a COLLISION_TYPES
          */        
         isCollisionRect(rect) {
-            //Allow the rect object to handle the rect collision logic.
-            return rect.isCollision(this.toRect());
+            //Convert the rect into a polygon for proper collision detection.
+            return rect.toPolygon().isCollision(this);
         }
         /**
          * Determines if target polygon is contained within another polygon and returns a MTV (Minimum Translation Vector).
