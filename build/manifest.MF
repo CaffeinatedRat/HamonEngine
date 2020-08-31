@@ -1,4 +1,4 @@
-src/debug-global.js
+src/global.js
 ./src/util/fps-counter.js
 ./src/util/util.js
 src/math/util.js
