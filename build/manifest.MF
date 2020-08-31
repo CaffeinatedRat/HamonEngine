@@ -1,8 +1,10 @@
-src/global.js
-src/util/util.js
+src/debug-global.js
+./src/util/fps-counter.js
+./src/util/util.js
 src/math/util.js
 src/math/sort.js
 src/math/LCGRandom.js
+./src/geometry/line.js
 ./src/geometry/polygon.js
 ./src/geometry/rect.js
 ./src/geometry/type.js
