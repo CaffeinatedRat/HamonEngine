@@ -347,6 +347,10 @@ hamonengine.geometry = hamonengine.geometry || {};
                 }
             }
 
+            //Determine when the value is too small and should be treated as zero.
+            //This SAT algorithm can generate an infinitesimally small values when dealing with multiple polygon collisions.
+            overlappingLength = overlappingLength < hamonengine.core.collisionDetection.floor ? 0.0 : overlappingLength;
+
             //Return an MTV.
             return mtvAxis.multiply(overlappingLength);
         }
