@@ -369,15 +369,16 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * A method that draws the rect object with no wrapping (hamonengine.geometry.rect) based on the dimension parameters provided.
-         * More complex drawing should be accomplished with the drawPolygon method.
          * @param {object} rect object to draw.
-         * @param {number} sourceX coordinate of where to draw the polygon (Optional and set to zero).
-         * @param {number} sourceY coordinate of where to draw the polygon (Optional and set to zero).
-         * @param {number} lineWidth width of the polygon's lines  (Optional and set to 1).
-         * @param {string} color of the polygon's lines.
-         * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
+         * @param {number} sourceX coordinate of where to draw the rect (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the rect (Optional and set to zero).
+         * @param {Object} obj - drawing styles.
+         * @param {number} obj.lineWidth width of the rect's lines  (Optional and set to 1).
+         * @param {string} obj.color of the rect's lines.
+         * @param {boolean} obj.fill determines if the rect should be drawn filled (Default is false).
+         * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
          */
-        drawRect(rect, sourceX = 0, sourceY = 0, lineWidth = 1, color = 'white') {
+        drawRect(rect, sourceX = 0, sourceY = 0,  {lineWidth = 1, color = 'white', fill = false, fillColor='white'} = {}) {
 
             if (!(rect instanceof hamonengine.geometry.rect)) {
                 throw "Parameter rect is not of type hamonengine.geometry.rect.";
@@ -385,6 +386,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
+            this.context.fillStyle = fillColor;
 
             let x = rect.x + sourceX;
             let y = rect.y + sourceY;
@@ -406,19 +408,52 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Complete the shape and draw the rect.
             this.context.closePath();
+
+            if (fill) {
+                this.context.fill();
+            }            
+
             this.context.stroke();
         }
+        /**
+         * A method that draws the vector2 or vector3 object with no wrapping (hamonengine.geometry.vector2 or hamonengine.geometry.vector3) based on the dimension parameters provided.
+         * @param {object} vector object to draw.
+         * @param {number} sourceX coordinate of where to draw the vector (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the vector (Optional and set to zero).
+         * @param {Object} obj - drawing styles.
+         * @param {number} obj.lineWidth width of the vector's lines  (Optional and set to 1).
+         * @param {string} obj.color of the vector's lines.
+         */    
+        drawVector(vector, sourceX = 0, sourceY = 0,  {lineWidth = 1, color = 'white'} = {}) {
+            
+            if (!(vector instanceof hamonengine.geometry.vector2)
+                && !(vector instanceof hamonengine.geometry.vector3)) {
+                throw "Parameter polygon is not of type hamonengine.geometry.vector2 or of type hamonengine.geometry.vector3.";
+            }
+
+            this.context.lineWidth = lineWidth;
+            this.context.strokeStyle = color;
+            
+            this.context.beginPath();
+            this.context.moveTo(sourceX, sourceY);
+            this.context.lineTo(sourceX + vector.x, sourceY + vector.y);
+
+            this.context.stroke();
+        }     
         /**
          * A method that draws the polygon object with wrapping (hamonengine.geometry.polygon) based on the dimension parameters provided.
          * @param {object} polygon object to draw.
          * @param {number} sourceX coordinate of where to draw the polygon (Optional and set to zero).
          * @param {number} sourceY coordinate of where to draw the polygon (Optional and set to zero).
-         * @param {number} lineWidth width of the polygon's lines  (Optional and set to 1).
-         * @param {string} color of the polygon's lines.
-         * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
+         * @param {Object} obj - drawing styles.
+         * @param {number} obj.lineWidth width of the polygon's lines  (Optional and set to 1).
+         * @param {string} obj.color of the polygon's lines.
+         * @param {boolean} obj.drawNormals determines if the normals should be drawn (Default is false).
+         * @param {boolean} obj.fill determines if the polygon should be drawn filled (Default is false).
+         * @param {string} obj.fillColor determines the fill color of the polygon (Default is 'white').
          */
-        drawPolygon(polygon, sourceX = 0, sourceY = 0, lineWidth = 1, color = 'white', drawNormals = false) {
-            this.simpleDrawPolygon(polygon, sourceX, sourceY, lineWidth, color, drawNormals);
+        drawPolygon(polygon, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor='white'} = {}) {
+            this.simpleDrawPolygon(polygon, sourceX, sourceY, {lineWidth, color, drawNormals, fill, fillColor} );
 
             //Handle polygon wrapping.
             if (this.wrapHorizontal) {
@@ -459,11 +494,14 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {object} polygon object to draw.
          * @param {number} sourceX coordinate of where to draw the polygon (Optional and set to zero).
          * @param {number} sourceY coordinate of where to draw the polygon (Optional and set to zero).
-         * @param {number} lineWidth width of the polygon's lines  (Optional and set to 1).
-         * @param {string} color of the polygon's lines.
-         * @param {boolean} drawNormals determines if the normals should be drawn, this is false by default.
+         * @param {Object} obj - drawing styles.
+         * @param {number} obj.lineWidth width of the polygon's lines  (Optional and set to 1).
+         * @param {string} obj.color of the polygon's lines.
+         * @param {boolean} obj.drawNormals determines if the normals should be drawn (Default is false).
+         * @param {boolean} obj.fill determines if the polygon should be drawn filled (Default is false).
+         * @param {string} obj.fillColor determines the fill color of the polygon (Default is 'white').
          */
-        simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, lineWidth = 1, color = 'white', drawNormals = false) {
+        simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor='white'} = {}) {
 
             if (!(polygon instanceof hamonengine.geometry.polygon)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
@@ -471,6 +509,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
+            this.context.fillStyle = fillColor;
 
             this.context.beginPath();
 
@@ -496,6 +535,9 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Complete the shape and draw the polygon.
             this.context.closePath();
+            if (fill) {
+                this.context.fill();
+            }
             this.context.stroke();
 
             if (hamonengine.debug && drawNormals) {
