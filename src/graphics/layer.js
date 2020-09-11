@@ -461,14 +461,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the minimum vertex of a polygon extends beyond the minimum edge (left side) of the viewport.
                 let xOffset = (sourceX + polygon.min.x) - this.viewPort.x;
                 if (xOffset <= 0) {
-                    this.simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, lineWidth, color, drawNormals);
+                    this.simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, {lineWidth, color, drawNormals, fill, fillColor} );
                 }
 
                 //DRAW LEFT
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (right side) of the viewport.
                 if (sourceX + polygon.width >= this.viewPort.width) {
                     let xOffset = this.viewPort.width - (sourceX + polygon.min.x);
-                    this.simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, lineWidth, color, drawNormals);
+                    this.simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, {lineWidth, color, drawNormals, fill, fillColor} );
                 }
             }
 
@@ -478,14 +478,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the minimum vertex of a polygon extends beyond the minimum edge (top side) of the viewport.
                 let yOffset = (sourceY + polygon.min.y) - this.viewPort.y;
                 if (yOffset <= 0) {
-                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, lineWidth, color, drawNormals);
+                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, {lineWidth, color, drawNormals, fill, fillColor} );
                 }
 
                 //DRAW UP
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (bottom side) of the viewport.
                 if (sourceY + polygon.height >= this.viewPort.height) {
                     let yOffset = this.viewPort.height - (sourceY + polygon.min.y);
-                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, lineWidth, color, drawNormals);
+                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, {lineWidth, color, drawNormals, fill, fillColor} );
                 }
             }
         }
