@@ -85,6 +85,23 @@ hamonengine.geometry = hamonengine.geometry || {};
             });
         }
         /**
+         * Creates and returns a new instance of a translated rect.
+         * @param {Object} translateVector a translation vector (hamonengine.geometry.vector2) of where to move the rect.
+         * @returns {Object} translated rect.
+         */
+        translate(translateVector) {
+            //Normalize the translateVector.
+            translateVector = translateVector || new hamonengine.geometry.vector2(0, 0);
+
+            //Return a new instance of the rect as to preserve the original.
+            return new hamonengine.geometry.rect(
+                this.x + translateVector.x,
+                this.y + translateVector.y,
+                this.width,
+                this.height
+            );
+        }  
+        /**
          * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
          * NOTE: The shape must be of the type hamonengine.geometry.rect or hamonengine.geometry.polygon
          * @param {Object} shape to evaluated based on the coordinates.
