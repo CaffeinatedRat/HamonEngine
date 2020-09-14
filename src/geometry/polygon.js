@@ -310,7 +310,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
             }
 
-            let overlappingLength = NaN;
+            let mnimumOverlappingLength = NaN;
             let mtvAxis;
 
             //Test Polygon1: Iterate through each normal, which will act as an axis to project upon.
@@ -328,9 +328,17 @@ hamonengine.geometry = hamonengine.geometry || {};
                     return new hamonengine.geometry.vector2();
                 }
                
+                //Check for containment.
+                let overlappingLength = overlapping.length;
+                if(projection1.contains(projection2) || projection2.contains(projection1)) {
+                    let min = Math.abs(projection1.min - projection2.min);
+                    let max = Math.abs(projection1.max - projection2.max);
+                    overlappingLength += (min < max) ? min : max;
+                }
+                
                 //If we reach here then its possible that a collision may still occur.
-                if(isNaN(overlappingLength) || overlapping.length < overlappingLength){
-                    overlappingLength = overlapping.length;
+                if(isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength){
+                    mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axisNormals[i];
                 }
             }
@@ -349,20 +357,28 @@ hamonengine.geometry = hamonengine.geometry || {};
                     //Return an empty MTV.
                     return new hamonengine.geometry.vector2();
                 }
-
+               
+                //Check for containment.
+                let overlappingLength = overlapping.length;
+                if(projection1.contains(projection2) || projection2.contains(projection1)) {
+                    let min = Math.abs(projection1.min - projection2.min);
+                    let max = Math.abs(projection1.max - projection2.max);
+                    overlappingLength += (min < max) ? min : max;
+                }
+                
                 //If we reach here then its possible that a collision may still occur.
-                if(isNaN(overlappingLength) || overlapping.length < overlappingLength){
-                    overlappingLength = overlapping.length;
+                if(isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength){
+                    mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axisNormals[i];
                 }
             }
 
             //Determine when the value is too small and should be treated as zero.
             //This SAT algorithm can generate an infinitesimally small values when dealing with multiple polygon collisions.
-            overlappingLength = overlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : overlappingLength;
+            mnimumOverlappingLength = mnimumOverlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : mnimumOverlappingLength;
 
             //Return an MTV.
-            return mtvAxis.multiply(overlappingLength);
+            return mtvAxis.multiply(mnimumOverlappingLength);
         }
         /**
          * Determines if this polygon collides with another rect using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).

@@ -128,7 +128,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 hamonengine.util.logger.warning(`[hamonengine.geometry.rect.isCollision] The otherRect parameter is not of type hamonengine.geometry.rect!`);
             }
            
-            let overlappingLength = NaN;
+            let mnimumOverlappingLength = NaN;
             let mtvAxis;
 
             // ---------------------------------------------
@@ -137,21 +137,29 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //A rect is an untransformed polygon with 4 set vertices.
             //Project this rect onto the normal of the x-axis, which would be the y-axis.
-            let this_YAxisProection = new hamonengine.geometry.line(this.y, this.y + this.height);
+            let this_YAxisProjection = new hamonengine.geometry.line(this.y, this.y + this.height);
             //Project otherRect onto the normal of the x-axis, which would be the y-axis.
-            let other_YAxisProection = new hamonengine.geometry.line(otherRect.y, otherRect.y + otherRect.height);
+            let other_YAxisProjection = new hamonengine.geometry.line(otherRect.y, otherRect.y + otherRect.height);
 
             //Determine if projection1 & projection2 are overlapping.
             //An overlapping line is one that is valid or is a line.
-            let overlappingYAxis = this_YAxisProection.overlap(other_YAxisProection);
+            let overlappingYAxis = this_YAxisProjection.overlap(other_YAxisProjection);
             if (!overlappingYAxis.isLine) {
                 //Return an empty MTV.
                 return new hamonengine.geometry.vector2();
             }
+
+            //Check for containment.
+            let overlappingYAxisLength = overlappingYAxis.length;
+            if(this_YAxisProjection.contains(other_YAxisProjection) || other_YAxisProjection.contains(this_YAxisProjection)) {
+                let min = Math.abs(this_YAxisProjection.min - other_YAxisProjection.min);
+                let max = Math.abs(this_YAxisProjection.max - other_YAxisProjection.max);
+                overlappingYAxisLength += (min < max) ? min : max;
+            }
             
             //If we reach here then its possible that a collision may still occur.
-            if(isNaN(overlappingLength) || overlappingYAxis.length < overlappingLength){
-                overlappingLength = overlappingYAxis.length;
+            if(isNaN(mnimumOverlappingLength) || overlappingYAxisLength < mnimumOverlappingLength){
+                mnimumOverlappingLength = overlappingYAxisLength;
                 mtvAxis = hamonengine.geometry.vector2.Y_AXIS_NORMAL;
             }
 
@@ -172,19 +180,27 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //Return an empty MTV.
                 return new hamonengine.geometry.vector2();
             }
+
+            //Check for containment.
+            let overlappingXAxisLength = overlappingXAxis.length;
+            if(this_XAxisProjection.contains(other_XAxisProjection) || other_XAxisProjection.contains(this_XAxisProjection)) {
+                let min = Math.abs(this_XAxisProjection.min - other_XAxisProjection.min);
+                let max = Math.abs(this_XAxisProjection.max - other_XAxisProjection.max);
+                overlappingXAxisLength += (min < max) ? min : max;
+            }
             
             //If we reach here then its possible that a collision may still occur.
-            if(isNaN(overlappingLength) || overlappingXAxis.length < overlappingLength){
-                overlappingLength = overlappingXAxis.length;
+            if(isNaN(mnimumOverlappingLength) || overlappingXAxisLength < mnimumOverlappingLength){
+                mnimumOverlappingLength = overlappingXAxisLength;
                 mtvAxis = hamonengine.geometry.vector2.X_AXIS_NORMAL;
             }
 
             //Determine when the value is too small and should be treated as zero.
             //This SAT algorithm can generate an infinitesimally small values when dealing with multiple rect collisions.
-            overlappingLength = overlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : overlappingLength;
+            mnimumOverlappingLength = mnimumOverlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : mnimumOverlappingLength;
 
             //Return an MTV.
-            return mtvAxis.multiply(overlappingLength);
+            return mtvAxis.multiply(mnimumOverlappingLength);
         }
         /**
          * Determines if the x and y coordinates are inside the bounding box of the object and its current position.

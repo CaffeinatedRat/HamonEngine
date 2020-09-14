@@ -138,7 +138,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Boolean} true if line l is contained within this line.
          */        
         contains(l) {
-            return this.min > l.min && l.max < this.max;
+            return l.min >= this.min && l.max <= this.max;
         }
     }
 })();
