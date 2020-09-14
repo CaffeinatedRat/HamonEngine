@@ -223,18 +223,27 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Normalize the offset.
             offsetVector = offsetVector || new hamonengine.geometry.vector2(0, 0);
 
-            //2d Rotation Matrix
-            //x' = x * cos(θ) - y * sin(θ) = x*0 - y*1 = -y
-            //y' = x * sin(θ) + y * cos(θ) = x*1 - y*0 = x
             let newVertices = [];
             for (let i = 0 ; i < this.vertices.length; i++) {
                 //Adjust/translate the vertex based on the offset.
                 let xOffset = this.vertices[i].x - offsetVector.x;
                 let yOffset = this.vertices[i].y - offsetVector.y;
 
-                //Perform the rotation on each vertex.
-                let x = (xOffset * cosTheta) - (yOffset * sinTheta);
-                let y = (xOffset * sinTheta) + (yOffset * cosTheta);
+                let x, y;
+                if (hamonengine.geometry.settings.coordinateSystem === COORDINATE_SYSTEM.RHS) {
+                    //2d Rotation Matrix (RHS CCW)
+                    //x' = x * cos(θ) - y * sin(θ)
+                    //y' = x * sin(θ) + y * cos(θ)
+                    x = (xOffset * cosTheta) - (yOffset * sinTheta);
+                    y = (xOffset * sinTheta) + (yOffset * cosTheta);    
+                }
+                else {
+                    //2d Rotation Matrix (LHS CW)
+                    //x' = x * cos(θ) + y * sin(θ)
+                    //y' = -x * sin(θ) + y * cos(θ)
+                    x = (xOffset * cosTheta) + (yOffset * sinTheta);
+                    y = -(xOffset * sinTheta) + (yOffset * cosTheta);    
+                }
                 
                 //Restore the vertex's position.
                 newVertices.push(new hamonengine.geometry.vector2(x + offsetVector.x, y + offsetVector.y));
@@ -273,11 +282,12 @@ hamonengine.geometry = hamonengine.geometry || {};
             });
         }
         /**
-         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
-         * NOTE: The shape must be of the type hamonengine.geometry.rect or hamonengine.geometry.polygon
-         * @param {Object} shape to evaluated based on the coordinates.
-         * @return {number} a COLLISION_TYPES
-         */        
+         * Determines if this shape collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
+         * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
+         * NOTE: The shape must be of the type hamonengine.geometry.polygon or hamonengine.geometry.rect
+         * @param {object} shape polygon or rect to test against.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
+         */
         isCollision(shape) {
             if (shape instanceof hamonengine.geometry.rect) {
                 return this.isCollisionRect(shape);
@@ -317,7 +327,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                     //Return an empty MTV.
                     return new hamonengine.geometry.vector2();
                 }
-                
+               
                 //If we reach here then its possible that a collision may still occur.
                 if(isNaN(overlappingLength) || overlapping.length < overlappingLength){
                     overlappingLength = overlapping.length;
@@ -339,7 +349,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                     //Return an empty MTV.
                     return new hamonengine.geometry.vector2();
                 }
-                
+
                 //If we reach here then its possible that a collision may still occur.
                 if(isNaN(overlappingLength) || overlapping.length < overlappingLength){
                     overlappingLength = overlapping.length;
@@ -349,37 +359,31 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //Determine when the value is too small and should be treated as zero.
             //This SAT algorithm can generate an infinitesimally small values when dealing with multiple polygon collisions.
-            overlappingLength = overlappingLength < hamonengine.core.collisionDetection.floor ? 0.0 : overlappingLength;
+            overlappingLength = overlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : overlappingLength;
 
             //Return an MTV.
             return mtvAxis.multiply(overlappingLength);
         }
         /**
-         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * Determines if this polygon collides with another rect using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
          * NOTE: The shape must be of the type hamonengine.geometry.rect
          * @param {Object} rect to evaluated based on the coordinates.
-         * @return {number} a COLLISION_TYPES
-         */        
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
+         */
         isCollisionRect(rect) {
             //Convert the rect into a polygon for proper collision detection.
             return rect.toPolygon().isCollision(this);
         }
         /**
-         * Determines if target polygon is contained within another polygon and returns a MTV (Minimum Translation Vector).
-         * @param {Object} position location of the shape being tested.
-         * @param {Object} polygon to evaluated based on the coordinates.
+         * Determines if this shape is contained with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
+         * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
+         * NOTE: The shape must be of the type hamonengine.geometry.polygon or hamonengine.geometry.rect
+         * @param {object} shape polygon or rect to test against.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isContained(position, polygon) {
-
-            if (!(polygon instanceof hamonengine.geometry.polygon)) {
-                hamonengine.util.logger.warning(`[hamonengine.geometry.polygon.isContained] The polygon parameter is not of type hamonengine.geometry.polygon!`);
-            }
-
-            //TODO: Add containment logic.
-            let outsideDirection = new hamonengine.geometry.vector2();
-            return outsideDirection;
-        }            
+        isContained(shape) {
+            return new hamonengine.geometry.vector2();
+        }
         /**
          * Projects the polygon onto the provided vector and returns an object of {min, max}.
          * @param {object} vector (hamonengine.geometry.vector2) to project onto.
@@ -422,7 +426,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Array} a collection of normals.
          */
         static calcNormals(edges=[]) {
-            return edges.map(edge => edge.normal());
+            return edges.map(edge => edge.normal(ROTATION_TYPE.CW));
         }
         /**
          * Calculates the dimensions of the polygon and returns the max, min & center vectors.
