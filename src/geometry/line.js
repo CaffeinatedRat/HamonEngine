@@ -102,8 +102,8 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Returns the line overlapping this line and line l.
-         * NOTE: The line
          * @param {Object} l to overlap.
+         * @returns {Object} overlapping line.
          */
         overlap(l) {
             //Determine if the point is on the line.
@@ -131,6 +131,14 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //Return the overlapping line.
             return new hamonengine.geometry.line(min, max);
+        }
+        /**
+         * Returns true if the line l is contained within this line.
+         * @param {Object} l to test.
+         * @returns {Boolean} true if line l is contained within this line.
+         */        
+        contains(l) {
+            return this.min > l.min && l.max < this.max;
         }
     }
 })();
