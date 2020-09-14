@@ -25,7 +25,10 @@
 //波紋
 'use strict';
 
-hamonengine.geometry = hamonengine.geometry || {};
+const COORDINATE_SYSTEM = {
+    LHS: 0,
+    RHS: 1
+}
 
 const COLLISION_TYPES = {
     NONE: 0,
@@ -33,13 +36,27 @@ const COLLISION_TYPES = {
     INSIDE: 2
 };
 
-const COORDINATE_SYSTEM = {
-    LEFT: 0,
-    RIGHT: 1
-}
-
 const SHAPE_TYPE = {
     UNKNOWN: 0,
     CONVEX: 1,
     CONCAVE: 2
 }
+
+const ROTATION_TYPE = {
+    CW: 0,
+    CCW: 1
+}
+
+hamonengine.geometry = hamonengine.geometry || {};
+hamonengine.geometry.settings = hamonengine.geometry.settings || {
+    collisionDetection: {
+        //Indicates the lowest value that the collision detection algorithm will react to before treating the value as zero.
+        floor: 0.01,
+        //Indicates the collision detection limit.
+        //This is not the limit of collisions that can occur but rather a suggested amount of recalculation done on a collection of objects when collision detection has occurred.
+        //In the case where multiple objects collide, the generated MTV may push one object back into another object requiring a recalculation.
+        limit: 15
+    },
+    //Default to the right-handed coordinate system.
+    coordinateSystem: COORDINATE_SYSTEM.RHS
+};

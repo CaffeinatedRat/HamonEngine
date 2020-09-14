@@ -27,13 +27,13 @@
 
 hamonengine.geometry = hamonengine.geometry || {};
 
-(function() {
+(function () {
 
     /**
      * This class represents a two-dimensional vector.
      */
     hamonengine.geometry.vector2 = class {
-        constructor(x=0.0,y=0.0) {
+        constructor(x = 0.0, y = 0.0) {
             this.x = x;
             this.y = y;
         }
@@ -44,7 +44,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the length of the vector.
          */
         get length() {
-            return Math.sqrt(this.x * this.x + this.y * this.y); 
+            return Math.sqrt(this.x * this.x + this.y * this.y);
         }
         /**
          * Returns the angle in radians from the origin.
@@ -83,22 +83,25 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Creates a new instance of a unit vector normal from this vector.
-         * @param {number} coordinateSystem to use left or right. This is left by default.
+         * @param {number} rotationType determines which direction the normal is calculated based on the ROTATION_TYPE.
          */
-        normal(coordinateSystem = COORDINATE_SYSTEM.LEFT) {
-            let l = this.length; 
-            if (coordinateSystem === COORDINATE_SYSTEM.LEFT) {
-                //Where θ = PI/2
-                //x' = x * cos(θ) - y * sin(θ) = x*0 - y*1 = -y
-                //y' = x * sin(θ) + y * cos(θ) = x*1 - y*0 = x
-                return new hamonengine.geometry.vector2(-this.y / l, this.x / l);
+        normal(rotationType = ROTATION_TYPE.CCW) {
+            let l = this.length;
+            if (l > 0) {
+                if (rotationType === ROTATION_TYPE.CCW) {
+                    //Where θ = PI/2
+                    //x' = x * cos(θ) - y * sin(θ) = x*0 - y*1 = -y
+                    //y' = x * sin(θ) + y * cos(θ) = x*1 - y*0 = x
+                    return new hamonengine.geometry.vector2(-this.y / l, this.x / l);
+                }
+                else {
+                    //Where θ = -PI/2
+                    //x' = x * cos(θ) - y * sin(θ) = x*0 - y*-1 = y
+                    //y' = x * sin(θ) + y * cos(θ) = x*-1 - y*0 = -x
+                    return new hamonengine.geometry.vector2(this.y / l, -this.x / l);
+                }
             }
-            else {
-                //Where θ = PI3/2
-                //x' = x * cos(θ) - y * sin(θ) = x*0 - y*-1 = y
-                //y' = x * sin(θ) + y * cos(θ) = x*-1 - y*0 = -x
-                return new hamonengine.geometry.vector2(this.y / l, -this.x / l);
-            }
+            return new hamonengine.geometry.vector2();
         }
         /**
          * Returns an instance of the mirrored vector across the x-axis.
@@ -179,7 +182,7 @@ hamonengine.geometry = hamonengine.geometry || {};
     }
 
     //Constants
-    hamonengine.geometry.vector2.X_AXIS_NORMAL = new hamonengine.geometry.vector2(1,0);
-    hamonengine.geometry.vector2.Y_AXIS_NORMAL = new hamonengine.geometry.vector2(0,1);
+    hamonengine.geometry.vector2.X_AXIS_NORMAL = new hamonengine.geometry.vector2(1, 0);
+    hamonengine.geometry.vector2.Y_AXIS_NORMAL = new hamonengine.geometry.vector2(0, 1);
 
 })();
