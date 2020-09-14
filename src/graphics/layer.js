@@ -403,8 +403,8 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             this.context.moveTo(x, y);
             this.context.lineTo(x + rect.width, y);
-            this.context.lineTo(x + rect.width, (y + rect.height));
-            this.context.lineTo(x, (y + rect.height));
+            this.context.lineTo(x + rect.width, y + rect.height);
+            this.context.lineTo(x, y + rect.height);
 
             //Complete the shape and draw the rect.
             this.context.closePath();
@@ -570,8 +570,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                     let normal = polygon.normals[index];
                     let normalSize = Math.bitRound(edge.length / 2);
                     
-                    //NOTE: Invert the normal's coordinates as the y-axis of the normal is calculated based on the standard cartesian system.
-                    normal = normal.invert();
                     if (this.invertYAxis) {
                         normal.y = -normal.y;
                     }
