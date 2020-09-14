@@ -24,14 +24,3 @@
 
 //波紋
 'use strict';
-
-hamonengine.core = hamonengine.core || {
-    collisionDetection: {
-        //Indicates the lowest value that the collision detection algorithm will react to before treating the value as zero.
-        floor: 0.01,
-        //Indicates the collision detection limit.
-        //This is not the limit of collisions that can occur but rather a suggested amount of recalculation done on a collection of objects when collision detection has occurred.
-        //In the case where multiple objects collide, the generated MTV may push one object back into another object requiring a recalculation.
-        limit: 15
-    }
-};
