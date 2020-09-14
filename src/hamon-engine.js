@@ -35,8 +35,15 @@ hamonengine.core = hamonengine.core || {};
         RUNNING: 3
     };
 
+    const ENGINE_STATES_NAMES = [
+        "STOPPED",
+        "STARTED",
+        "LOADING",
+        "RUNNING"
+    ];
+
     const cavnas_default_name = 'canvas';
-    const VERSION = '0.1.0';
+    const VERSION = '0.1.1';
 
     hamonengine.core.engine = class {
         constructor(options={}) {
@@ -75,7 +82,13 @@ hamonengine.core = hamonengine.core || {};
 
             //Log initialization values
             hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] MovementRate: ${this._movementRate}`);
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] State: ${this._state}`);
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] State: ${ENGINE_STATES_NAMES[this._state]}`);
+
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] Global States`);
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.floor: ${hamonengine.geometry.settings.collisionDetection.floor}`);
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.limit: ${hamonengine.geometry.settings.collisionDetection.limit}`);
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.coordinateSystem: ${hamonengine.geometry.settings.coordinateSystem}`);
+
         }
         //--------------------------------------------------------
         // Properties
@@ -116,7 +129,7 @@ hamonengine.core = hamonengine.core || {};
             this.onPreload();
 
             this._state = ENGINE_STATES.LOADING;
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] State: ${this._state}`);
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.load] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
             //Added a promise so the start can be delayed if designer so wishes to wait before starting the engine.
             return new Promise((resolve, reject)=> {
@@ -145,7 +158,7 @@ hamonengine.core = hamonengine.core || {};
             //Don't start the engine until we are in a loading state.
             if (this._state === ENGINE_STATES.LOADING) {
                 this._state = ENGINE_STATES.STARTED;
-                hamonengine.util.logger.debug(`[hamonengine.core.engine.start] State: ${this._state}`);
+                hamonengine.util.logger.debug(`[hamonengine.core.engine.start] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
                 this.fpsCounter.start();
                 this.onDraw(0);
@@ -163,7 +176,7 @@ hamonengine.core = hamonengine.core || {};
             this._animationId = 0;
             this._startTimeStamp = 0;
             this._state = ENGINE_STATES.STOPPED;
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.stop] State: ${this._state}`);
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
             //Allow chaining.
             return this;
