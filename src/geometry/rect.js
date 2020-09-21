@@ -114,6 +114,9 @@ hamonengine.geometry = hamonengine.geometry || {};
             else if (shape instanceof hamonengine.geometry.polygon) {
                 return this.isCollisionPolygon(shape);
             }
+            else if (shape instanceof hamonengine.geometry.vector2) {
+                return this.isCollisionPoint(shape);
+            }
 
             return new hamonengine.geometry.vector2(0,0);
         }
@@ -211,6 +214,32 @@ hamonengine.geometry = hamonengine.geometry || {};
         isCollisionPolygon(polygon) {          
             //Allow the polygon object to handle the polygon collision logic.
             return polygon.isCollision(this.toPolygon());
+        }
+        /**
+         * Determines if target rect is contained of the current rect and returns a MTV (Minimum Translation Vector).
+         * For example if the shape extends beyond the left side of this shape then the x-cooridnate will be -1.
+         * If the shape extends beyond the bottom side of this shape then the y-cooridnate will be +1.
+         * @param {Object} position location of the shape being tested.
+         * @param {Object} rect to evaluated based on the coordinates.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
+         */
+        isCollisionPoint(point) {
+
+            let outsideDirection = new hamonengine.geometry.vector2();
+
+            if (point.x >= this.x && point.x <= this.right) {
+                let minX = point.x - this.x;
+                let minX2 = this.right - point.x;
+                outsideDirection.x = hamonengine.geometry.vector2.X_AXIS_NORMAL.x * (minX < minX2 ? minX : minX2);
+            }
+
+            if (point.y >= this.y && point.y <= this.bottom) {
+                let minY = point.y - this.y;
+                let minY2 = this.bottom - point.y;
+                outsideDirection.y = hamonengine.geometry.vector2.Y_AXIS_NORMAL.y * (minY < minY2 ? minY : minY2);
+            }
+
+            return outsideDirection;
         }        
         /**
          * Determines if target rect is contained of the current rect and returns a MTV (Minimum Translation Vector).
