@@ -211,7 +211,7 @@ hamonengine.core = hamonengine.core || {};
                     this._layers.forEach( (key, layer) => {
                         if (layer.allowEventBinding) {
                             const keyEvent = (type, e) => this.onKeyEvent(type, e.code, e, layer);
-                            const mouseEvent = (type, e) => this.onMouseEvent(type, new hamonengine.geometry.vector2(e.clientX, e.clientY), e, layer);
+                            const mouseEvent = (type, e) => this.onMouseEvent(type, new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, layer);
                             const touchEvent = (type, e) => {
                                 let touches = [];
                                 for(let i = 0; i < e.touches.length; i++) {
@@ -227,6 +227,7 @@ hamonengine.core = hamonengine.core || {};
                             layer.canvas.addEventListener('click', (e) => {this.onMouseClick(e, layer);});
                             layer.canvas.addEventListener('mouseup', (e) => mouseEvent('up',e));
                             layer.canvas.addEventListener('mousedown', (e) => mouseEvent('down',e));
+                            layer.canvas.addEventListener('mousemove', (e) => mouseEvent('move',e));
                             layer.canvas.addEventListener('touchstart', (e) => touchEvent('start',e));
                             layer.canvas.addEventListener('touchmove', (e) =>  touchEvent('move',e));
                             layer.canvas.addEventListener("touchend", (e) => this.onTouchEnd(e, layer));
