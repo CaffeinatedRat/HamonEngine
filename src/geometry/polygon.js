@@ -55,7 +55,9 @@ hamonengine.geometry = hamonengine.geometry || {};
             this._dimensions = {
                 center: null,
                 max: null,
-                min: null
+                min: null,
+                minVertex: null,
+                maxVertex: null,
             };
 
             this._dirty = DIRTY_ALL;
@@ -103,7 +105,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return this._dimensions.center;
         }
         /**
-         * Returns a max vector, which is the max x & y coordinates of the polygon.
+         * Returns a local maxium of the shape, which is the max x & y coordinates of the polygon, not the maximum vertex.
          * NOTE: This is not the maximum vertex in the polygon, but rather the maximum x & y point in the polygon as a whole.
          * For example: For a polygon of (0,0), (70,-10), (50,50), (0,50) the maximum value will be (70, 50) which is not a vertex in the polygon.
          */
@@ -115,7 +117,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return this._dimensions.max;
         }
         /**
-         * Returns a min vector, which is the min x & y coordinates of the polygon.
+         * Returns a local minimum of the shape, which is the min x & y coordinates of the polygon, not the minimum vertex.
          * NOTE: This is not the minimum vertex in the polygon, but rather the minmum x & y point in the polygon as a whole.
          * For example: For a polygon of (0,0), (70,-10), (50,50), (0,50) the minimum value will be (0, -10) which is not a vertex in the polygon.
          */
@@ -126,6 +128,26 @@ hamonengine.geometry = hamonengine.geometry || {};
             }
             return this._dimensions.min;
         }
+        /**
+         * Returns the minimum vertex in the polygon's set of vertices.
+         */        
+        get minVertex() {
+            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+                this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
+                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
+            }
+            return this._dimensions.minVertex;
+        }
+        /**
+         * Returns the maximum vertex in the polygon's set of vertices.
+         */        
+        get maxVertex() {
+            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+                this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
+                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
+            }
+            return this._dimensions.maxVertex;
+        }        
         /**
          * Returns the width of the polygon
          */
@@ -446,13 +468,16 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Calculates the dimensions of the polygon and returns the max, min & center vectors.
-         * The max vector that contains the minimum x & y coordinates of the polygon.
-         * The min vector that contains the minimum x & y coordinates of the polygon.
+         * The local maximum that contains the maximum x & y coordinates of the polygon.
+         * The local minimum that contains the minimum x & y coordinates of the polygon.
          * The center vector that contains the center coordinates of the polygon.
+         * The minimum vertex of the polygon.
+         * The maximum vertex of the polygon.
          * @param {Array<Object>} vertices a collection to generate the center from.
          * @returns {Object} a complex object that returns the min, max & center vectors (hamonengine.geometry.vector2).
          */
         static calcDimensions(vertices=[]) {
+            let minVertex = null, maxVertex = null;
             let xMax = NaN, xMin = NaN;
             let yMax = NaN, yMin = NaN;
             for (let i = 0; i < vertices.length; i++) {
@@ -460,12 +485,22 @@ hamonengine.geometry = hamonengine.geometry || {};
                 xMin = xMin < vertices[i].x ? xMin : vertices[i].x;
                 yMax = yMax > vertices[i].y ? yMax : vertices[i].y;
                 yMin = yMin < vertices[i].y ? yMin : vertices[i].y;
+
+                if (minVertex === null || (minVertex.x > vertices[i].x && minVertex.y > vertices[i].y)) {
+                    minVertex = vertices[i];
+                }
+
+                if (maxVertex === null || (maxVertex.x < vertices[i].x && maxVertex.y < vertices[i].y)) {
+                    maxVertex = vertices[i];
+                }
             };
 
             return {
                 max: new hamonengine.geometry.vector2(xMax, yMax),
                 min: new hamonengine.geometry.vector2(xMin, yMin),
                 center: new hamonengine.geometry.vector2((xMax - xMin) / 2, (yMax - yMin) / 2),
+                minVertex,
+                maxVertex
             };
         }
         /**
