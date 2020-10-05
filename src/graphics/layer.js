@@ -324,11 +324,11 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} text to draw.
          * @param {number} sourceX coordinate of where to draw the text.
          * @param {number} sourceY coordinate of where to draw the text.
-         * @param {string} font of the text.
-         * @param {string} color of the text.
-         * @param {number} textDrawType format to draw, by default this is TEXT_DRAW_TYPE.FILL.
+         * @param {string} obj.font of the text.
+         * @param {string} obj.color of the text.
+         * @param {number} obj.textDrawType format to draw, by default this is TEXT_DRAW_TYPE.FILL.
          */
-        drawText(text, sourceX = 0, sourceY = 0, font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL) {
+        drawText(text, sourceX = 0, sourceY = 0, {font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL} = {}) {
             this.context.font = font;
             this.context.textBaseline = 'top';
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
@@ -372,13 +372,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {object} rect object to draw.
          * @param {number} sourceX coordinate of where to draw the rect (Optional and set to zero).
          * @param {number} sourceY coordinate of where to draw the rect (Optional and set to zero).
-         * @param {Object} obj - drawing styles.
          * @param {number} obj.lineWidth width of the rect's lines  (Optional and set to 1).
          * @param {string} obj.color of the rect's lines.
          * @param {boolean} obj.fill determines if the rect should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
          */
-        drawRect(rect, sourceX = 0, sourceY = 0,  {lineWidth = 1, color = 'white', fill = false, fillColor='white'} = {}) {
+        drawRect(rect, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', fill = false, fillColor='white'} = {}) {
 
             if (!(rect instanceof hamonengine.geometry.rect)) {
                 throw "Parameter rect is not of type hamonengine.geometry.rect.";
@@ -420,11 +419,10 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {object} vector object to draw.
          * @param {number} sourceX coordinate of where to draw the vector (Optional and set to zero).
          * @param {number} sourceY coordinate of where to draw the vector (Optional and set to zero).
-         * @param {Object} obj - drawing styles.
          * @param {number} obj.lineWidth width of the vector's lines  (Optional and set to 1).
          * @param {string} obj.color of the vector's lines.
          */    
-        drawVector(vector, sourceX = 0, sourceY = 0,  {lineWidth = 1, color = 'white'} = {}) {
+        drawVector(vector, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white'} = {}) {
             
             if (!(vector instanceof hamonengine.geometry.vector2)
                 && !(vector instanceof hamonengine.geometry.vector3)) {
@@ -445,7 +443,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {object} polygon object to draw.
          * @param {number} sourceX coordinate of where to draw the polygon (Optional and set to zero).
          * @param {number} sourceY coordinate of where to draw the polygon (Optional and set to zero).
-         * @param {Object} obj - drawing styles.
          * @param {number} obj.lineWidth width of the polygon's lines  (Optional and set to 1).
          * @param {string} obj.color of the polygon's lines.
          * @param {boolean} obj.drawNormals determines if the normals should be drawn (Default is false).
@@ -494,7 +491,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {object} polygon object to draw.
          * @param {number} sourceX coordinate of where to draw the polygon (Optional and set to zero).
          * @param {number} sourceY coordinate of where to draw the polygon (Optional and set to zero).
-         * @param {Object} obj - drawing styles.
          * @param {number} obj.lineWidth width of the polygon's lines  (Optional and set to 1).
          * @param {string} obj.color of the polygon's lines.
          * @param {boolean} obj.drawNormals determines if the normals should be drawn (Default is false).
