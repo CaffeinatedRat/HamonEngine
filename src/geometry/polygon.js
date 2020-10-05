@@ -498,7 +498,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return {
                 max: new hamonengine.geometry.vector2(xMax, yMax),
                 min: new hamonengine.geometry.vector2(xMin, yMin),
-                center: new hamonengine.geometry.vector2((xMax - xMin) / 2, (yMax - yMin) / 2),
+                center: new hamonengine.geometry.vector2(xMin + (xMax - xMin) / 2, yMin + (yMax - yMin) / 2),
                 minVertex,
                 maxVertex
             };
