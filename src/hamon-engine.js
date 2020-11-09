@@ -214,10 +214,11 @@ hamonengine.core = hamonengine.core || {};
                             const mouseEvent = (type, e) => this.onMouseEvent(type, new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, layer);
                             const touchEvent = (type, e) => {
                                 let touches = [];
+                                let position = layer.position;
                                 for(let i = 0; i < e.touches.length; i++) {
                                     touches.push({
-                                        left: e.touches[i].clientX - (layer.offsetX || 0),
-                                        top: e.touches[i].clientY - (layer.offsetY || 0)
+                                        left: e.touches[i].clientX - position.x,
+                                        top: e.touches[i].clientY - position.y
                                     });
                                 }
                                 this.onTouchEvent(type, e, touches, layer);
@@ -228,8 +229,8 @@ hamonengine.core = hamonengine.core || {};
                             layer.canvas.addEventListener('mouseup', (e) => mouseEvent('up',e));
                             layer.canvas.addEventListener('mousedown', (e) => mouseEvent('down',e));
                             layer.canvas.addEventListener('mousemove', (e) => mouseEvent('move',e));
-                            layer.canvas.addEventListener('touchstart', (e) => touchEvent('start',e));
-                            layer.canvas.addEventListener('touchmove', (e) =>  touchEvent('move',e));
+                            layer.canvas.addEventListener('touchstart', (e) => touchEvent('start',e), {passive: false});
+                            layer.canvas.addEventListener('touchmove', (e) =>  touchEvent('move',e), {passive: false});
                             layer.canvas.addEventListener("touchend", (e) => this.onTouchEnd(e, layer));
                             layer.canvas.addEventListener("touchcancel", (e) => this.onTouchCancel(e, layer));
                         }
