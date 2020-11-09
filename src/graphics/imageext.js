@@ -131,29 +131,13 @@ hamonengine.graphics = hamonengine.graphics || {};
             });
         }
         /**
-         * Creates a new canvas.
-         * @param {number} width of the canvas.
-         * @param {number} height of the canvas.
-         * @param {string} id the name of the canvas.
-         * @returns {Object} a newly created canvas
-         */
-        static createNewCanvas(width, height, id='') {
-            let canvas = document.createElement('canvas');
-            canvas.setAttribute('width', width);
-            canvas.setAttribute('height', height);
-            if (id) {
-                canvas.setAttribute('id', id);
-            }
-            return canvas;
-        }
-        /**
          * Gets the image data of our raw image.
          * @param {Object} region of the raw image to get.
          * @returns {Object} ImageData of our raw image.
          */
         getImageData(region) {
                 //Create a new canvas if this is the first time we're blending.
-                this._backbufferResource = this._backbufferResource || hamonengine.graphics.imageext.createNewCanvas(this.rawImage.width, this.rawImage.height);
+                this._backbufferResource = this._backbufferResource || hamonengine.graphics.layer.createNewCanvas(this.rawImage.width, this.rawImage.height);
                 
                 //Draw the raw image to our modified canvas.
                 this._backbufferCtx = this._backbufferCtx || this._backbufferResource.getContext('2d');
@@ -272,7 +256,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 let destImageData = this.getImageData(destRegion);
 
                 //Get the canvas and source.
-                let targetCanavs = hamonengine.graphics.imageext.createNewCanvas(imageData.width, imageData.height);
+                let targetCanavs = hamonengine.graphics.layer.createNewCanvas(imageData.width, imageData.height);
                 let targetCtx = targetCanavs.getContext('2d');
                 targetCtx.drawImage(imageData, 0, 0);
                 let srcImageData = targetCtx.getImageData(srcRegion.x, srcRegion.y, srcRegion.width, srcRegion.height);

@@ -53,7 +53,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 throw 'Cannot create the layer';
             }
 
-            this._canvas = document.getElementById(this._canvasId);
+            this._canvas = options.canvas || document.getElementById(this._canvasId);
 
             if (!this._canvas) {
                 console.error(`[hamonengine.graphics.layer.constructor] Invalid canvas: '${this._canvasId}' unable to create the engine!`);
@@ -154,6 +154,13 @@ hamonengine.graphics = hamonengine.graphics || {};
             return this.canvas.offsetTop;
         }
         /**
+         * Get the position of the layer.
+         */        
+        get position() {
+            let boundRect = this.canvas.getBoundingClientRect() || { left: 0, top: 0};
+            return new hamonengine.geometry.vector2(boundRect.left, boundRect.top);
+        }
+        /**
          * Gets the viewport.
          */
         get viewPort() {
@@ -231,9 +238,76 @@ hamonengine.graphics = hamonengine.graphics || {};
         set invertXAxis(v) {
             this._invertXAxis = v;
         }
+        /**
+         * Gets the current background color.
+         */
+        get alpha() {
+            return this.context.globalAlpha;
+        }
+        /**
+         * Sets the current background color.
+         */
+        set alpha(v) {
+            this.context.globalAlpha = v;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
+        /**
+         * Creates a new canvas.
+         * @param {number} width of the new canvas.
+         * @param {number} height of the new canvas.
+         * @param {string} id of the new canvas.
+         * @param {string} name of the new canvas.
+         * @returns {Object} a newly created canvas
+         */
+        static createNewCanvas(width, height, id='', name='') {
+            let canvas = document.createElement('canvas');
+            canvas.setAttribute('width', width);
+            canvas.setAttribute('height', height);
+            if (id) {
+                canvas.setAttribute('id', id);
+            }
+            if (name) {
+                canvas.setAttribute('name', name);
+            }
+            return canvas;
+        }        
+        /**
+         * Clones the current layer with a new id & name and creates a new canvas element, while retaining all other properties from the source.
+         * @param {string} canvasId of the new layer.
+         * @param {string} name of the new layer.
+         * @param {*} elementToAttach to attach the canvas.
+         */
+        clone(canvasId, name, elementToAttach=null) {
+
+            //Create a new canvas element and attach it after the original.
+            let newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
+            //elementToAttach = elementToAttach || this.canvas.parentNode;
+            elementToAttach && elementToAttach.insertBefore(newCanvas,null);
+
+            //Create a new canvas instance.
+            let newLayer = new hamonengine.graphics.layer({
+                canvasId: canvasId,
+                name: name,
+                canvas: newCanvas,
+                alpha: this.alpha,
+                allowEventBinding: this.allowEventBinding,
+                wrapVertical: this.wrapVertical,
+                wrapHorizontal: this.wrapHorizontal,
+                clipToViewPort: this.clipToViewPort,
+                enableImageSmoothing: this._enableImageSmoothing,
+                invertYAxis: this.invertYAxis,
+                invertXAxis: this.invertXAxis,
+                viewPort: this.viewPort
+            });
+
+            //Copy non-public properties.
+            newLayer._allowSaveStateEnabled = this._allowSaveStateEnabled;
+            newLayer._viewPortBorderColor = this._viewPortBorderColor;
+
+            return newLayer;
+        }
         /**
          * Toggles images smoothing.
          * @param {boolean} enable true to enable.
@@ -320,6 +394,26 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.reset();
         }
         /**
+         * Draws another layer onto this layer.
+         * @param {object} layer 
+         * @param {number} destinationX 
+         * @param {number} destinationY 
+         * @param {number} destinationWidth 
+         * @param {number} destinationHeight 
+         */
+        drawLayer(layer, destinationX = 0, destinationY = 0, destinationWidth = this.width, destinationHeight = this.height) {
+
+            if (!(layer instanceof hamonengine.graphics.layer)) {
+                throw "Parameter layer is not of type hamonengine.graphics.layer.";
+            }
+
+            this.context.drawImage(layer.canvas,
+                destinationX,
+                destinationY,
+                destinationWidth,
+                destinationHeight);
+        }
+        /**
          * A method that draws text based on the dimension parameters provided.
          * @param {string} text to draw.
          * @param {number} sourceX coordinate of where to draw the text.
@@ -345,7 +439,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Refer to the details that can be found at MDN: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
          * @param {object} image 
          * @param {number} sourceX 
-         * @param {number} sourceY 
          * @param {number} sourceY 
          * @param {number} sourceWidth 
          * @param {number} sourceHeight 
