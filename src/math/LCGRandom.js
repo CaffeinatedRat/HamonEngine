@@ -34,7 +34,7 @@ hamonengine.math = hamonengine.math || {};
     const m = Math.maxUInt32;
 
     ///////////////////////////////////////////
-    // Creats a psuedorandom number from a Linear Congruential Generation algorithm.
+    // Creates a psuedorandom number from a Linear Congruential Generation algorithm.
     // X1 = (a * X0 + c) % m where
     // m -- modulus [0 < m] (Coprime w/c)
     // a -- Multiplier [0 < a < m] (Prime number)

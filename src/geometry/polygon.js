@@ -346,7 +346,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //An overlapping line is one that is valid or is a line.
                 let overlapping = projection1.overlap(projection2);
                 if (!overlapping.isLine) {
-                    //Return an empty MTV.
+                    //No collision has occurred so return an empty MTV.
                     return new hamonengine.geometry.vector2();
                 }
                
@@ -356,6 +356,10 @@ hamonengine.geometry = hamonengine.geometry || {};
                     let min = Math.abs(projection1.min - projection2.min);
                     let max = Math.abs(projection1.max - projection2.max);
                     overlappingLength += (min < max) ? min : max;
+                }
+
+                if (isNaN(minPolygonPoint)) {
+                    minPolygonPoint = projection2.min;
                 }
                 
                 //If we reach here then its possible that a collision may still occur.
@@ -376,7 +380,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //An overlapping line is one that is valid or is a line.
                 let overlapping = projection1.overlap(projection2);
                 if (!overlapping.isLine) {
-                    //Return an empty MTV.
+                    //No collision has occurred so return an empty MTV.
                     return new hamonengine.geometry.vector2();
                 }
                
@@ -410,7 +414,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         isCollisionRect(rect) {
             //Convert the rect into a polygon for proper collision detection.
-            return rect.toPolygon().isCollision(this);
+            return rect.toPolygon().isCollisionPolygon(this);
         }
         /**
          * Determines if this shape is contained with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
