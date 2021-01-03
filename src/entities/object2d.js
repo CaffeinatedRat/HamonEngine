@@ -189,7 +189,8 @@ hamonengine.entities = hamonengine.entities || {};
          * @return {number} a COLLISION_TYPES 
          */
         isCollision(object) {
-            return this.boundingShape.isCollision(object);
+            let translatedShape = this.boundingShape.translate(this.position);
+            return translatedShape.isCollision(object);
         }
         /**
          * Determines if the targetObject is contained in this object's bounding shape and returns a MTV (Minimum Translation Vector).
