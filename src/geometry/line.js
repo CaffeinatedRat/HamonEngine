@@ -29,7 +29,7 @@ hamonengine.geometry = hamonengine.geometry || {};
 
 (function() {
     /**
-     * This class represents a one-dimensional line.
+     * This class represents a one-dimensional line or interval.
      */
     hamonengine.geometry.line = class {
         constructor(min=0.0,max=0.0) {
@@ -43,13 +43,19 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the length of the line.
          */
         get length() {
-            return (this.max - this.min);
+            return Math.abs(this.max - this.min);
         }
         /**
          * Returns true if the line is valid, where the min & max are actual values not NaN.
          */
         get isLine() {
             return !isNaN(this.min) && !isNaN(this.max);
+        }
+        /**
+         * Returns the middle point on the line.
+         */
+        get midPoint() {
+            return (this.max - this.min) / 2;
         }
         //--------------------------------------------------------
         // Methods
@@ -74,7 +80,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return `{min: '${this.min}', max: '${this.max}'}`;
         }
         /**
-         * Returns an instance of the mirrored line across the x-axis.
+         * Returns an instance of the mirrored line across a single axis.
          */
         mirror() {
             return new hamonengine.geometry.line(this.max, this.min);
@@ -107,6 +113,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         overlap(l) {
             //Determine if the point is on the line.
+            //Note that the line represents a single axis so the point will only be one dimensional.
             let isPointOnLine = (point,line) => (point >= line.min && point <= line.max);
 
             let min = NaN;
@@ -139,6 +146,18 @@ hamonengine.geometry = hamonengine.geometry || {};
          */        
         contains(l) {
             return l.min >= this.min && l.max <= this.max;
+        }
+        /**
+         * Returns orientation/direction of the line l in relation to this line.
+         * If the line l is to the right of this line then +1 is returned.
+         * If the line l is to the left of this line then -1 is returned.
+         * If the line l overlaps this line then 0 is returned.
+         * @param {Object} l 
+         */
+        getOrientation(l) {
+            let tMidPoint = this.midPoint;
+            let lMidPoint = l.midPoint;
+            return lMidPoint === tMidPoint ? 0 : (lMidPoint < tMidPoint ? -1 : 1);
         }
     }
 })();
