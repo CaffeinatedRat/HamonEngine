@@ -47,16 +47,27 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._invertYAxis = options.invertYAxis !== undefined ? options.invertYAxis : false;
             this._invertXAxis = options.invertXAxis !== undefined ? options.invertXAxis : false;
 
-            //DOM Contexts.
-            if (!this._canvasId) {
-                console.error(`[hamonengine.graphics.layer.constructor] Invalid canvasId: '${this._canvasId}' unable to create the engine!`);
+            //Get the canvas is one is provided.
+            let canvas = options.canvas;
+
+            //Verify the CanvasId or Canvas exists.
+            if (!this._canvasId && !canvas) {
+                console.error(`[hamonengine.graphics.layer.constructor] Invalid canvasId '${this._canvasId}' or canvas. Unable to create the layer!`);
                 throw 'Cannot create the layer';
             }
 
-            this._canvas = options.canvas || document.getElementById(this._canvasId);
+            //Check for a canvas first before looking for one in the DOM.
+            if (canvas) {
+                this._canvas = canvas;
+                this._canvasId = canvas.id;
+                this._name = options.name || canvas.getAttribute('name');
+            }
+            else {
+                this._canvas = document.getElementById(this._canvasId);
+            }
 
             if (!this._canvas) {
-                console.error(`[hamonengine.graphics.layer.constructor] Invalid canvas: '${this._canvasId}' unable to create the engine!`);
+                console.error(`[hamonengine.graphics.layer.constructor] Invalid canvas: '${this._canvasId}' unable to create the layer!`);
                 throw 'Cannot create the layer';
             }
 
@@ -72,7 +83,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.enableImageSmoothing(options.enableImageSmoothing);
 
             if (!this._canvasContext) {
-                console.error(`[hamonengine.graphics.layer.constructor] Unable to get the 2d context: '${this._canvasId}' unable to create the engine!`);
+                console.error(`[hamonengine.graphics.layer.constructor] Unable to get the 2d context: '${this._canvasId}' unable to create the layer!`);
                 throw 'Cannot create the layer';
             }
 
