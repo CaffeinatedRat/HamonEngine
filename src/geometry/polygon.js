@@ -335,16 +335,16 @@ hamonengine.geometry = hamonengine.geometry || {};
             let mnimumOverlappingLength = NaN;
             let mtvAxis;
 
-            //Test Polygon1: Iterate through each normal, which will act as an axis to project upon.
+            //Test the Other Polygon: Iterate through each normal, which will act as an axis to project upon.
             let axes = polygon.normals;
             for(let i = 0; i < axes.length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
-                let projection1 = this.project(axes[i]);
-                let projection2 = polygon.project(axes[i]);
+                let thisProjection = this.project(axes[i]);
+                let otherProjection = polygon.project(axes[i]);
 
                 //Determine if projection1 & projection2 are overlapping.
                 //An overlapping line is one that is valid or is a line.
-                let overlapping = projection1.overlap(projection2);
+                let overlapping = thisProjection.overlap(otherProjection);
                 if (!overlapping.isLine) {
                     //No collision has occurred so return an empty MTV.
                     return new hamonengine.geometry.vector2();
@@ -352,9 +352,9 @@ hamonengine.geometry = hamonengine.geometry || {};
                
                 //Check for containment.
                 let overlappingLength = overlapping.length;
-                if(projection1.contains(projection2) || projection2.contains(projection1)) {
-                    let min = Math.abs(projection1.min - projection2.min);
-                    let max = Math.abs(projection1.max - projection2.max);
+                if(thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
+                    let min = Math.abs(thisProjection.min - otherProjection.min);
+                    let max = Math.abs(thisProjection.max - otherProjection.max);
                     overlappingLength += (min < max) ? min : max;
                 }
                 
@@ -365,16 +365,16 @@ hamonengine.geometry = hamonengine.geometry || {};
                 }
             }
 
-            //Test Polygon2: Iterate through each normal, which will act as an axis to project upon.
+            //Test This Polygon: Iterate through each normal, which will act as an axis to project upon.
             axes = this.normals;
             for(let i = 0; i < axes.length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
-                let projection1 = this.project(axes[i]);
-                let projection2 = polygon.project(axes[i]);
+                let thisProjection = this.project(axes[i]);
+                let otherProjection = polygon.project(axes[i]);
 
                 //Determine if projection1 & projection2 are overlapping.
                 //An overlapping line is one that is valid or is a line.
-                let overlapping = projection1.overlap(projection2);
+                let overlapping = thisProjection.overlap(otherProjection);
                 if (!overlapping.isLine) {
                     //No collision has occurred so return an empty MTV.
                     return new hamonengine.geometry.vector2();
@@ -382,9 +382,9 @@ hamonengine.geometry = hamonengine.geometry || {};
                
                 //Check for containment.
                 let overlappingLength = overlapping.length;
-                if(projection1.contains(projection2) || projection2.contains(projection1)) {
-                    let min = Math.abs(projection1.min - projection2.min);
-                    let max = Math.abs(projection1.max - projection2.max);
+                if(thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
+                    let min = Math.abs(thisProjection.min - otherProjection.min);
+                    let max = Math.abs(thisProjection.max - otherProjection.max);
                     overlappingLength += (min < max) ? min : max;
                 }
                 
