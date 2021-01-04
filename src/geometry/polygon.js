@@ -423,7 +423,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.vector2();
         }
         /**
-         * Projects the polygon onto the provided vector and returns an object of {min, max}.
+         * Projects the polygon onto the provided vector and returns a (hamonengine.geometry.line}.
          * @param {object} vector (hamonengine.geometry.vector2) to project onto.
          */
         project(vector) {
