@@ -336,11 +336,11 @@ hamonengine.geometry = hamonengine.geometry || {};
             let mtvAxis;
 
             //Test Polygon1: Iterate through each normal, which will act as an axis to project upon.
-            let axisNormals = polygon.normals;
-            for(let i = 0; i < axisNormals.length; i++) {
+            let axes = polygon.normals;
+            for(let i = 0; i < axes.length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
-                let projection1 = this.project(axisNormals[i]);
-                let projection2 = polygon.project(axisNormals[i]);
+                let projection1 = this.project(axes[i]);
+                let projection2 = polygon.project(axes[i]);
 
                 //Determine if projection1 & projection2 are overlapping.
                 //An overlapping line is one that is valid or is a line.
@@ -357,24 +357,20 @@ hamonengine.geometry = hamonengine.geometry || {};
                     let max = Math.abs(projection1.max - projection2.max);
                     overlappingLength += (min < max) ? min : max;
                 }
-
-                if (isNaN(minPolygonPoint)) {
-                    minPolygonPoint = projection2.min;
-                }
                 
                 //If we reach here then its possible that a collision may still occur.
                 if(isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength){
                     mnimumOverlappingLength = overlappingLength;
-                    mtvAxis = axisNormals[i];
+                    mtvAxis = axes[i];
                 }
             }
 
             //Test Polygon2: Iterate through each normal, which will act as an axis to project upon.
-            axisNormals = this.normals;
-            for(let i = 0; i < axisNormals.length; i++) {
+            axes = this.normals;
+            for(let i = 0; i < axes.length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
-                let projection1 = this.project(axisNormals[i]);
-                let projection2 = polygon.project(axisNormals[i]);
+                let projection1 = this.project(axes[i]);
+                let projection2 = polygon.project(axes[i]);
 
                 //Determine if projection1 & projection2 are overlapping.
                 //An overlapping line is one that is valid or is a line.
@@ -395,7 +391,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //If we reach here then its possible that a collision may still occur.
                 if(isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength){
                     mnimumOverlappingLength = overlappingLength;
-                    mtvAxis = axisNormals[i];
+                    mtvAxis = axes[i];
                 }
             }
 
