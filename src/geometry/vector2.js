@@ -78,7 +78,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Normalizes and returns a unit vector.
          */
         normalize() {
-            let l = this.length;
+            const l = this.length;
             return (l > 0) ? new hamonengine.geometry.vector2(this.x / l, this.y / l) : new hamonengine.geometry.vector2();
         }
         /**
@@ -86,7 +86,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {number} rotationType determines which direction the normal is calculated based on the ROTATION_TYPE.
          */
         normal(rotationType = ROTATION_TYPE.CCW) {
-            let l = this.length;
+            const l = this.length;
             if (l > 0) {
                 if (rotationType === ROTATION_TYPE.CCW) {
                     //Where θ = PI/2

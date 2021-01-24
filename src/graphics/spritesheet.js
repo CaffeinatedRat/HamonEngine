@@ -61,7 +61,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         load(spriteSheetMetadata) {
 
             //Start the image resource loading and get the promise to complete.
-            let resourceLoadingPromise = this._imageResource.load(spriteSheetMetadata.spritesheetUrl);
+            const resourceLoadingPromise = this._imageResource.load(spriteSheetMetadata.spritesheetUrl);
 
             //--------------------------------------------------------------------------
             // Continue loading spritesheet information while the resources are loading.
@@ -69,7 +69,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Load all of the static sprites from the metadata.
             for(let i = 0; i < spriteSheetMetadata.sprites.length; i++) {
-                let spriteMetadata = spriteSheetMetadata.sprites[i];
+                const spriteMetadata = spriteSheetMetadata.sprites[i];
                 this._spriteIndex.push(spriteMetadata.name);
                 this._sprites[spriteMetadata.name] = new hamonengine.graphics.sprite({
                     image: this._imageResource,
@@ -85,14 +85,14 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Load all of the animated sprites from the metadata.
             for (let i = 0; i < spriteSheetMetadata.animSprites.length; i++) {
-                let animSpriteMetadata = spriteSheetMetadata.animSprites[i];
-                let animatedSprite = new hamonengine.graphics.animsprite({
+                const animSpriteMetadata = spriteSheetMetadata.animSprites[i];
+                const animatedSprite = new hamonengine.graphics.animsprite({
                     animationRate: animSpriteMetadata.animationRate,
                 });
 
                 //Load all of the frames from this animated sprite.
                 for (let j = 0; j < animSpriteMetadata.frames.length; j++) {
-                    let frameMetadata = animSpriteMetadata.frames[j];
+                    const frameMetadata = animSpriteMetadata.frames[j];
                     animatedSprite.addFrame(new hamonengine.graphics.sprite({
                         image: this._imageResource,
                         name: frameMetadata.name,

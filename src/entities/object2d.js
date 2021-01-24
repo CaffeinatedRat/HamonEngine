@@ -189,7 +189,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @return {number} a COLLISION_TYPES 
          */
         isCollision(object) {
-            let translatedShape = this.boundingShape.translate(this.position);
+            const translatedShape = this.boundingShape.translate(this.position);
             return translatedShape.isCollision(object);
         }
         /**

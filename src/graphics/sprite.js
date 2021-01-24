@@ -247,12 +247,12 @@ hamonengine.graphics = hamonengine.graphics || {};
             y = Math.bitRound(y);
 
             //Find the center of the sprite.
-            let xCenterOffset = Math.bitRound(width / 2) + x;
-            let yCenterOffset = Math.bitRound(height / 2) + y;
+            const xCenterOffset = Math.bitRound(width / 2) + x;
+            const yCenterOffset = Math.bitRound(height / 2) + y;
 
             //Precalculate the orientation around the x & y axis.
-            let yOrientation = hamonengine.util.bitwise.isSet(this._spriteOrientation, SPRITE_ORIENTATION.FLIPPED) ? -1.0 : 1.0;
-            let xOrientation = hamonengine.util.bitwise.isSet(this._spriteOrientation, SPRITE_ORIENTATION.MIRRORED) ? -1.0 : 1.0;
+            const yOrientation = hamonengine.util.bitwise.isSet(this._spriteOrientation, SPRITE_ORIENTATION.FLIPPED) ? -1.0 : 1.0;
+            const xOrientation = hamonengine.util.bitwise.isSet(this._spriteOrientation, SPRITE_ORIENTATION.MIRRORED) ? -1.0 : 1.0;
 
             //Save the current state.
             layer.save();
@@ -288,8 +288,8 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             if (hamonengine.debug && this.showDiagnosisLines) {
                 //Find the center of the sprite.
-                let xCenterOffset = Math.bitRound(width / 2) + x;
-                let yCenterOffset = Math.bitRound(height / 2) + y;
+                const xCenterOffset = Math.bitRound(width / 2) + x;
+                const yCenterOffset = Math.bitRound(height / 2) + y;
 
                 //Shows the wrapping test pattern.
                 if (layer.wrapHorizontal || layer.wrapVertical) {
@@ -356,20 +356,20 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         drawSpriteWrapping(layer, elapsedTimeInMilliseconds, x, y, width, height, xOrientation, yOrientation) {
 
-            let cosAngle = Math.cos(-this.theta);
-            let sinAngle = Math.sin(-this.theta);
+            const cosAngle = Math.cos(-this.theta);
+            const sinAngle = Math.sin(-this.theta);
 
-            let widthScaled = width * this._scaleVector.x;
-            let heightScaled = height * this._scaleVector.y;
+            const widthScaled = width * this._scaleVector.x;
+            const heightScaled = height * this._scaleVector.y;
 
-            let wrappingDirection = new hamonengine.geometry.vector2();
+            const wrappingDirection = new hamonengine.geometry.vector2();
             let v1x, v1y, v2x, v2y;
 
             //Horizontal wrapping.
             if (layer.wrapHorizontal) {
                 //Inversely scale the length to the size of the sprite scaled horizontally relative to its local transformation.
                 //For example, if the sprite has been shrunk by half, then the length must be doubled.
-                let horizontalLength = layer.viewPort.width / this._scaleVector.x * xOrientation;
+                const horizontalLength = layer.viewPort.width / this._scaleVector.x * xOrientation;
 
                 //Rotate and scale the horizontal vector to keep our wrapping sprite on a horizontal plane with canvas not with the rotation plane so it appears at the edges of the screen.
                 v1x = Math.bitRound(cosAngle * horizontalLength);
@@ -408,7 +408,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (layer.wrapVertical) {
                 //Inversely scale the length to the size of the sprite scaled vertically relative to its local transformation.
                 //For example, if the sprite has been shrunk by half, then the length must be doubled.
-                let verticalLength = layer.viewPort.height / this._scaleVector.y * yOrientation;
+                const verticalLength = layer.viewPort.height / this._scaleVector.y * yOrientation;
 
                 //Rotate and scale the vertical vector to keep our wrapping sprite on a vertical plane with canvas not with the rotation plane so it appears at the edges of the screen.
                 v2x = Math.bitRound(sinAngle * verticalLength);
@@ -445,8 +445,8 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Handle the corner sprites if veritcal & horizontal wrapping are enabled. 
             if (layer.wrapVertical && layer.wrapHorizontal) {
-                let xOffset = (x - wrappingDirection.y * v2x) + (wrappingDirection.x * v1x);
-                let yOffset = (y + wrappingDirection.y * v2y) + (wrappingDirection.x * v1y);
+                const xOffset = (x - wrappingDirection.y * v2x) + (wrappingDirection.x * v1x);
+                const yOffset = (y + wrappingDirection.y * v2y) + (wrappingDirection.x * v1y);
 
                 if (xOffset && yOffset) {
                     this.drawRaw(layer, elapsedTimeInMilliseconds, xOffset, yOffset, width, height);

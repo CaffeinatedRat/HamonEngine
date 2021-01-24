@@ -89,7 +89,7 @@ hamonengine.util = hamonengine.util || {};
                 throw "[hamonengine.util.fpsCounter.end] Begin was not called before end.";
             }
 
-            let frameEndTime = Date.now();
+            const frameEndTime = Date.now();
 
             //Increment the frame counter.
             this._frameCounter++;

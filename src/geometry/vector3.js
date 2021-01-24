@@ -72,7 +72,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Normalizes and returns a unit vector.
          */
         normalize() {
-            let l = this.length; 
+            const l = this.length; 
             return (l > 0) ? new  hamonengine.geometry.vector3(this.x / l, this.y / l, this.z / l) : new hamonengine.geometry.vector3();
         }
         /**

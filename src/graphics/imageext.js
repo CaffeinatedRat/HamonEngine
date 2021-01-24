@@ -163,7 +163,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.complete) {
 
                 //Gather the source.
-                let sourceData = this.getImageData(region);
+                const sourceData = this.getImageData(region);
 
                 //Get the blending method.
                 let blendingMethod = (s, d) => (s > 0) ? s : d;
@@ -194,7 +194,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 }
 
                 //Blend the colors.
-                let data = sourceData.data;
+                const data = sourceData.data;
                 for (let i = 0; i < data.length; i += 4) {
                     data[i]     = blendingMethod(r, data[i]);  //Red
                     data[i + 1] = blendingMethod(g, data[i+1]);//Green
@@ -219,10 +219,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.complete) {
 
                 //Gather the source.
-                let sourceData = this.getImageData(region);
+                const sourceData = this.getImageData(region);
 
                 //Adjust the colors.
-                let data = sourceData.data;
+                const data = sourceData.data;
                 for (let i = 0; i < data.length; i += 4) {
                     data[i]   = Math.bitRound(data[i] * r); //Red
                     data[i+1] = Math.bitRound(data[i+1] * g); //Green
@@ -253,30 +253,30 @@ hamonengine.graphics = hamonengine.graphics || {};
                 transparency = Math.max(Math.min(transparency, 1.0), 0.0);
 
                 //Get the destination.
-                let destImageData = this.getImageData(destRegion);
+                const destImageData = this.getImageData(destRegion);
 
                 //Get the canvas and source.
-                let targetCanavs = hamonengine.graphics.layer.createNewCanvas(imageData.width, imageData.height);
-                let targetCtx = targetCanavs.getContext('2d');
+                const targetCanavs = hamonengine.graphics.layer.createNewCanvas(imageData.width, imageData.height);
+                const targetCtx = targetCanavs.getContext('2d');
                 targetCtx.drawImage(imageData, 0, 0);
-                let srcImageData = targetCtx.getImageData(srcRegion.x, srcRegion.y, srcRegion.width, srcRegion.height);
+                const srcImageData = targetCtx.getImageData(srcRegion.x, srcRegion.y, srcRegion.width, srcRegion.height);
 
                 //Get data references.
-                let destData = destImageData.data;
-                let srcData = srcImageData.data;
+                const destData = destImageData.data;
+                const srcData = srcImageData.data;
 
                 //Always iterate through the shortest width & height.
-                let minHeight = Math.max(srcRegion.height, destRegion.height);
-                let minWidth = Math.max(srcRegion.width, destRegion.width);
+                const minHeight = Math.max(srcRegion.height, destRegion.height);
+                const minWidth = Math.max(srcRegion.width, destRegion.width);
 
                 //Iterate through each row, then column.
                 for (let row = 0; row < minHeight; row++) {
                     for (let col = 0; col < minWidth; col++) {
-                        let destIndex = (row * destRegion.width + col) * 4;
-                        let srcIndex = (row * srcRegion.width + col) * 4;
+                        const destIndex = (row * destRegion.width + col) * 4;
+                        const srcIndex = (row * srcRegion.width + col) * 4;
                         
                         //Calculate the complement, as long as the alpha channel is not transparent.
-                        let transparencyComplement = (srcData[srcIndex+3] > 0) ? (1.0 - transparency) : 1.0;
+                        const transparencyComplement = (srcData[srcIndex+3] > 0) ? (1.0 - transparency) : 1.0;
                         destData[destIndex] = Math.bitRound(destData[destIndex] * transparencyComplement + srcData[srcIndex] * transparency);
                         destData[destIndex+1] = Math.bitRound(destData[destIndex+1] * transparencyComplement + srcData[srcIndex+1] * transparency);
                         destData[destIndex+2] = Math.bitRound(destData[destIndex+2] * transparencyComplement + srcData[srcIndex+2] * transparency);

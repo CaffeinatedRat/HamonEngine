@@ -66,8 +66,8 @@ hamonengine.core = hamonengine.core || {};
             this._layers = {};
             let index = 0;
             for (let i = 0; i < options.canvas.length; i ++) {
-                let canvas = options.canvas[i];
-                let canvasName = canvas.name || `${cavnas_default_name}${index++}`;
+                const canvas = options.canvas[i];
+                const canvasName = canvas.name || `${cavnas_default_name}${index++}`;
                 this._layers[canvasName]= new hamonengine.graphics.layer({
                     name: canvasName,
                     canvasId: canvas.id,
@@ -214,8 +214,8 @@ hamonengine.core = hamonengine.core || {};
                             const mouseEvent = (type, e) => this.onMouseEvent(type, new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, layer);
                             const mouseClick = (e) => this.onMouseClick(new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, layer);
                             const touchEvent = (type, e) => {
-                                let touches = [];
-                                let position = layer.position;
+                                const touches = [];
+                                const position = layer.position;
                                 for(let i = 0; i < e.touches.length; i++) {
                                     touches.push({
                                         left: e.touches[i].clientX - position.x,
@@ -282,7 +282,7 @@ hamonengine.core = hamonengine.core || {};
             }
 
             //Get the time elapsed since the engine started.
-            let elapsedTimeInMilliseconds = timestampInMilliseconds - this._lastFrameTimeStamp;
+            const elapsedTimeInMilliseconds = timestampInMilliseconds - this._lastFrameTimeStamp;
 
             //hamonengine.util.logger.debug("[hamonengine.core.engine.onDraw]");
             try {

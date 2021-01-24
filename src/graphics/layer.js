@@ -48,7 +48,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._invertXAxis = options.invertXAxis !== undefined ? options.invertXAxis : false;
 
             //Get the canvas is one is provided.
-            let canvas = options.canvas;
+            const canvas = options.canvas;
 
             //Verify the CanvasId or Canvas exists.
             if (!this._canvasId && !canvas) {
@@ -168,7 +168,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Get the position of the layer.
          */        
         get position() {
-            let boundRect = this.canvas.getBoundingClientRect() || { left: 0, top: 0};
+            const boundRect = this.canvas.getBoundingClientRect() || { left: 0, top: 0};
             return new hamonengine.geometry.vector2(boundRect.left, boundRect.top);
         }
         /**
@@ -273,7 +273,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @returns {Object} a newly created canvas
          */
         static createNewCanvas(width, height, id='', name='') {
-            let canvas = document.createElement('canvas');
+            const canvas = document.createElement('canvas');
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
             if (id) {
@@ -293,12 +293,12 @@ hamonengine.graphics = hamonengine.graphics || {};
         clone(canvasId, name, elementToAttach=null) {
 
             //Create a new canvas element and attach it after the original.
-            let newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
+            const newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
             //elementToAttach = elementToAttach || this.canvas.parentNode;
             elementToAttach && elementToAttach.insertBefore(newCanvas,null);
 
             //Create a new canvas instance.
-            let newLayer = new hamonengine.graphics.layer({
+            const newLayer = new hamonengine.graphics.layer({
                 canvasId: canvasId,
                 name: name,
                 canvas: newCanvas,
@@ -560,7 +560,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.wrapHorizontal) {
                 //DRAW RIGHT
                 //Determine if the minimum vertex of a polygon extends beyond the minimum edge (left side) of the viewport.
-                let xOffset = (sourceX + polygon.min.x) - this.viewPort.x;
+                const xOffset = (sourceX + polygon.min.x) - this.viewPort.x;
                 if (xOffset <= 0) {
                     this.simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, {lineWidth, color, drawNormals, fill, fillColor} );
                 }
@@ -568,7 +568,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //DRAW LEFT
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (right side) of the viewport.
                 if (sourceX + polygon.width >= this.viewPort.width) {
-                    let xOffset = this.viewPort.width - (sourceX + polygon.min.x);
+                    const xOffset = this.viewPort.width - (sourceX + polygon.min.x);
                     this.simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, {lineWidth, color, drawNormals, fill, fillColor} );
                 }
             }
@@ -577,7 +577,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.wrapVertical) {
                 //DRAW DOWN
                 //Determine if the minimum vertex of a polygon extends beyond the minimum edge (top side) of the viewport.
-                let yOffset = (sourceY + polygon.min.y) - this.viewPort.y;
+                const yOffset = (sourceY + polygon.min.y) - this.viewPort.y;
                 if (yOffset <= 0) {
                     this.simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, {lineWidth, color, drawNormals, fill, fillColor} );
                 }
@@ -585,7 +585,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //DRAW UP
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (bottom side) of the viewport.
                 if (sourceY + polygon.height >= this.viewPort.height) {
-                    let yOffset = this.viewPort.height - (sourceY + polygon.min.y);
+                    const yOffset = this.viewPort.height - (sourceY + polygon.min.y);
                     this.simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, {lineWidth, color, drawNormals, fill, fillColor} );
                 }
             }
@@ -647,8 +647,8 @@ hamonengine.graphics = hamonengine.graphics || {};
                 for (let index = 0; index < polygon.vertices.length; index++) {
 
                     //Get the current vertex and edge.
-                    let vertex = polygon.vertices[index];
-                    let edge = polygon.edges[index];
+                    const vertex = polygon.vertices[index];
+                    const edge = polygon.edges[index];
 
                     //Find the coordinates to begin the normal.
                     //The normal will start at the middle of the edge.
@@ -667,8 +667,8 @@ hamonengine.graphics = hamonengine.graphics || {};
                     this.context.moveTo(x, y);
 
                     //Find the normal for the current edge and draw a line to it.
-                    let normal = polygon.normals[index];
-                    let normalSize = Math.bitRound(edge.length / 2);
+                    const normal = polygon.normals[index];
+                    const normalSize = Math.bitRound(edge.length / 2);
                     
                     if (this.invertYAxis) {
                         normal.y = -normal.y;

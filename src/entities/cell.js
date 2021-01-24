@@ -100,9 +100,9 @@ hamonengine.entities = hamonengine.entities || {};
                 //Keep a collection of collisions that have already occurred.
                 //If we imagine each object as a point in undirected graph, then each edge is a computed collision.
                 //If we detect a known collision edge then we can skip any redundant collision calculation.
-                let collisionsEdges = new Set();
+                const collisionsEdges = new Set();
                 for (let i = 0; i < this.objects.length; i++) {
-                    let object = this.objects[i];
+                    const object = this.objects[i];
                     if (object.isMoveable) {
                         object.move(elapsedTimeInMilliseconds);
                         
@@ -110,8 +110,8 @@ hamonengine.entities = hamonengine.entities || {};
                         if (this.isSolid) {
 
                             //Get the adjusted coordinates.
-                            let adjustedPosition = hamonengine.geometry.vector2.clone(object.position);
-                            let collisionVector = this.isContained(object);
+                            const adjustedPosition = hamonengine.geometry.vector2.clone(object.position);
+                            const collisionVector = this.isContained(object);
                             if (collisionVector.x < 0) {
                                 adjustedPosition.x = this.boundingShape.x - object.boundingShape.x;
                             }
@@ -136,12 +136,12 @@ hamonengine.entities = hamonengine.entities || {};
                     //Handle collision with siblings.
                     //TimeComplexity: All Cases -- O(n^2)
                     for (let i = 0; i < this.objects.length; i++) {
-                        let siblingObject = this.objects[i];
+                        const siblingObject = this.objects[i];
                         //Ignore the current object.
                         if (object !== siblingObject) {
 
                             //Determine if we've already calculated the the collision between these two objects.
-                            let edgeName = `${object.name}->${siblingObject.name}`;
+                            const edgeName = `${object.name}->${siblingObject.name}`;
                             
                             //Calculate the collision between two objects only once.
                             if (!collisionsEdges.has(edgeName)) {

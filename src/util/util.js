@@ -96,7 +96,7 @@ hamonengine.util = hamonengine.util || {
          * @param {number} bitToCheck to find in the value.
          */
         static isSet(value, bitToCheck) {
-            let valueToCheck = 1 << bitToCheck;
+            const valueToCheck = 1 << bitToCheck;
             return (value & valueToCheck) === valueToCheck;
         }
     }

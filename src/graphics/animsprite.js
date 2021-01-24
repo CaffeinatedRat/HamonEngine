@@ -175,16 +175,16 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Since the time elapsed since the lastframe may be smaller than our rate, we need to accumlate it.
             //NOTE: That the time elapsed between frames can be dramatically different between each frame if there is a disruption in the draw loop.
             //For example, if the animtation rate is 30ms but the current elapsed time is 15ms, then we are not ready to switch frames.
-            let timeSinceLastFrame = this._timeSinceLastFrame + elapsedTimeInMilliseconds;
+            const timeSinceLastFrame = this._timeSinceLastFrame + elapsedTimeInMilliseconds;
             
             //Determine if animation is enabled.
             if (this._enableAnimation) {
                 
                 //Based on the amount of time that has passed, determine the number of animation frames that have passed.
-                let numberOfFrames = parseInt(timeSinceLastFrame / this.animationRate, 10);
+                const numberOfFrames = parseInt(timeSinceLastFrame / this.animationRate, 10);
 
                 //Calculate the number of animation cycles have elapsed during this animation frame.
-                let numberOfAnimationCycles = (this.index + numberOfFrames);
+                const numberOfAnimationCycles = (this.index + numberOfFrames);
 
                 //Calculate the number of animation cycles if this value is greater than -1.
                 if (this.animationCycles > -1) {

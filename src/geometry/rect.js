@@ -140,13 +140,13 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //A rect is an untransformed polygon with 4 set vertices.
             //Project this rect onto the normal of the x-axis, which would be the y-axis.
-            let this_YAxisProjection = new hamonengine.geometry.line(this.y, this.y + this.height);
+            const this_YAxisProjection = new hamonengine.geometry.line(this.y, this.y + this.height);
             //Project otherRect onto the normal of the x-axis, which would be the y-axis.
-            let other_YAxisProjection = new hamonengine.geometry.line(otherRect.y, otherRect.y + otherRect.height);
+            const other_YAxisProjection = new hamonengine.geometry.line(otherRect.y, otherRect.y + otherRect.height);
 
             //Determine if projection1 & projection2 are overlapping.
             //An overlapping line is one that is valid or is a line.
-            let overlappingYAxis = this_YAxisProjection.overlap(other_YAxisProjection);
+            const overlappingYAxis = this_YAxisProjection.overlap(other_YAxisProjection);
             if (!overlappingYAxis.isLine) {
                 //No collision has occurred so return an empty MTV.
                 return new hamonengine.geometry.vector2();
@@ -155,8 +155,8 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Check for containment.
             let overlappingYAxisLength = overlappingYAxis.length;
             if (this_YAxisProjection.contains(other_YAxisProjection) || other_YAxisProjection.contains(this_YAxisProjection)) {
-                let min = Math.abs(this_YAxisProjection.min - other_YAxisProjection.min);
-                let max = Math.abs(this_YAxisProjection.max - other_YAxisProjection.max);
+                const min = Math.abs(this_YAxisProjection.min - other_YAxisProjection.min);
+                const max = Math.abs(this_YAxisProjection.max - other_YAxisProjection.max);
                 overlappingYAxisLength += (min < max) ? min : max;
             }
 
@@ -171,14 +171,14 @@ hamonengine.geometry = hamonengine.geometry || {};
             // ---------------------------------------------
 
             //Project this rect onto the normal of the y-axis, which would be the x-axis.
-            let this_XAxisProjection = new hamonengine.geometry.line(this.x, this.x + this.width);
+            const this_XAxisProjection = new hamonengine.geometry.line(this.x, this.x + this.width);
 
             //Project otherRect onto the normal of the y-axis, which would be the x-axis.
-            let other_XAxisProjection = new hamonengine.geometry.line(otherRect.x, otherRect.x + otherRect.width);
+            const other_XAxisProjection = new hamonengine.geometry.line(otherRect.x, otherRect.x + otherRect.width);
 
             //Determine if projection1 & projection2 are overlapping.
             //An overlapping line is one that is valid or is a line.
-            let overlappingXAxis = this_XAxisProjection.overlap(other_XAxisProjection);
+            const overlappingXAxis = this_XAxisProjection.overlap(other_XAxisProjection);
             if (!overlappingXAxis.isLine) {
                 //No collision has occurred so return an empty MTV.
                 return new hamonengine.geometry.vector2();
@@ -187,8 +187,8 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Check for containment.
             let overlappingXAxisLength = overlappingXAxis.length;
             if (this_XAxisProjection.contains(other_XAxisProjection) || other_XAxisProjection.contains(this_XAxisProjection)) {
-                let min = Math.abs(this_XAxisProjection.min - other_XAxisProjection.min);
-                let max = Math.abs(this_XAxisProjection.max - other_XAxisProjection.max);
+                const min = Math.abs(this_XAxisProjection.min - other_XAxisProjection.min);
+                const max = Math.abs(this_XAxisProjection.max - other_XAxisProjection.max);
                 overlappingXAxisLength += (min < max) ? min : max;
             }
 
@@ -222,15 +222,15 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         isCollisionPoint(point) {
 
-            let outsideDirection = new hamonengine.geometry.vector2();
+            const outsideDirection = new hamonengine.geometry.vector2();
 
             if ((point.x >= this.x && point.x <= this.right) && (point.y >= this.y && point.y <= this.bottom)) {
-                let minX = point.x - this.x;
-                let minX2 = this.right - point.x;
+                const minX = point.x - this.x;
+                const minX2 = this.right - point.x;
                 outsideDirection.x = minX < minX2 ? minX : minX2;
 
-                let minY = point.y - this.y;
-                let minY2 = this.bottom - point.y;
+                const minY = point.y - this.y;
+                const minY2 = this.bottom - point.y;
                 outsideDirection.y = minY < minY2 ? minY : minY2;
             }
 
@@ -250,10 +250,10 @@ hamonengine.geometry = hamonengine.geometry || {};
                 hamonengine.util.logger.warning(`[hamonengine.geometry.rect.isContained] The rect parameter is not of type hamonengine.geometry.rect!`);
             }
 
-            let outsideDirection = new hamonengine.geometry.vector2();
+            const outsideDirection = new hamonengine.geometry.vector2();
 
-            let xOffset = position.x + rect.x;
-            let yOffset = position.y + rect.y;
+            const xOffset = position.x + rect.x;
+            const yOffset = position.y + rect.y;
             if (xOffset < this.x) {
                 hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isContained] Outside -x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = -1;

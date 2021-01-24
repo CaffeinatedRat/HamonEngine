@@ -70,7 +70,7 @@ hamonengine.math = hamonengine.math || {};
         static iquicksort(compareFunction, arr, left, right) {
             let i = left;
             let j = right;
-            let pivot = arr[Math.truncate((left + right) / 2)];
+            const pivot = arr[Math.truncate((left + right) / 2)];
 
             /* partition */
             while (i <= j) {
