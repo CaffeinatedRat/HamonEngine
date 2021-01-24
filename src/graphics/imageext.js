@@ -124,8 +124,8 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Handle errors and reject the promise.
                 this.image.addEventListener('error', (error) => {
                     this._state = IMAGE_STATES.ERROR;
-                    let imagePath = error && error.path && error.path.length > 0 && error.path[0].src || '';
-                    let errorMsg = `The image '${imagePath}' could not be loaded.`;
+                    const imagePath = error && error.path && error.path.length > 0 && error.path[0].src || '';
+                    const errorMsg = `The image '${imagePath}' could not be loaded.`;
                     reject(errorMsg);
                 }, false);
             });

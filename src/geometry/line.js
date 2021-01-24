@@ -114,7 +114,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         overlap(l) {
             //Determine if the point is on the line.
             //Note that the line represents a single axis so the point will only be one dimensional.
-            let isPointOnLine = (point,line) => (point >= line.min && point <= line.max);
+            const isPointOnLine = (point,line) => (point >= line.min && point <= line.max);
 
             let min = NaN;
             //Determine if minimum point occurs on the line l
@@ -155,8 +155,8 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Object} l 
          */
         getOrientation(l) {
-            let tMidPoint = this.midPoint;
-            let lMidPoint = l.midPoint;
+            const tMidPoint = this.midPoint;
+            const lMidPoint = l.midPoint;
             return lMidPoint === tMidPoint ? 0 : (lMidPoint < tMidPoint ? -1 : 1);
         }
     }
