@@ -49,7 +49,7 @@
             }
 
             this._method = options.method;
-            this._blob = options.blob || new Blob([`onmessage = ${options.method.toString()}`], { type: 'text/javascript' });
+            this._blob = options.blob || new Blob([`onmessage = ${options.method.toString()};`], { type: 'text/javascript' });
             this._url = URL.createObjectURL(this._blob);
             this._worker = new Worker(this._url);
         }
