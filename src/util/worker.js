@@ -93,11 +93,17 @@
          * @returns a promise.
          */
         run(data) {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 this.worker.onmessage = (e) => {
                     resolve(e.data);
                     URL.revokeObjectURL(this.url);
                 };
+
+                this.worker.onerror = (e) => {
+                    reject(e);
+                    URL.revokeObjectURL(this.url); 
+                }
+
                 this.worker.postMessage(data);
             });
         }
