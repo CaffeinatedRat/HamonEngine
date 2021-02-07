@@ -108,6 +108,12 @@ hamonengine.core = hamonengine.core || {};
         get fpsCounter() {
             return this._fpsCounter;
         }
+        /**
+         * Returns all registered layers
+         */        
+        get layers() {
+            return this._layers.toArray();
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------

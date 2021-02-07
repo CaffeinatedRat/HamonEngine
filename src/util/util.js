@@ -113,4 +113,16 @@ hamonengine.util = hamonengine.util || {
             }); 
         }
     };
+    /**
+     * Iterates through each object
+    */
+    Object.prototype.toArray = function() { 
+        let array = [];
+        Object.keys(this).forEach(key => {
+            if (this.hasOwnProperty(key)) {
+                array.push(this[key]);
+            }
+        });
+        return array;
+    };
 })();
