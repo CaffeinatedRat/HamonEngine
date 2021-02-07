@@ -222,7 +222,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Normalize the translateVector.
             translateVector = translateVector || new hamonengine.geometry.vector2(0, 0);
 
-            let newVertices = [];
+            const newVertices = [];
             for (let i = 0; i < this.vertices.length; i++) {
                 newVertices.push(this.vertices[i].add(translateVector));
             };
@@ -240,16 +240,16 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         rotate(theta, offsetVector) {
             //Precalculate the sin & cos values of theta.
-            let sinTheta = Math.sin(theta), cosTheta = Math.cos(theta);
+            const sinTheta = Math.sin(theta), cosTheta = Math.cos(theta);
             
             //Normalize the offset.
             offsetVector = offsetVector || new hamonengine.geometry.vector2(0, 0);
 
-            let newVertices = [];
+            const newVertices = [];
             for (let i = 0 ; i < this.vertices.length; i++) {
                 //Adjust/translate the vertex based on the offset.
-                let xOffset = this.vertices[i].x - offsetVector.x;
-                let yOffset = this.vertices[i].y - offsetVector.y;
+                const xOffset = this.vertices[i].x - offsetVector.x;
+                const yOffset = this.vertices[i].y - offsetVector.y;
 
                 let x, y;
                 if (hamonengine.geometry.settings.coordinateSystem === COORDINATE_SYSTEM.RHS) {
@@ -293,7 +293,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Normalize the scaleVector.
             scaleVector = scaleVector || new hamonengine.geometry.vector2(0, 0);
 
-            let newVertices = [];
+            const newVertices = [];
             for (let i = 0; i < this.vertices.length; i++) {
                 newVertices.push(this.vertices[i].multiplyVector(scaleVector));
             };
@@ -334,17 +334,18 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             let mnimumOverlappingLength = NaN;
             let mtvAxis;
+            let distance;
 
             //Test the Other Polygon: Iterate through each normal, which will act as an axis to project upon.
             let axes = polygon.normals;
             for(let i = 0; i < axes.length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
-                let thisProjection = this.project(axes[i]);
-                let otherProjection = polygon.project(axes[i]);
+                const thisProjection = this.project(axes[i]);
+                const otherProjection = polygon.project(axes[i]);
 
-                //Determine if projection1 & projection2 are overlapping.
+                //Determine if thisProjection & otherProjection are overlapping.
                 //An overlapping line is one that is valid or is a line.
-                let overlapping = thisProjection.overlap(otherProjection);
+                const overlapping = thisProjection.overlap(otherProjection);
                 if (!overlapping.isLine) {
                     //No collision has occurred so return an empty MTV.
                     return new hamonengine.geometry.vector2();
@@ -353,8 +354,8 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //Check for containment.
                 let overlappingLength = overlapping.length;
                 if(thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
-                    let min = Math.abs(thisProjection.min - otherProjection.min);
-                    let max = Math.abs(thisProjection.max - otherProjection.max);
+                    const min = Math.abs(thisProjection.min - otherProjection.min);
+                    const max = Math.abs(thisProjection.max - otherProjection.max);
                     overlappingLength += (min < max) ? min : max;
                 }
                 
@@ -362,6 +363,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 if(isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength){
                     mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axes[i];
+                    distance = otherProjection.getOrientation(thisProjection);
                 }
             }
 
@@ -369,12 +371,12 @@ hamonengine.geometry = hamonengine.geometry || {};
             axes = this.normals;
             for(let i = 0; i < axes.length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
-                let thisProjection = this.project(axes[i]);
-                let otherProjection = polygon.project(axes[i]);
+                const thisProjection = this.project(axes[i]);
+                const otherProjection = polygon.project(axes[i]);
 
-                //Determine if projection1 & projection2 are overlapping.
+                //Determine if thisProjection & otherProjection are overlapping.
                 //An overlapping line is one that is valid or is a line.
-                let overlapping = thisProjection.overlap(otherProjection);
+                const overlapping = thisProjection.overlap(otherProjection);
                 if (!overlapping.isLine) {
                     //No collision has occurred so return an empty MTV.
                     return new hamonengine.geometry.vector2();
@@ -383,8 +385,8 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //Check for containment.
                 let overlappingLength = overlapping.length;
                 if(thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
-                    let min = Math.abs(thisProjection.min - otherProjection.min);
-                    let max = Math.abs(thisProjection.max - otherProjection.max);
+                    const min = Math.abs(thisProjection.min - otherProjection.min);
+                    const max = Math.abs(thisProjection.max - otherProjection.max);
                     overlappingLength += (min < max) ? min : max;
                 }
                 
@@ -392,6 +394,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 if(isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength){
                     mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axes[i];
+                    distance = otherProjection.getOrientation(thisProjection);
                 }
             }
 
@@ -399,8 +402,18 @@ hamonengine.geometry = hamonengine.geometry || {};
             //This SAT algorithm can generate an infinitesimally small values when dealing with multiple polygon collisions.
             mnimumOverlappingLength = mnimumOverlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : mnimumOverlappingLength;
 
+            console.log(distance);
+
             //Return an MTV.
             return mtvAxis.multiply(mnimumOverlappingLength);
+            /*
+            let mtv = mtvAxis.multiply(mnimumOverlappingLength);
+            if (mtv.dot(distance) >= 0) {
+                mtv = mtv.invert();
+            }
+
+            return mtv;
+            */
         }
         /**
          * Determines if this polygon collides with another rect using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
@@ -431,7 +444,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             if (this.vertices.length > 0) {
                 max = min = vector.dot(this.vertices[0]);
                 for (let i = 1; i < this.vertices.length; i++) {
-                    let projection = vector.dot(this.vertices[i]);
+                    const projection = vector.dot(this.vertices[i]);
                     if (projection < min) {
                         min = projection;
                     }
@@ -450,9 +463,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Array} a collection of edges.
          */
         static calcEdges(vertices=[]) {
-            let edges = [];
+            const edges = [];
             for(let i = 0; i < vertices.length; i++) {
-                let destination = vertices[(i + 1) % vertices.length];
+                const destination = vertices[(i + 1) % vertices.length];
                 edges.push(destination.subtract(vertices[i]));
             }
 
@@ -514,13 +527,13 @@ hamonengine.geometry = hamonengine.geometry || {};
                 
                 //Get three vertices so we can generate two consective vectors in our polygon.
                 //NOTE: These vertices are being stored as vectors, as to provide easy access to the vector help methods.
-                let p1 = vertices[i];
-                let p2 = vertices[(i + 1) % vertices.length];
-                let p3 = vertices[(i + 2) % vertices.length];
+                const p1 = vertices[i];
+                const p2 = vertices[(i + 1) % vertices.length];
+                const p3 = vertices[(i + 2) % vertices.length];
 
                 //Create our first two consecutive vectors (P1->P2, P2->P3).
-                let v1 = p2.subtract(p1);
-                let v2 = p3.subtract(p2);
+                const v1 = p2.subtract(p1);
+                const v2 = p3.subtract(p2);
 
                 //Calculate the cross-product between our two vectors.
                 //NOTE: Since these are 2d vectors, the results will be stored in the z-coordinate in a vector3 (hamonengine.geometry.vector3).
