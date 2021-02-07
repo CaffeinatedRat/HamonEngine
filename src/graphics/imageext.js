@@ -96,7 +96,19 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         get rawImage() {
             return this._image;
-        } 
+        }
+        /**
+         * Returns the full width of the image.
+         */
+        get width() {
+            return this.image.width;
+        }
+        /**
+         * Returns the full height of the image.
+         */
+        get height() {
+            return this.image.height;
+        }        
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -111,23 +123,34 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} src url of the image.
          * @return {Object} a promise to complete loading.
          */
-        load(src) {
-            this.src = src;
+        load(src='') {
+
+            //Handle statically loaded image; those the DOM may have already loaded.
+            if (src !== '') {
+                this.src = src;
+            }
+
             this._state = IMAGE_STATES.LOADING;
             return new Promise((resolve, reject) => {
-                //Handle a successful loading event and resolve the promise.
-                this.image.addEventListener('load', () => {
+                if (!this.complete) {
+                    //Handle a successful loading event and resolve the promise.
+                    this.image.addEventListener('load', () => {
+                        this._state = IMAGE_STATES.COMPLETE;
+                        resolve();
+                    }, false);
+
+                    //Handle errors and reject the promise.
+                    this.image.addEventListener('error', (error) => {
+                        this._state = IMAGE_STATES.ERROR;
+                        const imagePath = error && error.path && error.path.length > 0 && error.path[0].src || '';
+                        const errorMsg = `The image '${imagePath}' could not be loaded.`;
+                        reject(errorMsg);
+                    }, false);
+                }
+                else {
                     this._state = IMAGE_STATES.COMPLETE;
                     resolve();
-                }, false);
-
-                //Handle errors and reject the promise.
-                this.image.addEventListener('error', (error) => {
-                    this._state = IMAGE_STATES.ERROR;
-                    const imagePath = error && error.path && error.path.length > 0 && error.path[0].src || '';
-                    const errorMsg = `The image '${imagePath}' could not be loaded.`;
-                    reject(errorMsg);
-                }, false);
+                }
             });
         }
         /**
