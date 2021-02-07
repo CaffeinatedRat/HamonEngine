@@ -52,7 +52,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Image properties.
             this._name = options.name;
-            this._image = options.image;
+            this._image = options.image || new hamonengine.graphics.imageext();
 
             //Handle the dimensions different if the image is of type HTMLImageElement
             if (options.dimensions) {
