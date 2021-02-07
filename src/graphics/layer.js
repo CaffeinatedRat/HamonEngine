@@ -472,7 +472,78 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
         }
         /**
-         * A method that draws the rect object with no wrapping (hamonengine.geometry.rect) based on the dimension parameters provided.
+         * A method that draws the vector2 or vector3 object with no wrapping (hamonengine.geometry.vector2 or hamonengine.geometry.vector3) based on the dimension parameters provided.
+         * @param {object} vector object to draw.
+         * @param {number} sourceX coordinate of where to draw the vector (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the vector (Optional and set to zero).
+         * @param {number} obj.lineWidth width of the vector's lines  (Optional and set to 1).
+         * @param {string} obj.color of the vector's lines.
+         */    
+        drawVector(vector, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white'} = {}) {
+            
+            if (!(vector instanceof hamonengine.geometry.vector2)
+                && !(vector instanceof hamonengine.geometry.vector3)) {
+                throw "Parameter polygon is not of type hamonengine.geometry.vector2 or of type hamonengine.geometry.vector3.";
+            }
+
+            this.context.lineWidth = lineWidth;
+            this.context.strokeStyle = color;
+            
+            this.context.beginPath();
+            this.context.moveTo(sourceX, sourceY);
+            this.context.lineTo(sourceX + vector.x, sourceY + vector.y);
+
+            this.context.stroke();
+        }
+        /**
+         * A method that draws the rect object with wrapping (hamonengine.geometry.rect) based on the dimension parameters provided.
+         * @param {object} rect object to draw.
+         * @param {number} sourceX coordinate of where to draw the rect (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the rect (Optional and set to zero).
+         * @param {number} obj.lineWidth width of the rect's lines  (Optional and set to 1).
+         * @param {string} obj.color of the rect's lines.
+         * @param {boolean} obj.fill determines if the rect should be drawn filled (Default is false).
+         * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
+         */      
+        drawRect(rect, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', fill = false, fillColor='white'} = {}) {
+            this.simpleDrawRect(rect, sourceX, sourceY, {lineWidth, color, fill, fillColor} );
+
+            //Handle rect wrapping.
+            if (this.wrapHorizontal) {
+                //DRAW RIGHT
+                //Determine if the minimum vertex of a rect extends beyond the minimum edge (left side) of the viewport.
+                const xOffset = (sourceX + rect.x) - this.viewPort.x;
+                if (xOffset <= 0) {
+                    this.simpleDrawRect(rect, this.viewPort.width + xOffset, sourceY, {lineWidth, color, fill, fillColor} );
+                }
+
+                //DRAW LEFT
+                //Determine if the maximum vertex of a rect extends beyond the maximum edge (right side) of the viewport.
+                if (sourceX + rect.width >= this.viewPort.width) {
+                    const xOffset = this.viewPort.width - (sourceX + rect.x);
+                    this.simpleDrawRect(rect, this.viewPort.x - xOffset, sourceY, {lineWidth, color, fill, fillColor} );
+                }
+            }
+
+            //Handle rect wrapping.
+            if (this.wrapVertical) {
+                //DRAW DOWN
+                //Determine if the minimum vertex of a rect extends beyond the minimum edge (top side) of the viewport.
+                const yOffset = (sourceY + rect.y) - this.viewPort.y;
+                if (yOffset <= 0) {
+                    this.simpleDrawRect(rect, sourceX, this.viewPort.height + yOffset, {lineWidth, color, fill, fillColor} );
+                }
+
+                //DRAW UP
+                //Determine if the maximum vertex of a rect extends beyond the maximum edge (bottom side) of the viewport.
+                if (sourceY + rect.height >= this.viewPort.height) {
+                    const yOffset = this.viewPort.height - (sourceY + rect.y);
+                    this.simpleDrawRect(rect, sourceX, this.viewPort.y - yOffset, {lineWidth, color, fill, fillColor} );
+                }
+            }
+        }     
+        /**
+         * A method that draws the rect object without wrapping (hamonengine.geometry.rect) based on the dimension parameters provided.
          * @param {object} rect object to draw.
          * @param {number} sourceX coordinate of where to draw the rect (Optional and set to zero).
          * @param {number} sourceY coordinate of where to draw the rect (Optional and set to zero).
@@ -481,7 +552,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.fill determines if the rect should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
          */
-        drawRect(rect, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', fill = false, fillColor='white'} = {}) {
+        simpleDrawRect(rect, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', fill = false, fillColor='white'} = {}) {
 
             if (!(rect instanceof hamonengine.geometry.rect)) {
                 throw "Parameter rect is not of type hamonengine.geometry.rect.";
@@ -517,31 +588,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             }            
 
             this.context.stroke();
-        }
-        /**
-         * A method that draws the vector2 or vector3 object with no wrapping (hamonengine.geometry.vector2 or hamonengine.geometry.vector3) based on the dimension parameters provided.
-         * @param {object} vector object to draw.
-         * @param {number} sourceX coordinate of where to draw the vector (Optional and set to zero).
-         * @param {number} sourceY coordinate of where to draw the vector (Optional and set to zero).
-         * @param {number} obj.lineWidth width of the vector's lines  (Optional and set to 1).
-         * @param {string} obj.color of the vector's lines.
-         */    
-        drawVector(vector, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white'} = {}) {
-            
-            if (!(vector instanceof hamonengine.geometry.vector2)
-                && !(vector instanceof hamonengine.geometry.vector3)) {
-                throw "Parameter polygon is not of type hamonengine.geometry.vector2 or of type hamonengine.geometry.vector3.";
-            }
-
-            this.context.lineWidth = lineWidth;
-            this.context.strokeStyle = color;
-            
-            this.context.beginPath();
-            this.context.moveTo(sourceX, sourceY);
-            this.context.lineTo(sourceX + vector.x, sourceY + vector.y);
-
-            this.context.stroke();
-        }     
+        }  
         /**
          * A method that draws the polygon object with wrapping (hamonengine.geometry.polygon) based on the dimension parameters provided.
          * @param {object} polygon object to draw.
