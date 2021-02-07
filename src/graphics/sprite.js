@@ -91,6 +91,18 @@ hamonengine.graphics = hamonengine.graphics || {};
             return this._name;
         }
         /**
+         * Returns the sprite's height.
+         */        
+        get height() {
+            return this._dimensions.height;
+        }
+        /**
+         * Returns the sprite's width.
+         */        
+        get width() {
+            return this._dimensions.width;
+        }
+        /**
          * Returns the angle of the sprite's rotation in radians.
          */
         get theta() {
@@ -175,6 +187,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         rotate(theta) {
             this._theta = theta || 0.0;
+            return this;
         }
         /**
          * Scales the sprite at the top-left corner by the x and y coordinates.
@@ -184,6 +197,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         scale(x, y) {
             this._scaleVector.x = x;
             this._scaleVector.y = y;
+            return this;
         }
         /**
          * Mirrors the sprite at the center.
@@ -191,6 +205,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         mirror(state) {
             this._spriteOrientation = hamonengine.util.bitwise.toggle(this._spriteOrientation, SPRITE_ORIENTATION.MIRRORED, state);
+            return this;
         }
         /**
          * Flips the sprite at the center.
@@ -198,6 +213,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         flip(state) {
             this._spriteOrientation = hamonengine.util.bitwise.toggle(this._spriteOrientation, SPRITE_ORIENTATION.FLIPPED, state);
+            return this;
         }
         /**
          * Blends the sprite with the specific color with the specific blending operation.
@@ -209,6 +225,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         blendColor(r = 0, g = 0, b = 0, a = 0, blendingOps = BLENDING_OPS.REPLACE) {
             this._image.blendColorRegion(r, g, b, a, this._dimensions, blendingOps);
+            return this;
         }
         /**
          * Adjusts the channels for each color.
@@ -219,6 +236,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         adjustColorChannel(r = 1.0, g = 1.0, b = 1.0, a = 1.0) {
             this._image.adjustColorChannel(r, g, b, a, this._dimensions);
+            return this;
         }
         /**
          * Performs a bitblit between two sprites where this is the destination and the source sprite is passed in.
@@ -227,6 +245,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         bitblit(sprite, transparency = 1.0) {
             this._image.bitblit(sprite._image, sprite._dimensions, this._dimensions, transparency);
+            return this;
         }
         /**
          * Draws the sprite at the specific location with the current width & height without any transformations applied.
