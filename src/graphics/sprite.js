@@ -43,7 +43,6 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.graphics.sprite) {
                 options = {
-                    name: options.name,
                     image: options._image && options._image.clone(),
                     dimensions: options._dimensions,
                     theta: options.theta
@@ -89,6 +88,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         get name() {
             return this._name;
+        }
+        /**
+         * Sets the sprite's name.
+         */
+        set name(v) {
+            this._name = v;
         }
         /**
          * Returns the sprite's height.
