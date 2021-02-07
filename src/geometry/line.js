@@ -159,5 +159,12 @@ hamonengine.geometry = hamonengine.geometry || {};
             const lMidPoint = l.midPoint;
             return lMidPoint === tMidPoint ? 0 : (lMidPoint < tMidPoint ? -1 : 1);
         }
+        /**
+         * Returns the distance between two midpoints.
+         * @param {Object} l 
+         */
+        getDistance(l) {
+            return Math.abs(this.midPoint - l.midPoint);
+        }
     }
 })();
