@@ -53,8 +53,20 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Image properties.
             this._name = options.name;
             this._image = options.image;
-            this._dimensions = options.dimensions || new hamonengine.geometry.rect();
 
+            //Handle the dimensions different if the image is of type HTMLImageElement
+            if (options.dimensions) {
+                this._dimensions = options.dimensions;
+            }
+            else {
+                if (this._image instanceof HTMLImageElement) {
+                    this._dimensions = new hamonengine.geometry.rect(0, 0, this._image.width, this._image.height);
+                }
+                else {
+                    this._dimensions = new hamonengine.geometry.rect();
+                }
+            }
+           
             //Transformation variables.
             this._theta = options.theta || 0.0;
             this._scaleVector = new hamonengine.geometry.vector2(1.0, 1.0);
@@ -137,6 +149,26 @@ hamonengine.graphics = hamonengine.graphics || {};
         clone() {
             return new hamonengine.graphics.sprite(this);
         }
+        /**
+         * Attempts to load the sprite based on the image property.
+         * @param {string} src url of the image.
+         * @return {Object} a promise to complete loading.
+         */
+        load(src) {
+            return new Promise((resolve, reject) => {
+
+                if (this._image instanceof hamonengine.graphics.imageext) {
+                    this._image.load(src).then(() => {
+                        //Update the dimensions based on the image's properties.
+                        this._dimensions = new hamonengine.geometry.rect(0, 0, this._image.width, this._image.height);
+                        resolve();
+                    });
+                }
+                else {
+                    resolve();
+                }
+            });
+        }        
         /**
          * Rotates the sprite at the center.
          * @param {number} theta the angle in radians.
