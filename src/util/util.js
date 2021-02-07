@@ -38,7 +38,7 @@ hamonengine.util = hamonengine.util || {
     loggerlevel: LOG_TYPE.DISABLED
 };
 
-(function() {
+(function () {
     hamonengine.util.logger = class {
         /**
          * Writes a message to the log if debugging is enabled.
@@ -46,7 +46,7 @@ hamonengine.util = hamonengine.util || {
          */
         static debug(message) {
             if ((hamonengine.util.loggerlevel & LOG_TYPE.DEBUG) === LOG_TYPE.DEBUG) {
-                console.log( message);
+                console.log(message);
             }
         }
         /**
@@ -104,19 +104,19 @@ hamonengine.util = hamonengine.util || {
     /**
      * Iterates through each object
      */
-    Object.prototype.forEach = function(f) { 
+    Object.prototype.forEach = function (f) {
         if (f) {
             Object.keys(this).forEach(key => {
                 if (this.hasOwnProperty(key)) {
                     f(key, this[key]);
                 }
-            }); 
+            });
         }
     };
     /**
-     * Iterates through each object
+     * Returns an array of all object values.
     */
-    Object.prototype.toArray = function() { 
+    Object.prototype.toArray = function () {
         let array = [];
         Object.keys(this).forEach(key => {
             if (this.hasOwnProperty(key)) {
@@ -125,4 +125,17 @@ hamonengine.util = hamonengine.util || {
         });
         return array;
     };
+    /**
+     * Returns an array of all keys (property names).
+    */
+    Object.prototype.toKeyArray = function () {
+        let keys = [];
+        Object.keys(this).forEach(key => {
+            if (this.hasOwnProperty(key)) {
+                keys.push(key);
+            }
+        });
+        return keys;
+    };
+
 })();
