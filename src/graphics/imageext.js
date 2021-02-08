@@ -288,16 +288,24 @@ hamonengine.graphics = hamonengine.graphics || {};
                 const destData = destImageData.data;
                 const srcData = srcImageData.data;
 
-                //Always iterate through the shortest width & height.
-                const minHeight = Math.max(srcRegion.height, destRegion.height);
-                const minWidth = Math.max(srcRegion.width, destRegion.width);
-
                 //Iterate through each row, then column.
-                for (let row = 0; row < minHeight; row++) {
-                    for (let col = 0; col < minWidth; col++) {
+                for (let row = 0; row < destRegion.height; row++) {
+
+                    //Break bitblit if we've exceeded the source's height.
+                    if (row >= srcRegion.height) {
+                        break;
+                    }
+
+                    for (let col = 0; col < destRegion.width; col++) {
+                       
+                        //Break bitblit if we've exceeded the source's width.
+                        if (col >= srcRegion.width) {
+                            break;
+                        }
+
                         const destIndex = (row * destRegion.width + col) * 4;
                         const srcIndex = (row * srcRegion.width + col) * 4;
-                        
+
                         //Calculate the complement, as long as the alpha channel is not transparent.
                         const transparencyComplement = (srcData[srcIndex+3] > 0) ? (1.0 - transparency) : 1.0;
                         destData[destIndex] = Math.bitRound(destData[destIndex] * transparencyComplement + srcData[srcIndex] * transparency);
