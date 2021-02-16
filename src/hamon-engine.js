@@ -55,6 +55,7 @@ hamonengine.core = hamonengine.core || {};
             this._size = options.size || 64;
             this._showFPS = options.showFPS !== undefined ? options.showFPS : false;
             this._syncFrames = options.syncFrames !== undefined ? options.syncFrames : false;
+            this._splashScreenWait = options.splashScreenWait !== undefined ? 500 : options.splashScreenWait;
 
             //Initialize internal states 
             this._state = ENGINE_STATES.STOPPED;
@@ -84,6 +85,8 @@ hamonengine.core = hamonengine.core || {};
             //Log initialization values
             hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] MovementRate: ${this._movementRate}`);
             hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] State: ${ENGINE_STATES_NAMES[this._state]}`);
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] SyncFrames: ${this.syncFrames ? 'Enabled' : 'Disabled'}`);
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] SplashScreen Wait Time: ${this._splashScreenWait} milliseconds.`);
 
             hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] Global States`);
             hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.floor: ${hamonengine.geometry.settings.collisionDetection.floor}`);
@@ -146,8 +149,15 @@ hamonengine.core = hamonengine.core || {};
         async load() {
             hamonengine.util.logger.info("[hamonengine.core.engine.load]");
 
-            //Preform the preload.
-            this.onPreload();
+            //Perform a preload and wait if a splashscreen is present.
+            const preloadPromise = new Promise(resolve => {
+                if(this.onPreload()) {
+                    setTimeout(() => resolve(), this._splashScreenWait);
+                }
+                else {
+                    resolve();
+                }
+            });
 
             this._state = ENGINE_STATES.LOADING;
             hamonengine.util.logger.debug(`[hamonengine.core.engine.load] State: ${ENGINE_STATES_NAMES[this._state]}`);
@@ -172,7 +182,11 @@ hamonengine.core = hamonengine.core || {};
                 hamonengine.util.logger.warning("[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve...");   
                 await loadingResource;
                 this._resourcesLoaded = true;
-                hamonengine.util.logger.info("[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.");    
+                hamonengine.util.logger.info("[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.");   
+                
+                //Wait at the preload promise while the other events & resources are loading.
+                await preloadPromise;
+                hamonengine.util.logger.info("[hamonengine.core.engine.load] Preload completed."); 
             }
             catch(error) {
                 console.error("[hamonengine.core.engine.load] Resources could not be loaded due to a failure! Stopping the engine.");
@@ -195,7 +209,6 @@ hamonengine.core = hamonengine.core || {};
 
                 this.fpsCounter.start();
                 this.onDraw(0);
-                //this.onProcessing(0);
             }
 
             //Allow chaining.
@@ -224,6 +237,7 @@ hamonengine.core = hamonengine.core || {};
          */
         onPreload() {
             hamonengine.util.logger.info("[hamonengine.core.engine.onPreload]");
+            return false;
         }
         /**
          * An internal event that occurs when attempting to load resources.
