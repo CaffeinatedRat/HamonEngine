@@ -42,7 +42,7 @@ hamonengine.core = hamonengine.core || {};
         "RUNNING"
     ];
 
-    const cavnas_default_name = 'canvas';
+    const canvas_default_name = 'canvas';
     const VERSION = '0.1.1';
 
     hamonengine.core.engine = class {
@@ -54,6 +54,7 @@ hamonengine.core = hamonengine.core || {};
             this._movementRate = options.movementRate || 0.25;
             this._size = options.size || 64;
             this._showFPS = options.showFPS !== undefined ? options.showFPS : false;
+            this._syncFrames = options.syncFrames !== undefined ? options.syncFrames : false;
 
             //Initialize internal states 
             this._state = ENGINE_STATES.STOPPED;
@@ -67,7 +68,7 @@ hamonengine.core = hamonengine.core || {};
             let index = 0;
             for (let i = 0; i < options.canvas.length; i ++) {
                 const canvas = options.canvas[i];
-                const canvasName = canvas.name || `${cavnas_default_name}${index++}`;
+                const canvasName = canvas.name || `${canvas_default_name}${index++}`;
                 this._layers[canvasName]= new hamonengine.graphics.layer({
                     name: canvasName,
                     canvasId: canvas.id,
@@ -94,7 +95,7 @@ hamonengine.core = hamonengine.core || {};
         // Properties
         //--------------------------------------------------------
         get primaryLayer() {
-            return this._layers[`${cavnas_default_name}0`];
+            return this._layers[`${canvas_default_name}0`];
         }
         /**
          * Returns true if the resource are loaded.
@@ -114,6 +115,20 @@ hamonengine.core = hamonengine.core || {};
         get layers() {
             return this._layers.toArray();
         }
+        /**
+         * Returns true if the processing & drawing frames are sync'ed.
+         * Warning: When enabled this can impact FPS performance.
+         */
+        get syncFrames() {
+            return this._syncFrames;
+        }
+        /**
+         * Assigns the sync value for processing & drawing frames together.
+         * Warning: When enabled this can impact FPS performance.
+         */
+        set syncFrames(v) {
+            this._syncFrames = v;
+        }        
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -128,7 +143,7 @@ hamonengine.core = hamonengine.core || {};
          * Preloads any resource loading.
          * @return {Object} a promise to complete resource loading.
          */
-        load() {
+        async load() {
             hamonengine.util.logger.info("[hamonengine.core.engine.load]");
 
             //Preform the preload.
@@ -137,23 +152,35 @@ hamonengine.core = hamonengine.core || {};
             this._state = ENGINE_STATES.LOADING;
             hamonengine.util.logger.debug(`[hamonengine.core.engine.load] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
-            //Added a promise so the start can be delayed if designer so wishes to wait before starting the engine.
-            return new Promise((resolve, reject)=> {
-                this.onEventBinding().then(() => {
-                    hamonengine.util.logger.info("[hamonengine.core.engine.load] Event binding completed.");
-                });
-    
-                //Load resources.
-                this.onloadResources().then(() => {
-                    this._resourcesLoaded = true;
-                    hamonengine.util.logger.info("[hamonengine.core.engine.load] Load resources completed.");
-                    resolve(this);
-                }).catch(error => {
-                    hamonengine.util.logger.info("[hamonengine.core.engine.load] Failed!");
-                    this.stop();
-                    reject();
-                });
-            })
+            try {
+
+                //Added a promise so the start can be delayed if designer so wishes to wait before starting the engine.
+                let eventBindingPromise = this.onEventBinding();
+                if (!(eventBindingPromise instanceof Promise)) {
+                    throw 'onEventBinding is not returning a promise!  This event must return an unhandled promise.';
+                }
+
+                hamonengine.util.logger.warning("[hamonengine.core.engine.load] Engine is paused, waiting for event binding to resolve...");  
+                await eventBindingPromise;
+                hamonengine.util.logger.info("[hamonengine.core.engine.load] Engine has resumed loading, event binding has completed.");
+
+                let loadingResource = this.onloadResources();
+                if (!(loadingResource instanceof Promise)) {
+                    throw 'onloadResources is not returning a promise!  This event must return an unhandled promise.';
+                }
+
+                hamonengine.util.logger.warning("[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve...");   
+                await loadingResource;
+                this._resourcesLoaded = true;
+                hamonengine.util.logger.info("[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.");    
+            }
+            catch(error) {
+                console.error("[hamonengine.core.engine.load] Resources could not be loaded due to a failure! Stopping the engine.");
+                console.error(error);
+                this.stop();
+            }
+
+            return this;
         }
         /**
          * Starts the engine.
@@ -168,6 +195,7 @@ hamonengine.core = hamonengine.core || {};
 
                 this.fpsCounter.start();
                 this.onDraw(0);
+                //this.onProcessing(0);
             }
 
             //Allow chaining.
@@ -201,14 +229,14 @@ hamonengine.core = hamonengine.core || {};
          * An internal event that occurs when attempting to load resources.
          * @return {Object} a promise that the resource has loaded successfully.
          */
-        onloadResources() {
+        async onloadResources() {
             hamonengine.util.logger.info("[hamonengine.core.engine.onloadResources]");
             return Promise.resolve();
         }
         /**
          * Starts binding the events.
          */
-        onEventBinding() {
+        async onEventBinding() {
             return new Promise((resolve, reject) => {
                 //Only being adding events when the DOM has completed loading.
                 window.addEventListener('DOMContentLoaded', (event) => {
@@ -292,11 +320,18 @@ hamonengine.core = hamonengine.core || {};
 
             //hamonengine.util.logger.debug("[hamonengine.core.engine.onDraw]");
             try {
+                //Experimental processing frame.
+                let processingComplete = false;
+                setTimeout(() => {
+                    this.onProcessingFrame(elapsedTimeInMilliseconds);
+                    processingComplete = true;
+                }, 1);
+
                 //NOTE: We need the scoped version of the timestamp argument to get the DOMHighResTimeStamp parameter.
                 //If this parameter is removed then the timestamp will always be zero.
                 this._animationId = window.requestAnimationFrame((scopedTimestampInMS) => {
                     this._state = ENGINE_STATES.RUNNING;
-                    this.onFrame(elapsedTimeInMilliseconds);
+                    (!this.syncFrames || processingComplete) && this.onFrame(elapsedTimeInMilliseconds);
                     this.onDraw(scopedTimestampInMS);
                 });
             }
@@ -315,6 +350,13 @@ hamonengine.core = hamonengine.core || {};
          * @param {number} elapsedTimeInMilliseconds since the engine has started.
          */
         onFrame(elapsedTimeInMilliseconds) {
+            return this;
+        }
+        /**
+         * An onProcessingFrame event that is triggered when a single frame is being processed before drawn.
+         * @param {number} elapsedTimeInMilliseconds since the engine has started.
+         */        
+        onProcessingFrame(elapsedTimeInMilliseconds) {
             return this;
         }
     }

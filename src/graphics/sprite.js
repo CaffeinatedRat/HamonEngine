@@ -171,14 +171,15 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} src url of the image.
          * @return {Object} a promise to complete loading.
          */
-        load(src) {
+        async load(src) {
             return new Promise((resolve, reject) => {
-
                 if (this._image instanceof hamonengine.graphics.imageext) {
                     this._image.load(src).then(() => {
                         //Update the dimensions based on the image's properties.
                         this._dimensions = new hamonengine.geometry.rect(0, 0, this._image.width, this._image.height);
                         resolve();
+                    }).catch((err) => {
+                        reject(err);
                     });
                 }
                 else {

@@ -123,7 +123,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} src url of the image.
          * @return {Object} a promise to complete loading.
          */
-        load(src='') {
+        async load(src='') {
 
             //Handle statically loaded image; those the DOM may have already loaded.
             if (src !== '') {
@@ -136,6 +136,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     //Handle a successful loading event and resolve the promise.
                     this.image.addEventListener('load', () => {
                         this._state = IMAGE_STATES.COMPLETE;
+                        hamonengine.util.logger.debug(`[hamonengine.graphics.imageext.load] Image '${src}' has loaded successfully.`);
                         resolve();
                     }, false);
 
@@ -266,6 +267,10 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         bitblit(imageData, srcRegion, destRegion, transparency=1.0) {
             if (this.complete) {
+
+                if (!imageData.complete) {
+                    return;
+                }
 
                 //Normalize the image.
                 if (imageData instanceof hamonengine.graphics.imageext) {

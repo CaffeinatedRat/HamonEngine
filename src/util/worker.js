@@ -92,7 +92,7 @@
          * @param {*} data 
          * @returns a promise.
          */
-        run(data) {
+        async run(data) {
             return new Promise((resolve, reject) => {
                 this.worker.onmessage = (e) => {
                     resolve(e.data);

@@ -58,7 +58,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Loads teh spritesheet based on the provided metadata.
          * @param {*} spriteSheetMetadata metadata.
          */
-        load(spriteSheetMetadata) {
+        async load(spriteSheetMetadata) {
 
             //Start the image resource loading and get the promise to complete.
             const resourceLoadingPromise = this._imageResource.load(spriteSheetMetadata.spritesheetUrl);
