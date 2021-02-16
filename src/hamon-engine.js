@@ -55,7 +55,7 @@ hamonengine.core = hamonengine.core || {};
             this._size = options.size || 64;
             this._showFPS = options.showFPS !== undefined ? options.showFPS : false;
             this._syncFrames = options.syncFrames !== undefined ? options.syncFrames : false;
-            this._splashScreenWait = options.splashScreenWait !== undefined ? 500 : options.splashScreenWait;
+            this._splashScreenWait = options.splashScreenWait !== undefined ? options.splashScreenWait : 500;
 
             //Initialize internal states 
             this._state = ENGINE_STATES.STOPPED;
