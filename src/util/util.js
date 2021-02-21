@@ -102,8 +102,16 @@ hamonengine.util = hamonengine.util || {
     }
 
     /**
+     * Use the ES6 constructs instead.
+     * Object.entries iterator construct.
+     * Object.entries to get an iterative key-value pair.
+     * Object.values to get an array of values on the object.
+     */
+
+    /**
      * Iterates through each object
      */
+    /*
     Object.prototype.forEach = function (f) {
         if (f) {
             Object.keys(this).forEach(key => {
@@ -113,9 +121,12 @@ hamonengine.util = hamonengine.util || {
             });
         }
     };
+    */
+
     /**
      * Returns an array of all object values.
     */
+   /*
     Object.prototype.toArray = function () {
         let array = [];
         Object.keys(this).forEach(key => {
@@ -125,9 +136,11 @@ hamonengine.util = hamonengine.util || {
         });
         return array;
     };
+    */
     /**
      * Returns an array of all keys (property names).
     */
+   /*
     Object.prototype.toKeyArray = function () {
         let keys = [];
         Object.keys(this).forEach(key => {
@@ -137,5 +150,5 @@ hamonengine.util = hamonengine.util || {
         });
         return keys;
     };
-
+    */
 })();
