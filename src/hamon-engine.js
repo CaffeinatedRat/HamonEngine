@@ -116,7 +116,7 @@ hamonengine.core = hamonengine.core || {};
          * Returns all registered layers
          */        
         get layers() {
-            return this._layers.toArray();
+            return Object.values(this._layers);
         }
         /**
          * Returns true if the processing & drawing frames are sync'ed.
@@ -256,7 +256,7 @@ hamonengine.core = hamonengine.core || {};
                 window.addEventListener('DOMContentLoaded', (event) => {
                     //TODO: Decide if this should be moved into the layer.
                     // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
-                    this._layers.forEach( (key, layer) => {
+                    this.layers.forEach( (key, layer) => {
                         if (layer.allowEventBinding) {
                             const keyEvent = (type, e) => this.onKeyEvent(type, e.code, e, layer);
                             const mouseEvent = (type, e) => this.onMouseEvent(type, new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, layer);
