@@ -220,7 +220,7 @@ hamonengine.core = hamonengine.core || {};
             catch(error) {
                 console.error("[hamonengine.core.engine.load] Resources could not be loaded due to a failure! Stopping the engine.");
                 console.error(error);
-                this.stop();
+                this.stop({reasons: `A critical error occured during resource loading.`});
             }
 
             return this;
@@ -246,13 +246,16 @@ hamonengine.core = hamonengine.core || {};
         /**
          * Stops the engine.
          */
-        stop() {
+        stop({reasons} = {reasons: 'Stopped By User'}) {
             hamonengine.util.logger.info("[hamonengine.core.engine.stop]");
             window.cancelAnimationFrame(this._animationId);
             this._animationId = 0;
             this._startTimeStamp = 0;
             this._state = ENGINE_STATES.STOPPED;
             hamonengine.util.logger.debug(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);
+
+            //Let everyone know the engine has stopped and for what reason.
+            this.onStop(reasons);
 
             //Allow chaining.
             return this;
@@ -411,6 +414,13 @@ hamonengine.core = hamonengine.core || {};
          * @param {number} elapsedTimeInMilliseconds since the engine has started.
          */        
         onProcessingFrame(elapsedTimeInMilliseconds) {
+            return this;
+        }
+        /**
+         * An event that is triggered when the engine has been stopped.
+         * @param {string} reasons as to why the engine stopped.
+         */         
+        onStop(reasons) {
             return this;
         }
     }
