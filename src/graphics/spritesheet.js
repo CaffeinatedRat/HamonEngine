@@ -60,6 +60,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         async load(spriteSheetMetadata) {
 
+            //Determine if the user is attempting to load the metadata from a file or JSON data.
+            if (typeof spriteSheetMetadata === 'string') {
+                const spriteSheetMetadataResponse = await connect.get(spriteSheetMetadata);
+                spriteSheetMetadata = JSON.parse(spriteSheetMetadataResponse.data);
+            }
+
             //Start the image resource loading and get the promise to complete.
             const resourceLoadingPromise = this._imageResource.load(spriteSheetMetadata.spritesheetUrl);
 
