@@ -402,7 +402,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //This SAT algorithm can generate an infinitesimally small values when dealing with multiple polygon collisions.
             mnimumOverlappingLength = mnimumOverlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : mnimumOverlappingLength;
 
-            console.log(distance);
+            //console.log(distance);
 
             //Return an MTV.
             return mtvAxis.multiply(mnimumOverlappingLength);

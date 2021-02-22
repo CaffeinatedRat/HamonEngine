@@ -56,6 +56,8 @@ hamonengine.core = hamonengine.core || {};
             this._showFPS = options.showFPS !== undefined ? options.showFPS : false;
             this._syncFrames = options.syncFrames !== undefined ? options.syncFrames : false;
             this._splashScreenWait = options.splashScreenWait !== undefined ? options.splashScreenWait : 500;
+            this._detectCanvas = options.detectCanvas !== undefined ? options.detectCanvas : false;
+            this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
 
             //Initialize internal states 
             this._state = ENGINE_STATES.STOPPED;
@@ -66,19 +68,40 @@ hamonengine.core = hamonengine.core || {};
             
             //Add support for multiple layers that will house our canvas, and other drawing components.
             this._layers = {};
-            let index = 0;
-            for (let i = 0; i < options.canvas.length; i ++) {
-                const canvas = options.canvas[i];
-                const canvasName = canvas.name || `${canvas_default_name}${index++}`;
-                this._layers[canvasName]= new hamonengine.graphics.layer({
-                    name: canvasName,
-                    canvasId: canvas.id,
-                    viewPort: canvas.viewPort,
-                    allowEventBinding: canvas.allowEventBinding,
-                    enableImageSmoothing: options.enableImageSmoothing,
-                    clipToViewPort: canvas.clipToViewPort
-                });
-            };
+
+            //Try to detect all canvas if the feature is enabled and none are passsed in.
+            const canvasCollection = options.canvas || [];
+            if (this._detectCanvas && canvasCollection.length === 0) {
+                hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] DetectCanvas: true.  Attempting to detect all canvas.`);
+                const discoveredCanvas = Object.entries(document.getElementsByTagName('canvas'));
+                discoveredCanvas.forEach(([key, value]) => {
+                    const canvasName = value.getAttribute('name') || `${canvas_default_name}${key}`;
+                     this._layers[canvasName]= new hamonengine.graphics.layer({
+                        name: canvasName,
+                        canvas: value,
+                        allowEventBinding: value.dataset.alloweventbinding,
+                        enableImageSmoothing:  value.dataset.enableimagesmoothing,
+                        clipToViewPort: value.dataset.alloweventbinding
+                    });
+                });    
+            }
+            //If a collection of canvas objects are provided then use those instead.
+            else {
+                hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] DetectCanvas: false.  Using collection of options.canvas.`);
+                let index = 0;
+                for (let i = 0; i < canvasCollection.length; i ++) {
+                    const canvas = canvasCollection[i];
+                    const canvasName = canvas.name || `${canvas_default_name}${index++}`;
+                    this._layers[canvasName]= new hamonengine.graphics.layer({
+                        name: canvasName,
+                        canvasId: canvas.id,
+                        viewPort: canvas.viewPort,
+                        allowEventBinding: canvas.allowEventBinding,
+                        enableImageSmoothing: options.enableImageSmoothing,
+                        clipToViewPort: canvas.clipToViewPort
+                    });
+                };
+            }
 
             this._resourcesLoaded = false;
 
@@ -126,12 +149,18 @@ hamonengine.core = hamonengine.core || {};
             return this._syncFrames;
         }
         /**
+         * Returns ture if document event binding is allowed.
+         */
+        get allowDocumentEventBinding() {
+            return this._allowDocumentEventBinding;
+        }
+        /**
          * Assigns the sync value for processing & drawing frames together.
          * Warning: When enabled this can impact FPS performance.
          */
         set syncFrames(v) {
             this._syncFrames = v;
-        }        
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -254,35 +283,46 @@ hamonengine.core = hamonengine.core || {};
             return new Promise((resolve, reject) => {
                 //Only being adding events when the DOM has completed loading.
                 window.addEventListener('DOMContentLoaded', (event) => {
-                    //TODO: Decide if this should be moved into the layer.
-                    // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
-                    this.layers.forEach( (key, layer) => {
-                        if (layer.allowEventBinding) {
-                            const keyEvent = (type, e) => this.onKeyEvent(type, e.code, e, layer);
-                            const mouseEvent = (type, e) => this.onMouseEvent(type, new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, layer);
-                            const mouseClick = (e) => this.onMouseClick(new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, layer);
-                            const touchEvent = (type, e) => {
-                                const touches = [];
-                                const position = layer.position;
+
+                    const bindEvents = (elementToBind, eventObject) => {
+                        const keyEvent = (type, e) => this.onKeyEvent(type, e.code, e, eventObject);
+                        const mouseEvent = (type, e) => this.onMouseEvent(type, new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, eventObject);
+                        const mouseClick = (e) => this.onMouseClick(new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, eventObject);
+                        const touchEvent = (type, e) => {
+                            const touches = [];
+                            const position = eventObject.position;
+                            if (position) {
                                 for(let i = 0; i < e.touches.length; i++) {
                                     touches.push({
                                         left: e.touches[i].clientX - position.x,
                                         top: e.touches[i].clientY - position.y
                                     });
                                 }
-                                this.onTouchEvent(type, e, touches, layer);
-                            };
-                            layer.canvas.addEventListener('keyup', (e) => keyEvent('up',e));
-                            layer.canvas.addEventListener('keydown', (e) => keyEvent('down',e));
-                            layer.canvas.addEventListener('click', (e) => mouseClick(e));
-                            layer.canvas.addEventListener('mouseup', (e) => mouseEvent('up',e));
-                            layer.canvas.addEventListener('mousedown', (e) => mouseEvent('down',e));
-                            layer.canvas.addEventListener('mousemove', (e) => mouseEvent('move',e));
-                            layer.canvas.addEventListener('touchstart', (e) => touchEvent('start',e), {passive: false});
-                            layer.canvas.addEventListener('touchmove', (e) =>  touchEvent('move',e), {passive: false});
-                            layer.canvas.addEventListener("touchend", (e) => this.onTouchEnd(e, layer));
-                            layer.canvas.addEventListener("touchcancel", (e) => this.onTouchCancel(e, layer));
-                        }
+                                this.onTouchEvent(type, e, touches, eventObject);
+                            }
+                        };
+
+                        elementToBind.addEventListener('keyup', (e) => keyEvent('up',e));
+                        elementToBind.addEventListener('keydown', (e) => keyEvent('down',e));
+                        elementToBind.addEventListener('click', (e) => mouseClick(e));
+                        elementToBind.addEventListener('mouseup', (e) => mouseEvent('up',e));
+                        elementToBind.addEventListener('mousedown', (e) => mouseEvent('down',e));
+                        elementToBind.addEventListener('mousemove', (e) => mouseEvent('move',e));
+                        elementToBind.addEventListener('touchstart', (e) => touchEvent('start',e), {passive: false});
+                        elementToBind.addEventListener('touchmove', (e) =>  touchEvent('move',e), {passive: false});
+                        elementToBind.addEventListener("touchend", (e) => this.onTouchEnd(e, eventObject));
+                        elementToBind.addEventListener("touchcancel", (e) => this.onTouchCancel(e, eventObject));
+                    };
+
+                    //Allow document event binding.
+                    if (this.allowDocumentEventBinding) {
+                        bindEvents(document, this);
+                    }
+
+                    //TODO: Decide if this should be moved into the layer.
+                    // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
+                    this.layers.forEach(layer => {
+                        layer.allowEventBinding && bindEvents(layer.canvas, layer);
                     });
                 });
 
