@@ -326,5 +326,17 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this._backbufferCtx.putImageData(destImageData, destRegion.x, destRegion.y);
             }
         }
+        /**
+         * Draws the imageext at the specific location with the current width & height.
+         * @param {Object} layer to draw upon.
+         * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
+         * @param {number} x coordinate to draw at.
+         * @param {number} y cooridnate to draw at.
+         * @param {number} width the optional width of the sprite to scale.
+         * @param {number} height the option height of the sprite to scale.
+         */
+        draw(layer, elapsedTimeInMilliseconds, x, y, width = this.width, height = this.height) {
+            layer.drawImage(this, x, y, this.width, this.height, destinationX, destinationY, width, height) 
+        }
     }
 })();
