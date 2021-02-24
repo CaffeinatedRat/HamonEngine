@@ -76,9 +76,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the edges of this polygon.
          */
         get edges() {
-            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_EDGE)) {
+            if (bitflag.isSet(this._dirty, DIRTY_EDGE)) {
                 this._edges = hamonengine.geometry.polygon.calcEdges(this.vertices);
-                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_EDGE, false);
+                bitflag.toggle(this._dirty, DIRTY_EDGE, false);
             }
 
             return this._edges;
@@ -87,9 +87,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the normals of this polygon.
          */
         get normals() {
-            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_NORMAL)) {
+            if (bitflag.isSet(this._dirty, DIRTY_NORMAL)) {
                 this._normals = hamonengine.geometry.polygon.calcNormals(this.edges);
-                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_NORMAL, false);
+                bitflag.toggle(this._dirty, DIRTY_NORMAL, false);
             }
 
             return this._normals;
@@ -98,9 +98,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns a center vector, which is the center of the polygon.
          */
         get center() {
-            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
+                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
             }
             return this._dimensions.center;
         }
@@ -110,9 +110,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * For example: For a polygon of (0,0), (70,-10), (50,50), (0,50) the maximum value will be (70, 50) which is not a vertex in the polygon.
          */
         get max() {
-            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
+                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
             }
             return this._dimensions.max;
         }
@@ -122,9 +122,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * For example: For a polygon of (0,0), (70,-10), (50,50), (0,50) the minimum value will be (0, -10) which is not a vertex in the polygon.
          */
         get min() {
-            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
+                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
             }
             return this._dimensions.min;
         }
@@ -132,9 +132,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the minimum vertex in the polygon's set of vertices.
          */        
         get minVertex() {
-            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
+                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
             }
             return this._dimensions.minVertex;
         }
@@ -142,9 +142,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the maximum vertex in the polygon's set of vertices.
          */        
         get maxVertex() {
-            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_DIMS, false);
+                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
             }
             return this._dimensions.maxVertex;
         }        
@@ -164,9 +164,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the type of the shape, CONCAVE or CONVEX.
          */
         get shapeType() {
-            if (hamonengine.util.bitwise.isSet(this._dirty, DIRTY_SHAPE)) {
+            if (bitflag.isSet(this._dirty, DIRTY_SHAPE)) {
                 this._shapeType = hamonengine.geometry.polygon.calcShapeType(this.vertices);
-                hamonengine.util.bitwise.toggle(this._dirty, DIRTY_SHAPE, false);
+                bitflag.toggle(this._dirty, DIRTY_SHAPE, false);
             }
 
             return this._shapeType;

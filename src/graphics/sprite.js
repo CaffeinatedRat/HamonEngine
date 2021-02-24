@@ -210,7 +210,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} state (optional) to mirror the object
          */
         mirror(state) {
-            this._spriteOrientation = hamonengine.util.bitwise.toggle(this._spriteOrientation, SPRITE_ORIENTATION.MIRRORED, state);
+            this._spriteOrientation = bitflag.toggle(this._spriteOrientation, SPRITE_ORIENTATION.MIRRORED, state);
             return this;
         }
         /**
@@ -218,7 +218,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} state (optional) to flip the object
          */
         flip(state) {
-            this._spriteOrientation = hamonengine.util.bitwise.toggle(this._spriteOrientation, SPRITE_ORIENTATION.FLIPPED, state);
+            this._spriteOrientation = bitflag.toggle(this._spriteOrientation, SPRITE_ORIENTATION.FLIPPED, state);
             return this;
         }
         /**
@@ -308,8 +308,8 @@ hamonengine.graphics = hamonengine.graphics || {};
             const yCenterOffset = Math.bitRound(height / 2) + y;
 
             //Precalculate the orientation around the x & y axis.
-            const yOrientation = hamonengine.util.bitwise.isSet(this._spriteOrientation, SPRITE_ORIENTATION.FLIPPED) ? -1.0 : 1.0;
-            const xOrientation = hamonengine.util.bitwise.isSet(this._spriteOrientation, SPRITE_ORIENTATION.MIRRORED) ? -1.0 : 1.0;
+            const yOrientation = bitflag.isSet(this._spriteOrientation, SPRITE_ORIENTATION.FLIPPED) ? -1.0 : 1.0;
+            const xOrientation = bitflag.isSet(this._spriteOrientation, SPRITE_ORIENTATION.MIRRORED) ? -1.0 : 1.0;
 
             //Save the current state.
             layer.save();

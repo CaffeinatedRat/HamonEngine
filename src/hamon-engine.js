@@ -64,7 +64,7 @@ hamonengine.core = hamonengine.core || {};
             this._startTimeStamp = 0;
             this._lastFrameTimeStamp = 0;
             this._animationId = 0;
-            this._fpsCounter = new hamonengine.util.fpscounter();
+            this._fpsCounter = new fpscounter();
             
             //Add support for multiple layers that will house our canvas, and other drawing components.
             this._layers = {};

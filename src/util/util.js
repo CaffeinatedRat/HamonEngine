@@ -69,38 +69,6 @@ hamonengine.util = hamonengine.util || {
         }
     }
 
-    hamonengine.util.bitwise = class {
-        /**
-         * Toggles the bit in the value based on the state.
-         * @param {number} value to change.
-         * @param {number} bitToToggle in the supplied value.
-         * @param {*} state to change the bit, true to enable, false to clear, and undefined to toggle.
-         */
-        static toggle(value, bitToToggle, state) {
-            if (state !== undefined) {
-                if (state) {
-                    //Turn on the bit.
-                    return value | (1 << bitToToggle);
-                }
-
-                //Turn off the bit.
-                return value & ~(1 << bitToToggle);
-            }
-
-            //Toggle the bitValue
-            return value ^ (1 << bitToToggle);
-        }
-        /**
-         * Determines if the bit is set in the value.
-         * @param {number} value to check for the bit.
-         * @param {number} bitToCheck to find in the value.
-         */
-        static isSet(value, bitToCheck) {
-            const valueToCheck = 1 << bitToCheck;
-            return (value & valueToCheck) === valueToCheck;
-        }
-    }
-
     /**
      * Use the ES6 constructs instead.
      * Object.entries iterator construct.

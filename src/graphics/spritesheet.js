@@ -55,8 +55,8 @@ hamonengine.graphics = hamonengine.graphics || {};
         // Methods
         //--------------------------------------------------------
         /**
-         * Loads teh spritesheet based on the provided metadata.
-         * @param {*} spriteSheetMetadata metadata.
+         * Loads the spritesheet based on the provided metadata or URL.
+         * @param {*} spriteSheetMetadata JSON metadata or a URL
          */
         async load(spriteSheetMetadata) {
 

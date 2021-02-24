@@ -25,87 +25,84 @@
 //波紋
 'use strict';
 
-(function () {
-
-    /**
-     * This class supports inline webworker functionality.
-     * The concept is based on the work of Danny Blue.
-     * //https://medium.com/@dee_bloo/make-multithreading-easier-with-inline-web-workers-a58723428a42
-     */    
-    hamonengine.util.worker = class {
-        constructor(options={}) {
-            //Handle copy-constructor operations.
-            if (options instanceof hamonengine.util.worker) {
-                options = {
-                    //Copy the raw image that will be unmodified.
-                    blob: options.blob,
-                    method: options.method
-                }
+/**
+ * This class supports inline webworker functionality.
+ * The concept is based on the work of Danny Blue.
+ * //https://medium.com/@dee_bloo/make-multithreading-easier-with-inline-web-workers-a58723428a42
+ */    
+class worker {
+    constructor(options={}) {
+        //Handle copy-constructor operations.
+        if (options instanceof worker) {
+            options = {
+                //Copy the raw image that will be unmodified.
+                blob: options.blob,
+                method: options.method
             }
+        }
 
-            if (!options.method) {
-                console.error(`[hamonengine.util.worker.constructor] Unable to create a workert: options.method is undefined!`);
-                throw 'Cannot create the worker';
-            }
+        if (!options.method) {
+            console.error(`[worker.constructor] Unable to create a workert: options.method is undefined!`);
+            throw 'Cannot create the worker';
+        }
 
-            this._method = options.method;
-            this._blob = options.blob || new Blob([`onmessage = ${options.method.toString()};`], { type: 'text/javascript' });
-            this._url = URL.createObjectURL(this._blob);
-            this._worker = new Worker(this._url);
-        }
-        //--------------------------------------------------------
-        // Properties
-        //--------------------------------------------------------
-        /**
-         * Gets the worker's blob.
-         */
-        get blob() {
-            return this._blob;
-        }
-        /**
-         * Gets the worker's method.
-         */
-        get method() {
-            return this._method;
-        }
-        /**
-         * Gets the worker's url.
-         */
-        get url() {
-            return this._url;
-        }
-        /**
-         * Gets the worker.
-         */
-        get worker() {
-            return this._worker;
-        }      
-        /**
-         * Creates a new instance of worker.
-         * @param {Function} method 
-         */
-        static create(method) {
-            return new hamonengine.util.worker({ method });
-        }
-        /**
-         * Runs the worker and returns a promise.
-         * @param {*} data 
-         * @returns a promise.
-         */
-        async run(data) {
-            return new Promise((resolve, reject) => {
-                this.worker.onmessage = (e) => {
-                    resolve(e.data);
-                    URL.revokeObjectURL(this.url);
-                };
-
-                this.worker.onerror = (e) => {
-                    reject(e);
-                    URL.revokeObjectURL(this.url); 
-                }
-
-                this.worker.postMessage(data);
-            });
-        }
+        this._method = options.method;
+        this._blob = options.blob || new Blob([`onmessage = ${options.method.toString()};`], { type: 'text/javascript' });
+        this._url = URL.createObjectURL(this._blob);
+        this._worker = new Worker(this._url);
     }
-})();
+    //--------------------------------------------------------
+    // Properties
+    //--------------------------------------------------------
+    /**
+     * Gets the worker's blob.
+     */
+    get blob() {
+        return this._blob;
+    }
+    /**
+     * Gets the worker's method.
+     */
+    get method() {
+        return this._method;
+    }
+    /**
+     * Gets the worker's url.
+     */
+    get url() {
+        return this._url;
+    }
+    /**
+     * Gets the worker.
+     */
+    get worker() {
+        return this._worker;
+    }      
+    /**
+     * Creates a new instance of worker.
+     * @param {Function} method 
+     */
+    static create(method) {
+        return new worker({ method });
+    }
+    /**
+     * Runs the worker and returns a promise.
+     * @param {*} data 
+     * @returns a promise.
+     */
+    async run(data) {
+        return new Promise((resolve, reject) => {
+            this.worker.onmessage = (e) => {
+                resolve(e.data);
+                URL.revokeObjectURL(this.url);
+            };
+
+            this.worker.onerror = (e) => {
+                reject(e);
+                URL.revokeObjectURL(this.url); 
+            }
+
+            this.worker.postMessage(data);
+        });
+    }
+}
