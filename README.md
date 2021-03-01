@@ -9,6 +9,7 @@ NOTES
 -----------
 
 * In development
+* Some of the engines features can be found demoed at: [http://demos.caffeinatedrat.com/hamon/]
 
 Compilation
 -----------
