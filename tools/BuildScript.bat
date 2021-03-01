@@ -7,6 +7,7 @@ java -jar "tools/closure-compiler-v20170626.jar" --output_manifest "build/manife
  --js_output_file="build/hamonengine.min.js" --js="src/global.js"^
  --js="src/util/*.js"^
  --js="src/math/util.js" --js="src/math/sort.js" --js="src/math/LCGRandom.js"^
+ --js="src/audio/*.js"^
  --js="src/geometry/*.js"^
  --js="src/graphics/type.js" --js="src/graphics/imageext.js" --js="src/graphics/layer.js" --js="src/graphics/sprite.js" --js="src/graphics/animsprite.js" --js="src/graphics/spritesheet.js"^
  --js="src/entities/object2d.js" --js="src/entities/cell.js"^
