@@ -144,6 +144,12 @@ hamonengine.graphics = hamonengine.graphics || {};
         set maxWrapping(v) {
             this._maxWrapping = v;
         }
+        /**
+         * Returns the internal image data that can either be of the type hamonengine.graphics.imageext or ImageData.
+         */
+        get image() {
+            return this._image;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -167,7 +173,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             return new hamonengine.graphics.sprite(this);
         }
         /**
-         * Attempts to load the sprite based on the image property.
+         * Attempts to load the sprite.
          * @param {string} src url of the image.
          * @return {Object} a promise to complete loading.
          */
