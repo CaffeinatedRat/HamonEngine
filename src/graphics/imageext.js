@@ -68,12 +68,6 @@ hamonengine.graphics = hamonengine.graphics || {};
             return this._image.src;
         }
         /**
-         * Assigns the image's src.
-         */
-        set src(v) {
-            this._image.src = v;
-        }
-        /**
          * Returns true if the image has completed loading.
          */
         get complete() {
@@ -127,7 +121,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Handle statically loaded image; those the DOM may have already loaded.
             if (src !== '') {
-                this.src = src;
+                this._image.src = src;
             }
 
             this._state = IMAGE_STATES.LOADING;
