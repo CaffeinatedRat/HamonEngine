@@ -45,7 +45,7 @@ hamonengine.audio = hamonengine.audio || {};
     }
 
     /**
-     * This class represents a graphical track object.
+     * This class represents an audio track object.
      */
     hamonengine.audio.track = class {
         constructor(options = {}) {
