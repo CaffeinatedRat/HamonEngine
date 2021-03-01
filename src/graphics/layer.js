@@ -576,16 +576,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.beginPath();
 
             this.context.moveTo(x, y);
-            this.context.lineTo(x + rect.width, y);
-            this.context.lineTo(x + rect.width, y + rect.height);
-            this.context.lineTo(x, y + rect.height);
+            this.context.strokeRect(x, y, rect.width, rect.height);
 
             //Complete the shape and draw the rect.
             this.context.closePath();
 
             if (fill) {
-                this.context.fill();
-            }            
+                this.context.fillRect(x, y, rect.width, rect.height);
+            }
 
             this.context.stroke();
         }  
