@@ -202,10 +202,11 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
 
             if (this._frames.length > 0) {
+                const currentFrame = this._frames[this.index];
                 //Apply any transformations.
-                this._frames[this.index].copyProperties(this);
+                currentFrame.copyProperties(this);
                 //Finally draw the sprite at the current frame index.
-                this._frames[this.index].draw(layer, elapsedTimeInMilliseconds, x, y, width, height);
+                currentFrame.draw(layer, elapsedTimeInMilliseconds, x, y, width || currentFrame.width , height || currentFrame.height);
             }
 
             //Reset the timestamp after this animation frame.
