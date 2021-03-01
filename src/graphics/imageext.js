@@ -255,7 +255,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 }
 
                 //Render the blending into the backbuffer.
-                this._backbufferCtx.putImageData(sourceData, region.x, region.y);
+                this._backbufferCtx.putImageData(sourceData, region.x, region.y, region.x, region.y, region.width, region.height);
             }
         }
         /**
