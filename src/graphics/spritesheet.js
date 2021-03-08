@@ -115,7 +115,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                         }));
                     };
 
-                    const spriteName = spriteMetadata.name.toLowerCase();
+                    const spriteName = animSpriteMetadata.name.toLowerCase();
                     this._spriteIndex.push(spriteName);
                     this._sprites[spriteName] = animatedSprite;
                 }
