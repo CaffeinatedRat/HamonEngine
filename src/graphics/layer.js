@@ -39,6 +39,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._name = options.name || '';
 
             this._alpha = options.alpha !== undefined ? options.alpha : false;
+            this._backgroundColor = options.backgroundColor || 'black';
             this._allowEventBinding = options.allowEventBinding !== undefined ? options.allowEventBinding : false;
             this._wrapVertical = options.wrapVertical !== undefined ? options.wrapVertical : false;
             this._wrapHorizontal = options.wrapHorizontal !== undefined ? options.wrapHorizontal : false;
@@ -73,9 +74,17 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Try to get the 2d context.
             try {
-                this._canvasContext = this._canvas.getContext('2d', {
-                    alpha: this._alpha
-                });
+            
+                // --- 3/7/21 --- Handle the Chromium 89 bug where if alpha is set to false, ClearRect will not properly clear the canvas resulting in a mirroring effect.
+                if (this._alpha) {
+                    this._canvasContext = this._canvas.getContext('2d', {
+                        alpha: this._alpha
+                    });
+                }
+                else {
+                    this._workAround = true;
+                    this._canvasContext = this._canvas.getContext('2d');
+                }
             }
             catch (err) {
             }
@@ -344,7 +353,16 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         clear(x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height) {
             this._wasReset = false;
+            
             this.context.clearRect(x, y, width, height);
+
+            // --- 3/7/21 --- Handle the Chromium 89 bug where if alpha is set to false, ClearRect will not properly clear the canvas resulting in a mirroring effect.
+            if (this._workAround) {
+                const originalFillStyle = this.context.fillStyle;
+                this.context.fillStyle = this._backgroundColor;
+                this.context.fillRect(x, y, width, height);
+                this.context.fillStyle = originalFillStyle;
+            }
         }
         /**
          * Resets the transformation.
