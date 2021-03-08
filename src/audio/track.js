@@ -64,13 +64,14 @@ hamonengine.audio = hamonengine.audio || {};
             this._trackBegin = options.trackBegin || 0;
             this._trackEnd = options.trackEnd;
 
-            //Find any additional tracks.
-            this._trackURLs = [];
-            this._trackURLIndex = 0;
+            //Collect all of the fallback sources.  Although these sources can be used to load mutliple tracks.
+            //According to MDN the source tag is a fallback mechanism if the browser cannot support the first audio type.
+            //https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio#%3Caudio%3E_with_multiple_%3Csource%3E_elements
+            this._fallbackSourceURLs = [];
             const sourceElements = this._audio.children;
             if (sourceElements.length > 0) {
-                for(let i = 0; i < sourceElements.length; i++) {
-                    this._trackURLs.push(sourceElements[i].src);
+                for (let i = 0; i < sourceElements.length; i++) {
+                    this._fallbackSourceURLs.push(sourceElements[i].src);
                 }
             }
 
@@ -81,8 +82,8 @@ hamonengine.audio = hamonengine.audio || {};
             this._gainNode = this._audioCtx.createGain();
             this._panNode = new StereoPannerNode(this._audioCtx, { pan: 0 });
 
-            this._track = this._audioCtx.createMediaElementSource(this._audio);
-            this._track.connect(this._gainNode).connect(this._panNode);
+            this._mediaSource = this._audioCtx.createMediaElementSource(this._audio);
+            this._mediaSource.connect(this._gainNode).connect(this._panNode);
 
             hamonengine.util.logger.debug(`[hamonengine.audio.track.constructor] Name: ${this._name}`);
             hamonengine.util.logger.debug(`[hamonengine.audio.track.constructor] Track Begin: ${this._trackBegin}`);
@@ -92,10 +93,10 @@ hamonengine.audio = hamonengine.audio || {};
         // Properties
         //--------------------------------------------------------
         /**
-         * Gets the audio's src.
+         * Gets the audio's current src.
          */
         get src() {
-            return this._audio.src;
+            return this._audio.currentSrc;
         }
         /**
          * Gets the audio element's name.
@@ -131,13 +132,13 @@ hamonengine.audio = hamonengine.audio || {};
          * Returns the duration of the track.
          */
         get duration() {
-            return this._trackEnd - this._trackBegin;
+            return (this._trackEnd || 0) - this._trackBegin;
         }
         /**
-         * Returns a collection of track Urls.
-         */        
-        get tracks() {
-            return this._trackURLs;
+         * Returns a collection of fallback source URLs.
+         */
+        get fallbackSourceURLs() {
+            return this._fallbackSourceURLs;
         }
         /**
          * Returns true if the track is allowed to autoplay.
@@ -192,14 +193,6 @@ hamonengine.audio = hamonengine.audio || {};
         // Methods
         //--------------------------------------------------------
         /**
-         * Copies the properties from another audio element in real-time.
-         * Static copying should be done through the constructor.
-         * @param {*} properties 
-         */
-        copyProperties(properties) {
-            //Apply any transformations.
-        }
-        /**
          * Makes a clone of the sprite.
          */
         clone() {
@@ -210,7 +203,7 @@ hamonengine.audio = hamonengine.audio || {};
          * @param {string} src url of the track.
          * @return {Object} a promise to complete loading.
          */
-        async load(src='') {
+        async load(src = '') {
 
             //Handle statically loaded audio; those the DOM may have already loaded.
             if (src !== '') {
@@ -225,13 +218,13 @@ hamonengine.audio = hamonengine.audio || {};
                     this.audio.addEventListener('loadeddata', () => {
 
                         this._state = AUDIO_STATES.COMPLETE;
-                        this._track.connect(this._audioCtx.destination);
+                        this._mediaSource.connect(this._audioCtx.destination);
                         //Set the initial track position.
                         this.audio.currentTime = this._trackBegin;
 
-                        //Find the end of the track.
+                        //Find the end of the track if one doesn't exist.
                         if (!this._trackEnd) {
-                            this._trackEnd = this.duration + this._trackBegin;
+                            this._trackEnd = this.audio.duration;
                         }
 
                         hamonengine.util.logger.debug(`[hamonengine.audio.track.load] Audio '${src}' has loaded successfully.`);
@@ -245,10 +238,20 @@ hamonengine.audio = hamonengine.audio || {};
                         const errorMsg = `The audio '${audioPath}' could not be loaded.`;
                         reject(errorMsg);
                     }, false);
+
+                    //Handle the timeupdate if our track end position is less than the duration.
+                    if (this._trackEnd !== this.audio.duration) {
+                        this.audio.addEventListener('timeupdate', (e) => {
+                            if (this.audio.currentTime >= this._trackEnd) {
+                                this.stop();
+                                e.preventDefault();
+                            }
+                        }, false);
+                    }
                 }
                 else {
                     this._state = AUDIO_STATES.COMPLETE;
-                    this._track.connect(this._audioCtx.destination);
+                    this._mediaSource.connect(this._audioCtx.destination);
                     //Set the initial track position.
                     this.audio.currentTime = this._trackBegin;
 
@@ -263,7 +266,7 @@ hamonengine.audio = hamonengine.audio || {};
             if (this._audioCtx.state === 'suspended') {
                 this._audioCtx.resume();
             }
-            this.audio.play();
+            return this.audio.play();
         }
         /**
          * Pauses playback.
@@ -277,15 +280,6 @@ hamonengine.audio = hamonengine.audio || {};
         stop() {
             this.audio.pause();
             this.audio.currentTime = this._trackBegin;
-        }
-        /**
-         * Moves to the next internal track. 
-         */
-        next() {
-            if (this._trackURLs.length > 0) {
-                this._trackURLIndex = (this._trackURLIndex + 1) % this._trackURLs.length;
-                this._audio.src = this._trackURLs[this._trackURLIndex];
-            }         
         }
     }
 })();
