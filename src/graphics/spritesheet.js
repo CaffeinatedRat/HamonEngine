@@ -27,13 +27,13 @@
 
 hamonengine.graphics = hamonengine.graphics || {};
 
-(function() {
+(function () {
 
     /**
      * This class represents a spritesheet.
      */
     hamonengine.graphics.spritesheet = class {
-        constructor(options={}) {
+        constructor(options = {}) {
             //Sprites sheet and sprites.
             this._imageResource = new hamonengine.graphics.imageext();
             this._sprites = {};
@@ -42,7 +42,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * Returns the number of sprites in the sheet.
          */
-        get length () {
+        get length() {
             return this._spriteIndex.length;
         }
         /**
@@ -74,45 +74,51 @@ hamonengine.graphics = hamonengine.graphics || {};
             //--------------------------------------------------------------------------
 
             //Load all of the static sprites from the metadata.
-            for(let i = 0; i < spriteSheetMetadata.sprites.length; i++) {
-                const spriteMetadata = spriteSheetMetadata.sprites[i];
-                this._spriteIndex.push(spriteMetadata.name);
-                this._sprites[spriteMetadata.name] = new hamonengine.graphics.sprite({
-                    image: this._imageResource,
-                    name: spriteMetadata.name,
-                    dimensions: new hamonengine.geometry.rect(
-                        spriteMetadata.x,
-                        spriteMetadata.y,
-                        spriteMetadata.width,
-                        spriteMetadata.height
-                    )
-                });
+            if (spriteSheetMetadata.sprites) {
+                for (let i = 0; i < spriteSheetMetadata.sprites.length; i++) {
+                    const spriteMetadata = spriteSheetMetadata.sprites[i];
+                    const spriteName = spriteMetadata.name.toLowerCase();
+                    this._spriteIndex.push(spriteName);
+                    this._sprites[spriteName] = new hamonengine.graphics.sprite({
+                        image: this._imageResource,
+                        name: spriteMetadata.name,
+                        dimensions: new hamonengine.geometry.rect(
+                            spriteMetadata.x,
+                            spriteMetadata.y,
+                            spriteMetadata.width,
+                            spriteMetadata.height
+                        )
+                    });
+                }
             }
 
             //Load all of the animated sprites from the metadata.
-            for (let i = 0; i < spriteSheetMetadata.animSprites.length; i++) {
-                const animSpriteMetadata = spriteSheetMetadata.animSprites[i];
-                const animatedSprite = new hamonengine.graphics.animsprite({
-                    animationRate: animSpriteMetadata.animationRate,
-                });
+            if (spriteSheetMetadata.animSprites) {
+                for (let i = 0; i < spriteSheetMetadata.animSprites.length; i++) {
+                    const animSpriteMetadata = spriteSheetMetadata.animSprites[i];
+                    const animatedSprite = new hamonengine.graphics.animsprite({
+                        animationRate: animSpriteMetadata.animationRate,
+                    });
 
-                //Load all of the frames from this animated sprite.
-                for (let j = 0; j < animSpriteMetadata.frames.length; j++) {
-                    const frameMetadata = animSpriteMetadata.frames[j];
-                    animatedSprite.addFrame(new hamonengine.graphics.sprite({
-                        image: this._imageResource,
-                        name: frameMetadata.name,
-                        dimensions: new hamonengine.geometry.rect(
-                            frameMetadata.x,
-                            frameMetadata.y,
-                            frameMetadata.width,
-                            frameMetadata.height
-                        )
-                    }));
-                };
+                    //Load all of the frames from this animated sprite.
+                    for (let j = 0; j < animSpriteMetadata.frames.length; j++) {
+                        const frameMetadata = animSpriteMetadata.frames[j];
+                        animatedSprite.addFrame(new hamonengine.graphics.sprite({
+                            image: this._imageResource,
+                            name: frameMetadata.name,
+                            dimensions: new hamonengine.geometry.rect(
+                                frameMetadata.x,
+                                frameMetadata.y,
+                                frameMetadata.width,
+                                frameMetadata.height
+                            )
+                        }));
+                    };
 
-                this._spriteIndex.push(animSpriteMetadata.name);
-                this._sprites[animSpriteMetadata.name] = animatedSprite;
+                    const spriteName = spriteMetadata.name.toLowerCase();
+                    this._spriteIndex.push(spriteName);
+                    this._sprites[spriteName] = animatedSprite;
+                }
             }
 
             //Return our promise to complete.
@@ -123,7 +129,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} spriteName of sprite to return.
          */
         getSprite(spriteName) {
-            return this._sprites[spriteName].clone();
+            return this._sprites[spriteName.toLowerCase()].clone();
         }
         /**
          * Returns the sprite based on the ordinal value.
