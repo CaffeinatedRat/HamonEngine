@@ -76,6 +76,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             try {
             
                 // --- 3/7/21 --- Handle the Chromium 89 bug where if alpha is set to false, ClearRect will not properly clear the canvas resulting in a mirroring effect.
+                // This is not an issue in Firefox and was not an issue before Chromium 89.
                 if (this._alpha) {
                     this._canvasContext = this._canvas.getContext('2d', {
                         alpha: this._alpha
@@ -357,6 +358,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.clearRect(x, y, width, height);
 
             // --- 3/7/21 --- Handle the Chromium 89 bug where if alpha is set to false, ClearRect will not properly clear the canvas resulting in a mirroring effect.
+            // This is not an issue in Firefox and was not an issue before Chromium 89.
             if (this._workAround) {
                 const originalFillStyle = this.context.fillStyle;
                 this.context.fillStyle = this._backgroundColor;
