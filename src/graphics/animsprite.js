@@ -82,9 +82,10 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Sets the animation rate in milliseconds.
+         * The animation rate can never go below 0 milliseconds.
          */
         set animationRate(v) {
-            this._animationRate = v;
+            this._animationRate = v > 0 ? v : 1;
         }
         /**
          * Gets the number of animation cycles.
@@ -126,6 +127,19 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         pause() {
             this._enableAnimation = !this._enableAnimation;
+        }
+        /**
+         * Advances to the next frame.
+         */
+        next () {
+            this.index++;
+        }
+        /**
+         * Reverses to the previous frame.
+         */
+        prev () {
+            const index = this.index - 1;
+            this.index = (index < 0) ? this._frames.length + index : index;
         }
         /**
          * Adds a new frame.
@@ -197,8 +211,8 @@ hamonengine.graphics = hamonengine.graphics || {};
                     this._enableAnimation = (this._numberOfAnimationCycles <= this.animationCycles);
                 }
 
-                //Set the frame index and wrap it to the beginning if we run out of sprite frames.
-                this.index = numberOfAnimationCycles % this._frames.length;
+                //Set the frame index, allow the index property to handle wrapping.
+                this.index = numberOfAnimationCycles;
             }
 
             if (this._frames.length > 0) {
