@@ -59,6 +59,7 @@ hamonengine.audio = hamonengine.audio || {};
             //Audio properties.
             this._name = options.name;
             this._audio = options.audio || new Audio();
+            this._url = options.url || '';
 
             //Contains the position of the track if contained in one file.
             this._trackBegin = options.trackBegin || 0;
@@ -206,28 +207,33 @@ hamonengine.audio = hamonengine.audio || {};
         async load(src = '') {
 
             //Handle statically loaded audio; those the DOM may have already loaded.
+            src = src || this._url;
             if (src !== '') {
                 this.audio.src = src;
                 this.audio.load();
             }
+
+            //Common success logic handling.
+            const handleSuccess = () => {
+                this._state = AUDIO_STATES.COMPLETE;
+                this._mediaSource.connect(this._audioCtx.destination);
+                //Set the initial track position.
+                this.audio.currentTime = this._trackBegin;
+
+                //Find the end of the track if one doesn't exist.
+                if (!this._trackEnd) {
+                    this._trackEnd = this.audio.duration;
+                }
+
+                hamonengine.util.logger.debug(`[hamonengine.audio.track.load] Audio '${this.src}' has loaded successfully.`);
+            };
 
             this._state = AUDIO_STATES.LOADING;
             return new Promise((resolve, reject) => {
                 if (this.audio.readyState === READY_STATES.HAVE_NOTHING) {
                     //Handle a successful loading event and resolve the promise.
                     this.audio.addEventListener('loadeddata', () => {
-
-                        this._state = AUDIO_STATES.COMPLETE;
-                        this._mediaSource.connect(this._audioCtx.destination);
-                        //Set the initial track position.
-                        this.audio.currentTime = this._trackBegin;
-
-                        //Find the end of the track if one doesn't exist.
-                        if (!this._trackEnd) {
-                            this._trackEnd = this.audio.duration;
-                        }
-
-                        hamonengine.util.logger.debug(`[hamonengine.audio.track.load] Audio '${src}' has loaded successfully.`);
+                        handleSuccess();
                         resolve();
                     }, false);
 
@@ -250,11 +256,7 @@ hamonengine.audio = hamonengine.audio || {};
                     }
                 }
                 else {
-                    this._state = AUDIO_STATES.COMPLETE;
-                    this._mediaSource.connect(this._audioCtx.destination);
-                    //Set the initial track position.
-                    this.audio.currentTime = this._trackBegin;
-
+                    handleSuccess();
                     resolve();
                 }
             });
