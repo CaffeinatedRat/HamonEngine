@@ -212,23 +212,24 @@ hamonengine.core = hamonengine.core || {};
                     throw 'onEventBinding is not returning a promise!  This event must return an unhandled promise.';
                 }
 
-                hamonengine.util.logger.warning("[hamonengine.core.engine.load] Engine is paused, waiting for event binding to resolve...");  
+                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine is paused, waiting for event binding to resolve...", "color: yellow");  
                 await eventBindingPromise;
-                hamonengine.util.logger.info("[hamonengine.core.engine.load] Engine has resumed loading, event binding has completed.");
+                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine has resumed loading, event binding has completed.", "color: green");
 
                 let loadingResource = this.onloadResources();
                 if (!(loadingResource instanceof Promise)) {
                     throw 'onloadResources is not returning a promise!  This event must return an unhandled promise.';
                 }
 
-                hamonengine.util.logger.warning("[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve...");   
+                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve...", "color: yellow");
                 await loadingResource;
                 this._resourcesLoaded = true;
-                hamonengine.util.logger.info("[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.");   
+                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.", "color: green");   
                 
                 //Wait at the preload promise while the other events & resources are loading.
+                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine is paused, waiting for preload event to resolve...", "color: yellow");  
                 await preloadPromise;
-                hamonengine.util.logger.info("[hamonengine.core.engine.load] Preload completed."); 
+                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Preload completed.", "color: green"); 
             }
             catch(error) {
                 console.error("[hamonengine.core.engine.load] Resources could not be loaded due to a failure! Stopping the engine.");

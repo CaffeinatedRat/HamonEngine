@@ -44,27 +44,42 @@ hamonengine.util = hamonengine.util || {
          * Writes a message to the log if debugging is enabled.
          * @param {*} message 
          */
-        static debug(message) {
+        static debug(message, style) {
             if ((hamonengine.util.loggerlevel & LOG_TYPE.DEBUG) === LOG_TYPE.DEBUG) {
-                console.log(message);
+                if(style) {
+                    console.log(message, style);
+                } 
+                else {
+                    console.log(message);
+                }
             }
         }
         /**
          * Writes a message to the info log if enabled.
          * @param {*} message 
          */
-        static info(message) {
+        static info(message, style) {
             if ((hamonengine.util.loggerlevel & LOG_TYPE.INFO) === LOG_TYPE.INFO) {
-                console.info(message);
+                if(style) {
+                    console.info(message, style);
+                } 
+                else {
+                    console.info(message);
+                }
             }
         }
         /**
          * Writes a message to the warning log if enabled.
          * @param {*} message 
          */
-        static warning(message) {
+        static warning(message, style) {
             if ((hamonengine.util.loggerlevel & LOG_TYPE.WARNING) === LOG_TYPE.WARNING) {
-                console.warn(message);
+                if(style) {
+                    console.warn(message, style);
+                } 
+                else {
+                    console.warn(message);
+                }                
             }
         }
     }
