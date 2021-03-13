@@ -58,6 +58,7 @@ hamonengine.core = hamonengine.core || {};
             this._splashScreenWait = options.splashScreenWait !== undefined ? options.splashScreenWait : 500;
             this._detectCanvas = options.detectCanvas !== undefined ? options.detectCanvas : false;
             this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
+            this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
 
             //Initialize internal states 
             this._state = ENGINE_STATES.STOPPED;
@@ -149,11 +150,23 @@ hamonengine.core = hamonengine.core || {};
             return this._syncFrames;
         }
         /**
-         * Returns ture if document event binding is allowed.
+         * Returns true if document event binding is allowed.
          */
         get allowDocumentEventBinding() {
             return this._allowDocumentEventBinding;
         }
+        /**
+         * Returns true if touch events are captured as mout events.
+         */        
+        get captureTouchAsMouseEvents() {
+            return this._captureTouchAsMouseEvents;
+        }
+        /**
+         * Toggles the ability to cature touch events as sync.
+         */        
+        set captureTouchAsMouseEvents(v) {
+            this._captureTouchAsMouseEvents = v;
+        }        
         /**
          * Assigns the sync value for processing & drawing frames together.
          * Warning: When enabled this can impact FPS performance.
@@ -284,37 +297,61 @@ hamonengine.core = hamonengine.core || {};
          */
         async onEventBinding() {
             return new Promise((resolve, reject) => {
-                //Only being adding events when the DOM has completed loading.
+                //Only add events when the DOM has completed loading.
                 window.addEventListener('DOMContentLoaded', (event) => {
-
-                    const bindEvents = (elementToBind, eventObject) => {
-                        const keyEvent = (type, e) => this.onKeyEvent(type, e.code, e, eventObject);
-                        const mouseEvent = (type, e) => this.onMouseEvent(type, new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, eventObject);
-                        const mouseClick = (e) => this.onMouseClick(new hamonengine.geometry.vector2(e.offsetX, e.offsetY), e, eventObject);
+                    const touchEventMap = new Map();
+                    const bindEvents = (elementToBind, eventContainer) => {
+                        const keyEvent = (type, e) => this.onKeyEvent(type, e.code, e, eventContainer);
+                        const mouseEvent = (type, e) => {
+                            const v = new hamonengine.geometry.vector2(e.offsetX, e.offsetY);
+                            this.onMouseEvent(type, v, e, eventContainer);
+                        }
                         const touchEvent = (type, e) => {
-                            const touches = [];
-                            const position = eventObject.position;
+                            
+                            //Retain the current touch type so we can determine if the next event is a click.
+                            const lasttouchevent = touchEventMap.has(eventContainer.name) ? touchEventMap.get(eventContainer.name) : '';
+                            touchEventMap.set(eventContainer.name, type);
+
+                            const position = eventContainer.position;
                             if (position) {
+                                const touches = [];
                                 for(let i = 0; i < e.touches.length; i++) {
-                                    touches.push({
-                                        left: e.touches[i].clientX - position.x,
-                                        top: e.touches[i].clientY - position.y
-                                    });
+                                    touches.push(new hamonengine.geometry.vector2(e.touches[i].clientX - position.x, e.touches[i].clientY - position.y));
                                 }
-                                this.onTouchEvent(type, e, touches, eventObject);
+                                //Mimic the click event for touch.
+                                const isClick = (type === 'end' && lasttouchevent === 'start');
+
+                                //Triger the touch events.
+                                this.onTouchEvent(type, touches, e, eventContainer);
+                                isClick && this.onTouchEvent('click', touches, e, eventContainer);
+
+                                //If enabled, trigger the mouse event on a touch event.
+                                if (this.captureTouchAsMouseEvents) {
+                                    //MDN's suggestion on mapping touch to click events.
+                                    //https://developer.mozilla.org/en-US/docs/Web/API/Touch_events#handling_clicks
+                                    //Map the touch events to mouse events before invoking the onMouseEvent.
+                                    type = (type === 'start') ? 'down' : type;
+                                    type = (type === 'end') ? 'up' : type;
+                                    //Capture only changedTouches as the touches collection will contain no coordinates.
+                                    const v = new hamonengine.geometry.vector2(e.changedTouches[0].clientX - position.x, e.changedTouches[0].clientY - position.y)
+                                    
+                                    //Triger the mouse events.
+                                    this.onMouseEvent(type, v, e, eventContainer);
+                                    isClick && this.onMouseEvent('click', v, e, eventContainer);
+                                }
                             }
                         };
 
                         elementToBind.addEventListener('keyup', (e) => keyEvent('up',e));
                         elementToBind.addEventListener('keydown', (e) => keyEvent('down',e));
-                        elementToBind.addEventListener('click', (e) => mouseClick(e));
+                        elementToBind.addEventListener('click', (e) => mouseEvent('click', e));
                         elementToBind.addEventListener('mouseup', (e) => mouseEvent('up',e));
                         elementToBind.addEventListener('mousedown', (e) => mouseEvent('down',e));
                         elementToBind.addEventListener('mousemove', (e) => mouseEvent('move',e));
                         elementToBind.addEventListener('touchstart', (e) => touchEvent('start',e), {passive: false});
                         elementToBind.addEventListener('touchmove', (e) =>  touchEvent('move',e), {passive: false});
-                        elementToBind.addEventListener("touchend", (e) => this.onTouchEnd(e, eventObject));
-                        elementToBind.addEventListener("touchcancel", (e) => this.onTouchCancel(e, eventObject));
+                        elementToBind.addEventListener("touchend", (e) => touchEvent('end', e), {passive: false});
+                        elementToBind.addEventListener("touchcancel", (e) => touchEvent('cancel', e), {passive: false});
                     };
 
                     //Allow document event binding.
@@ -322,7 +359,6 @@ hamonengine.core = hamonengine.core || {};
                         bindEvents(document, this);
                     }
 
-                    //TODO: Decide if this should be moved into the layer.
                     // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
                     this.layers.forEach(layer => {
                         layer.allowEventBinding && bindEvents(layer.canvas, layer);
@@ -336,28 +372,17 @@ hamonengine.core = hamonengine.core || {};
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
-        onMouseClick(v, e, layer) {
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseClick] '${e}'`);
-        }
-        onMouseEvent(type, v, e, layer) {
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
-        }
         onKeyEvent(type, keyCode, e, layer) {
             e && e.preventDefault();
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
-        onTouchEvent(type, e, touches, layer) {
+        onMouseEvent(type, v, e, layer) {
+            hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
+        }        
+        onTouchEvent(type, touches, e, layer) {
             e && e.preventDefault();
             hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
-        }
-        onTouchEnd(e, layer) {
-            e && e.preventDefault();
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchEnd] '${e}'`);
-        }
-        onTouchCancel(e, layer) {
-            e && e.preventDefault();
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchCancel] '${e}'`);
-        }
+        }  
         /**
          * A draw loop event that is triggered once the engine starts.
          * @param {?number} timestampInMilliseconds elapsed since the origin.  See DOMHighResTimeStamp.
