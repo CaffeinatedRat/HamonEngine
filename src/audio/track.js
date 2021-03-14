@@ -86,9 +86,9 @@ hamonengine.audio = hamonengine.audio || {};
             this._mediaSource = this._audioCtx.createMediaElementSource(this._audio);
             this._mediaSource.connect(this._gainNode).connect(this._panNode);
 
-            hamonengine.util.logger.debug(`[hamonengine.audio.track.constructor] Name: ${this._name}`);
-            hamonengine.util.logger.debug(`[hamonengine.audio.track.constructor] Track Begin: ${this._trackBegin}`);
-            hamonengine.util.logger.debug(`[hamonengine.audio.track.constructor] Track End: {${this._trackEnd}}`);
+            console.debug(`[hamonengine.audio.track.constructor] Name: ${this._name}`);
+            console.debug(`[hamonengine.audio.track.constructor] Track Begin: ${this._trackBegin}`);
+            console.debug(`[hamonengine.audio.track.constructor] Track End: {${this._trackEnd}}`);
         }
         //--------------------------------------------------------
         // Properties
@@ -225,7 +225,7 @@ hamonengine.audio = hamonengine.audio || {};
                     this._trackEnd = this.audio.duration;
                 }
 
-                hamonengine.util.logger.debug(`[hamonengine.audio.track.load] Audio '${this.src}' has loaded successfully.`);
+                console.debug(`[hamonengine.audio.track.load] Audio '${this.src}' has loaded successfully.`);
             };
 
             this._state = AUDIO_STATES.LOADING;

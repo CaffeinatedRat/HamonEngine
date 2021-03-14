@@ -26,6 +26,7 @@
 //波紋
 'use strict';
 
+//Used to compile the release minification file.
 var hamonengine = {
     debug: false
 };

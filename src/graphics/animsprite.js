@@ -54,10 +54,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._numberOfAnimationCycles = 0;
             this._enableAnimation = true;
 
-            hamonengine.util.logger.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Rate: ${this._animationRate}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Cycle: ${this._animationCycles}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.animsprite.constructor] Starting Index: ${this._index}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.animsprite.constructor] Starting Enable Animation: ${this._enableAnimation}`);
+            console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Rate: ${this._animationRate}`);
+            console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Cycle: ${this._animationCycles}`);
+            console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Index: ${this._index}`);
+            console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Enable Animation: ${this._enableAnimation}`);
         }
         //--------------------------------------------------------
         // Properties
@@ -146,7 +146,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {Object} frame to add.
          */
         addFrame(frame) {
-            hamonengine.util.logger.debug("[hamonengine.graphics.animsprite.animsprite.addFrame]");
+            console.debug("[hamonengine.graphics.animsprite.animsprite.addFrame]");
             this._frames.push(frame);
         }
         /**

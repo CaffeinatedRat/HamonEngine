@@ -128,7 +128,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         isCollisionRect(otherRect) {
             if (!(otherRect instanceof hamonengine.geometry.rect)) {
-                hamonengine.util.logger.warning(`[hamonengine.geometry.rect.isCollision] The otherRect parameter is not of type hamonengine.geometry.rect!`);
+                console.warn(`[hamonengine.geometry.rect.isCollision] The otherRect parameter is not of type hamonengine.geometry.rect!`);
             }
 
             let mnimumOverlappingLength = NaN;
@@ -247,7 +247,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         isContained(position, rect) {
 
             if (!(rect instanceof hamonengine.geometry.rect)) {
-                hamonengine.util.logger.warning(`[hamonengine.geometry.rect.isContained] The rect parameter is not of type hamonengine.geometry.rect!`);
+                console.warn(`[hamonengine.geometry.rect.isContained] The rect parameter is not of type hamonengine.geometry.rect!`);
             }
 
             const outsideDirection = new hamonengine.geometry.vector2();
@@ -255,20 +255,20 @@ hamonengine.geometry = hamonengine.geometry || {};
             const xOffset = position.x + rect.x;
             const yOffset = position.y + rect.y;
             if (xOffset < this.x) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isContained] Outside -x: (${xOffset}, ${yOffset})`);
+                console.debug(`[hamonengine.geometry.rect.isContained] Outside -x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = -1;
             }
             else if (position.x + rect.right > this.right) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isContained] Outside +x: (${xOffset}, ${yOffset})`);
+                console.debug(`[hamonengine.geometry.rect.isContained] Outside +x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = 1;
             }
 
             if (yOffset < this.y) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isContained] Outside -y: (${xOffset}, ${yOffset})`);
+                console.debug(`[hamonengine.geometry.rect.isContained] Outside -y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = -1;
             }
             else if (position.y + rect.bottom > this.bottom) {
-                hamonengine.util.logger.debug(`[hamonengine.geometry.rect.isContained] Outside +y: (${xOffset}, ${yOffset})`);
+                console.debug(`[hamonengine.geometry.rect.isContained] Outside +y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = 1;
             }
 

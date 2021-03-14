@@ -39,11 +39,12 @@ hamonengine.util = hamonengine.util || {
 };
 
 (function () {
+    /*
     hamonengine.util.logger = class {
-        /**
+        / **
          * Writes a message to the log if debugging is enabled.
          * @param {*} message 
-         */
+         * /
         static debug(message, style) {
             if ((hamonengine.util.loggerlevel & LOG_TYPE.DEBUG) === LOG_TYPE.DEBUG) {
                 if(style) {
@@ -54,10 +55,10 @@ hamonengine.util = hamonengine.util || {
                 }
             }
         }
-        /**
+        / **
          * Writes a message to the info log if enabled.
          * @param {*} message 
-         */
+         * /
         static info(message, style) {
             if ((hamonengine.util.loggerlevel & LOG_TYPE.INFO) === LOG_TYPE.INFO) {
                 if(style) {
@@ -68,10 +69,10 @@ hamonengine.util = hamonengine.util || {
                 }
             }
         }
-        /**
+        / **
          * Writes a message to the warning log if enabled.
          * @param {*} message 
-         */
+         * /
         static warning(message, style) {
             if ((hamonengine.util.loggerlevel & LOG_TYPE.WARNING) === LOG_TYPE.WARNING) {
                 if(style) {
@@ -83,6 +84,7 @@ hamonengine.util = hamonengine.util || {
             }
         }
     }
+    */
 
     /**
      * Use the ES6 constructs instead.

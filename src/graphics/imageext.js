@@ -56,7 +56,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._backbufferResource = null;
             this._backbufferCtx = null;
 
-            hamonengine.util.logger.debug(`[hamonengine.graphics.imageext.constructor] Starting State: {${this._state}}`);
+            console.debug(`[hamonengine.graphics.imageext.constructor] Starting State: {${this._state}}`);
         }
         //--------------------------------------------------------
         // Properties
@@ -130,7 +130,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     //Handle a successful loading event and resolve the promise.
                     this.image.addEventListener('load', () => {
                         this._state = IMAGE_STATES.COMPLETE;
-                        hamonengine.util.logger.debug(`[hamonengine.graphics.imageext.load] Image '${src}' has loaded successfully.`);
+                        console.debug(`[hamonengine.graphics.imageext.load] Image '${src}' has loaded successfully.`);
                         resolve();
                     }, false);
 

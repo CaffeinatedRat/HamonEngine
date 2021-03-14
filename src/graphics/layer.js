@@ -109,13 +109,13 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Allow the viewport border to be drawn.
             this._viewPortBorderColor = '';
 
-            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] Canvas Id: ${this._canvasId}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] Name: ${this._name}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] Alpha: ${this._alpha}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] AllowEventBinding: ${this._allowEventBinding}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] WrapVertical: ${this._wrapVertical}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] WrapHorizontal: ${this._wrapHorizontal}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] ClipToViewPort: ${this._clipToViewPort}`);
+            console.debug(`[hamonengine.graphics.layer.constructor] Canvas Id: ${this._canvasId}`);
+            console.debug(`[hamonengine.graphics.layer.constructor] Name: ${this._name}`);
+            console.debug(`[hamonengine.graphics.layer.constructor] Alpha: ${this._alpha}`);
+            console.debug(`[hamonengine.graphics.layer.constructor] AllowEventBinding: ${this._allowEventBinding}`);
+            console.debug(`[hamonengine.graphics.layer.constructor] WrapVertical: ${this._wrapVertical}`);
+            console.debug(`[hamonengine.graphics.layer.constructor] WrapHorizontal: ${this._wrapHorizontal}`);
+            console.debug(`[hamonengine.graphics.layer.constructor] ClipToViewPort: ${this._clipToViewPort}`);
         }
         //--------------------------------------------------------
         // Properties
@@ -334,7 +334,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} enable true to enable.
          */
         enableImageSmoothing(enable = true) {
-            hamonengine.util.logger.debug(`[hamonengine.graphics.layer.constructor] EnableImageSmoothing: ${enable}`);
+            console.debug(`[hamonengine.graphics.layer.constructor] EnableImageSmoothing: ${enable}`);
             this._enableImageSmoothing = enable;
             try {
                 this.context.webkitImageSmoothingEnabled = enable;

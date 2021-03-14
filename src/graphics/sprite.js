@@ -75,10 +75,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._showFullImage = false;
             this._maxWrapping = 0;
 
-            hamonengine.util.logger.debug(`[hamonengine.graphics.sprite.constructor] Starting Dimensions: {${this._dimensions.toString()}}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.sprite.constructor] Name: ${this._name}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.sprite.constructor] Theta: ${this._theta}`);
-            hamonengine.util.logger.debug(`[hamonengine.graphics.sprite.constructor] ScaleVector: {${this._scaleVector.toString()}}`);
+            console.debug(`[hamonengine.graphics.sprite.constructor] Starting Dimensions: {${this._dimensions.toString()}}`);
+            console.debug(`[hamonengine.graphics.sprite.constructor] Name: ${this._name}`);
+            console.debug(`[hamonengine.graphics.sprite.constructor] Theta: ${this._theta}`);
+            console.debug(`[hamonengine.graphics.sprite.constructor] ScaleVector: {${this._scaleVector.toString()}}`);
         }
         //--------------------------------------------------------
         // Properties

@@ -57,15 +57,15 @@ hamonengine.entities = hamonengine.entities || {};
             //Determine if the object is visible, it is visible by default.
             this._isVisible = (options.isVisible === undefined) ? true : false;
 
-            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Name: ${this.name}`);
-            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Dimensions {Width: ${this.width}, Height: ${this.height}}`);
-            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Direction: {x: ${this.direction.x}, y: ${this.direction.y}}`);
-            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Position: {x: ${this.position.x}, y: ${this.position.y}}`);
-            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Starting Theta: ${this.theta}`);
-            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] Movement Rate: ${this._movementRate}`);
-            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] isSolid: ${this.isSolid}`);
-            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] isMoveable: ${this.isMoveable}`);
-            hamonengine.util.logger.debug(`[hamonengine.entities.object2d.constructor] isVisible: ${this.isVisible}`);
+            console.debug(`[hamonengine.entities.object2d.constructor] Name: ${this.name}`);
+            console.debug(`[hamonengine.entities.object2d.constructor] Starting Dimensions {Width: ${this.width}, Height: ${this.height}}`);
+            console.debug(`[hamonengine.entities.object2d.constructor] Starting Direction: {x: ${this.direction.x}, y: ${this.direction.y}}`);
+            console.debug(`[hamonengine.entities.object2d.constructor] Starting Position: {x: ${this.position.x}, y: ${this.position.y}}`);
+            console.debug(`[hamonengine.entities.object2d.constructor] Starting Theta: ${this.theta}`);
+            console.debug(`[hamonengine.entities.object2d.constructor] Movement Rate: ${this._movementRate}`);
+            console.debug(`[hamonengine.entities.object2d.constructor] isSolid: ${this.isSolid}`);
+            console.debug(`[hamonengine.entities.object2d.constructor] isMoveable: ${this.isMoveable}`);
+            console.debug(`[hamonengine.entities.object2d.constructor] isVisible: ${this.isVisible}`);
         }
         //--------------------------------------------------------
         // Properties

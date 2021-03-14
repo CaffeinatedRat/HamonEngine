@@ -43,12 +43,12 @@ hamonengine.core = hamonengine.core || {};
     ];
 
     const canvas_default_name = 'canvas';
-    const VERSION = '0.1.1';
+    const VERSION = '0.1.2';
 
     hamonengine.core.engine = class {
         constructor(options={}) {
             
-            hamonengine.util.logger.info(`HamonEngine -- Using version: ${VERSION}`);
+            console.log(`HamonEngine -- Using version: ${VERSION}`);
 
             //Options.
             this._movementRate = options.movementRate || 0.25;
@@ -73,7 +73,7 @@ hamonengine.core = hamonengine.core || {};
             //Try to detect all canvas if the feature is enabled and none are passsed in.
             const canvasCollection = options.canvas || [];
             if (this._detectCanvas && canvasCollection.length === 0) {
-                hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] DetectCanvas: true.  Attempting to detect all canvas.`);
+                console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: true.  Attempting to detect all canvas.`);
                 const discoveredCanvas = Object.entries(document.getElementsByTagName('canvas'));
                 discoveredCanvas.forEach(([key, value]) => {
                     const canvasName = value.getAttribute('name') || `${canvas_default_name}${key}`;
@@ -88,7 +88,7 @@ hamonengine.core = hamonengine.core || {};
             }
             //If a collection of canvas objects are provided then use those instead.
             else {
-                hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] DetectCanvas: false.  Using collection of options.canvas.`);
+                console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: false.  Using collection of options.canvas.`);
                 let index = 0;
                 for (let i = 0; i < canvasCollection.length; i ++) {
                     const canvas = canvasCollection[i];
@@ -107,15 +107,15 @@ hamonengine.core = hamonengine.core || {};
             this._resourcesLoaded = false;
 
             //Log initialization values
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] MovementRate: ${this._movementRate}`);
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] State: ${ENGINE_STATES_NAMES[this._state]}`);
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] SyncFrames: ${this.syncFrames ? 'Enabled' : 'Disabled'}`);
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] SplashScreen Wait Time: ${this._splashScreenWait} milliseconds.`);
+            console.debug(`[hamonengine.core.engine.constructor] MovementRate: ${this._movementRate}`);
+            console.debug(`[hamonengine.core.engine.constructor] State: ${ENGINE_STATES_NAMES[this._state]}`);
+            console.debug(`[hamonengine.core.engine.constructor] SyncFrames: ${this.syncFrames ? 'Enabled' : 'Disabled'}`);
+            console.debug(`[hamonengine.core.engine.constructor] SplashScreen Wait Time: ${this._splashScreenWait} milliseconds.`);
 
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] Global States`);
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.floor: ${hamonengine.geometry.settings.collisionDetection.floor}`);
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.limit: ${hamonengine.geometry.settings.collisionDetection.limit}`);
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.coordinateSystem: ${hamonengine.geometry.settings.coordinateSystem}`);
+            console.debug(`[hamonengine.core.engine.constructor] Global States`);
+            console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.floor: ${hamonengine.geometry.settings.collisionDetection.floor}`);
+            console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.limit: ${hamonengine.geometry.settings.collisionDetection.limit}`);
+            console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.coordinateSystem: ${hamonengine.geometry.settings.coordinateSystem}`);
 
         }
         //--------------------------------------------------------
@@ -189,7 +189,7 @@ hamonengine.core = hamonengine.core || {};
          * @return {Object} a promise to complete resource loading.
          */
         async load() {
-            hamonengine.util.logger.info("[hamonengine.core.engine.load]");
+            console.debug("[hamonengine.core.engine.load]");
 
             //Perform a preload and wait if a splashscreen is present.
             const preloadPromise = new Promise(resolve => {
@@ -202,7 +202,7 @@ hamonengine.core = hamonengine.core || {};
             });
 
             this._state = ENGINE_STATES.LOADING;
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.load] State: ${ENGINE_STATES_NAMES[this._state]}`);
+            console.log(`[hamonengine.core.engine.load] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
             try {
 
@@ -212,24 +212,24 @@ hamonengine.core = hamonengine.core || {};
                     throw 'onEventBinding is not returning a promise!  This event must return an unhandled promise.';
                 }
 
-                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine is paused, waiting for event binding to resolve...", "color: yellow");  
+                console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for event binding to resolve...", "color: yellow");  
                 await eventBindingPromise;
-                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine has resumed loading, event binding has completed.", "color: green");
+                console.log("%c[hamonengine.core.engine.load] Engine has resumed loading, event binding has completed.", "color: green");
 
                 let loadingResource = this.onloadResources();
                 if (!(loadingResource instanceof Promise)) {
                     throw 'onloadResources is not returning a promise!  This event must return an unhandled promise.';
                 }
 
-                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve...", "color: yellow");
+                console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve...", "color: yellow");
                 await loadingResource;
                 this._resourcesLoaded = true;
-                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.", "color: green");   
+                console.log("%c[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.", "color: green");   
                 
                 //Wait at the preload promise while the other events & resources are loading.
-                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Engine is paused, waiting for preload event to resolve...", "color: yellow");  
+                console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for preload event to resolve...", "color: yellow");  
                 await preloadPromise;
-                hamonengine.util.logger.info("%c[hamonengine.core.engine.load] Preload completed.", "color: green"); 
+                console.log("%c[hamonengine.core.engine.load] Preload completed.", "color: green"); 
             }
             catch(error) {
                 console.error("[hamonengine.core.engine.load] Resources could not be loaded due to a failure! Stopping the engine.");
@@ -243,12 +243,12 @@ hamonengine.core = hamonengine.core || {};
          * Starts the engine.
          */
         start() {
-            hamonengine.util.logger.info("[hamonengine.core.engine.start]");
+            console.debug("[hamonengine.core.engine.start]");
 
             //Don't start the engine until we are in a loading state.
             if (this._state === ENGINE_STATES.LOADING) {
                 this._state = ENGINE_STATES.STARTED;
-                hamonengine.util.logger.debug(`[hamonengine.core.engine.start] State: ${ENGINE_STATES_NAMES[this._state]}`);
+                console.log(`[hamonengine.core.engine.start] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
                 this.fpsCounter.start();
                 this.onDraw(0);
@@ -261,12 +261,12 @@ hamonengine.core = hamonengine.core || {};
          * Stops the engine.
          */
         stop({reasons} = {reasons: 'Stopped By User'}) {
-            hamonengine.util.logger.info("[hamonengine.core.engine.stop]");
+            console.debug("[hamonengine.core.engine.stop]");
             window.cancelAnimationFrame(this._animationId);
             this._animationId = 0;
             this._startTimeStamp = 0;
             this._state = ENGINE_STATES.STOPPED;
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);
+            console.log(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
             //Let everyone know the engine has stopped and for what reason.
             this.onStop(reasons);
@@ -282,7 +282,7 @@ hamonengine.core = hamonengine.core || {};
          * You can use this event to display static images that have already been loaded.
          */
         onPreload() {
-            hamonengine.util.logger.info("[hamonengine.core.engine.onPreload]");
+            console.debug("[hamonengine.core.engine.onPreload]");
             return false;
         }
         /**
@@ -290,7 +290,7 @@ hamonengine.core = hamonengine.core || {};
          * @return {Object} a promise that the resource has loaded successfully.
          */
         async onloadResources() {
-            hamonengine.util.logger.info("[hamonengine.core.engine.onloadResources]");
+            console.debug("[hamonengine.core.engine.onloadResources]");
             return Promise.resolve();
         }
         /**
@@ -375,14 +375,14 @@ hamonengine.core = hamonengine.core || {};
         //--------------------------------------------------------
         onKeyEvent(type, keyCode, e, layer) {
             e && e.preventDefault();
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
+            console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
         onMouseEvent(type, v, e, layer) {
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
+            console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
         }        
         onTouchEvent(type, touches, e, layer) {
             e && e.preventDefault();
-            hamonengine.util.logger.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
+            console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }  
         /**
          * A draw loop event that is triggered once the engine starts.
@@ -401,7 +401,7 @@ hamonengine.core = hamonengine.core || {};
             //Get the time elapsed since the engine started.
             const elapsedTimeInMilliseconds = timestampInMilliseconds - this._lastFrameTimeStamp;
 
-            //hamonengine.util.logger.debug("[hamonengine.core.engine.onDraw]");
+            //console.debug("[hamonengine.core.engine.onDraw]");
             try {
                 //Experimental processing frame.
                 let processingComplete = false;
@@ -420,7 +420,7 @@ hamonengine.core = hamonengine.core || {};
             }
             catch(exception) {
                 this.stop();
-                hamonengine.util.logger.debug(exception);
+                console.debug(exception);
             }
 
             //Record the timestamp of the current frame.
