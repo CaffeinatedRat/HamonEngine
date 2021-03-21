@@ -33,7 +33,10 @@ hamonengine.audio = hamonengine.audio || {};
         UNLOADED: 0,
         LOADING: 1,
         COMPLETE: 2,
-        ERROR: 3
+        ERROR: 3,
+        PLAYING: 4,
+        STOPPED: 5,
+        PAUSED: 6
     };
 
     const READY_STATES = {
@@ -76,8 +79,8 @@ hamonengine.audio = hamonengine.audio || {};
                 }
             }
 
-            //Create the audiocontext and connect it to the audio element.
-            this._state = AUDIO_STATES.UNLOADED;
+            this._resourceState = AUDIO_STATES.UNLOADED;
+            this._playingState = AUDIO_STATES.STOPPED;
 
             this._audioCtx = new AudioContext();
             this._gainNode = this._audioCtx.createGain();
@@ -125,7 +128,13 @@ hamonengine.audio = hamonengine.audio || {};
          * Determines if the audio is ready.
          */
         get isLoaded() {
-            return this._state === AUDIO_STATES.COMPLETE;
+            return this._resourceState === AUDIO_STATES.COMPLETE;
+        }
+        /**
+         * Determines if the track is playing.
+         */
+        get isPlaying() {
+            return this._playingState === AUDIO_STATES.PLAYING;
         }
         /**
          * Returns the internal audio data of the type Audio.
@@ -217,7 +226,7 @@ hamonengine.audio = hamonengine.audio || {};
          */
         async load(src = '') {
 
-            this._state = AUDIO_STATES.LOADING;
+            this._resourceState = AUDIO_STATES.LOADING;
 
             //Handle statically loaded audio; those the DOM may have already loaded.
             src = src || this._url;
@@ -230,7 +239,7 @@ hamonengine.audio = hamonengine.audio || {};
 
                 //Common success logic handling.
                 const handleSuccess = () => {
-                    this._state = AUDIO_STATES.COMPLETE;
+                    this._resourceState = AUDIO_STATES.COMPLETE;
                     this._mediaSource.connect(this._audioCtx.destination);
                     console.debug(`[hamonengine.audio.track.load] Audio '${this.src}' has loaded successfully.`);
                     resolve();
@@ -238,7 +247,7 @@ hamonengine.audio = hamonengine.audio || {};
 
                 //Common failure logic handling.
                 const handleFailure = () => {
-                    this._state = AUDIO_STATES.ERROR;
+                    this._resourceState = AUDIO_STATES.ERROR;
                     const audioPath = error && error.path && error.path.length > 0 && error.path[0].src || '';
                     const errorMsg = `The audio '${audioPath}' could not be loaded.`;
                     reject(errorMsg);
@@ -293,6 +302,7 @@ hamonengine.audio = hamonengine.audio || {};
             if (this._audioCtx.state === 'suspended') {
                 this._audioCtx.resume();
             }
+            this._playingState = AUDIO_STATES.PLAYING;
             this.onTrackBegin();
             return this.audio.play();
         }
@@ -300,6 +310,7 @@ hamonengine.audio = hamonengine.audio || {};
          * Pauses playback.
          */
         pause() {
+            this._playingState = AUDIO_STATES.PAUSED;
             this.audio.pause();
         }
         /**
@@ -312,6 +323,8 @@ hamonengine.audio = hamonengine.audio || {};
             //Reset the track.
             this.audio.currentTime = this._trackBegin;
             suspend && this._audioCtx.suspend();
+
+            this._playingState = AUDIO_STATES.STOPPED;
         }
         //--------------------------------------------------------
         // Events
