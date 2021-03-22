@@ -55,7 +55,10 @@ hamonengine.audio = hamonengine.audio || {};
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.audio.track) {
                 options = {
-                    audio: options._audio && options._audio.clone()
+                    audio: options._audio && options._audio.clone(),
+                    url: options._url,
+                    trackBegin: options._trackBegin,
+                    trackEnd: options._trackEnd
                 }
             }
 
