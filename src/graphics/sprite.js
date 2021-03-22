@@ -52,6 +52,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Image properties.
             this._name = options.name;
             this._image = options.image || new hamonengine.graphics.imageext();
+            this._url = options.url || '';
 
             //Handle the dimensions different if the image is of type HTMLImageElement
             if (options.dimensions) {
@@ -97,13 +98,13 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Returns the sprite's height.
-         */        
+         */
         get height() {
             return this._dimensions.height;
         }
         /**
          * Returns the sprite's width.
-         */        
+         */
         get width() {
             return this._dimensions.width;
         }
@@ -177,7 +178,11 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} src url of the image.
          * @return {Object} a promise to complete loading.
          */
-        async load(src) {
+        async load(src = '') {
+
+            //Handle a pre-existing URL option.
+            src = src || this._url;
+
             return new Promise((resolve, reject) => {
                 if (this._image instanceof hamonengine.graphics.imageext) {
                     this._image.load(src).then(() => {
@@ -192,7 +197,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     resolve();
                 }
             });
-        }        
+        }
         /**
          * Rotates the sprite at the center.
          * @param {number} theta the angle in radians.

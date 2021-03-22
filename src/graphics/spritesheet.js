@@ -38,6 +38,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._imageResource = new hamonengine.graphics.imageext();
             this._sprites = {};
             this._spriteIndex = [];
+            this._url = options.url || '';
         }
         /**
          * Returns the number of sprites in the sheet.
@@ -58,7 +59,10 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Loads the spritesheet based on the provided metadata or URL.
          * @param {*} spriteSheetMetadata JSON metadata or a URL
          */
-        async load(spriteSheetMetadata) {
+        async load(spriteSheetMetadata = '') {
+
+            //Handle a pre-existing URL option.
+            spriteSheetMetadata = spriteSheetMetadata || this._url;
 
             //Determine if the user is attempting to load the metadata from a file or JSON data.
             if (typeof spriteSheetMetadata === 'string') {
