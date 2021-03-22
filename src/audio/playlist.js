@@ -125,7 +125,7 @@ hamonengine.audio = hamonengine.audio || {};
             return new hamonengine.audio.playlist(this);
         }
         /**
-         * Starts the animation cycle.
+         * Starts or resumes playlist playback.
          */
         play() {
             if (!this.currentTrack.isPlaying) {
@@ -133,26 +133,26 @@ hamonengine.audio = hamonengine.audio || {};
             }
         }
         /**
-         * Stops & resets the animation cycle.
+         * Pauses playlist playback.
+         */
+         pause() {
+            this.currentTrack.pause();
+        }
+        /**
+         * Stops and resets playlist playback.
          */
         stop() {
             this.currentTrack.stop();
             this.index = 0;
         }
         /**
-         * Toggles the animation state without resetting the animation cycles.
-         */
-        pause() {
-            this.currentTrack.pause();
-        }
-        /**
-         * Advances to the next frame.
+         * Advances to the next track.
          */
         next() {
             this.index++;
         }
         /**
-         * Reverses to the previous frame.
+         * Recedes to the previous track.
          */
         prev() {
             this.index--;
