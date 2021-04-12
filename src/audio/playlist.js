@@ -51,6 +51,8 @@ hamonengine.audio = hamonengine.audio || {};
             this._index = options.index || 0;
             this._loop = options.loop || 0;
             this._autoplay = (options.autoplay !== undefined) ? options.autoplay : false;
+            this._autoplayFilters = options.autoplayFilters || [];
+            this._volume = 1.0;
 
             console.debug(`[hamonengine.audio.playlist.constructor] Name: ${this._name}`);
             console.debug(`[hamonengine.audio.playlist.constructor] Track Index: ${this._index}`);
@@ -115,6 +117,18 @@ hamonengine.audio = hamonengine.audio || {};
         set autoplay(v) {
             this._autoplay = v;
         }
+        /**
+         * Returns the volume value of the audio element between 0.0-1.0
+         */
+         get volume() {
+            return this._volume;
+        }
+        /**
+         * Assigns the volume value between 0.0-1.0.
+         */
+        set volume(v) {
+            this._volume = v;
+        }        
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -130,6 +144,7 @@ hamonengine.audio = hamonengine.audio || {};
         play() {
             if (!this.currentTrack.isPlaying) {
                 this.currentTrack.play();
+                this.currentTrack.volume = this.volume;
             }
         }
         /**
@@ -149,13 +164,27 @@ hamonengine.audio = hamonengine.audio || {};
          * Advances to the next track.
          */
         next() {
-            this.index++;
+            if (this.currentTrack.isPlaying) {
+                this.currentTrack.stop();
+                this.index++;
+                this.currentTrack.play();
+            }
+            else {
+                this.index++;
+            }
         }
         /**
          * Recedes to the previous track.
          */
         prev() {
-            this.index--;
+            if (this.currentTrack.isPlaying) {
+                this.currentTrack.stop();
+                this.index--;
+                this.currentTrack.play();
+            }
+            else {
+                this.index--;
+            }
         }
         /**
          * Adds a new track.
@@ -166,6 +195,20 @@ hamonengine.audio = hamonengine.audio || {};
             track.register(this);
             this._tracks.push(track);
         }
+        /**
+         * Creates an autoplay fade filter where the track will fade before playing the next track.
+         * NOTE: These filters only work when autoplay is enabled.
+         * @param {number} fadeOutStart the percentage of the track's duration where fade out will start at the end of the track.  This is 1% by default.
+         * @param {number} rateOfFade the rate at which the track will fade.  The default is .2 (2 milliseconds and is the rate at which track information is updated).
+         */
+        static createAutoPlayFadeFilter({fadeOutStart = 0.01, rateOfFade = .2}) {
+            return ({elapsedTime, remainingTime, currentTrack, nextTrack }) => {
+                const fadeOutStartInterval = currentTrack.duration * fadeOutStart;
+                if (remainingTime < fadeOutStartInterval) {
+                    currentTrack.volume = currentTrack.volume > 0 ? (remainingTime * rateOfFade / currentTrack.volume) : 0;
+                }
+            }
+        }        
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
@@ -183,11 +226,20 @@ hamonengine.audio = hamonengine.audio || {};
                 //If looping advanced to the next track to the beginning of the playlist.
                 if (this.loop || this.index < this._tracks.length - 1) {
                     this.next();
-                    this.currentTrack.play();
+                    this.play();
                 }
                 else {
                     this.index = 0;
                 }
+            }
+        }
+        /**
+         * An event that is triggered on a track update.
+         */
+        onTrackUpdate({ track, elapsedTime, remainingTime }) {
+            const nextTrack = this._tracks[(this.index + 1 % this._tracks.length)];
+            for (let i = 0; i < this._autoplayFilters.length; i++) {
+                this._autoplayFilters[i]({elapsedTime, remainingTime, currentTrack: track, nextTrack });
             }
         }
     }
