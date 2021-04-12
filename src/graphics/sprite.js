@@ -188,13 +188,13 @@ hamonengine.graphics = hamonengine.graphics || {};
                     this._image.load(src).then(() => {
                         //Update the dimensions based on the image's properties.
                         this._dimensions = new hamonengine.geometry.rect(0, 0, this._image.width, this._image.height);
-                        resolve();
+                        resolve(this);
                     }).catch((err) => {
                         reject(err);
                     });
                 }
                 else {
-                    resolve();
+                    resolve(this);
                 }
             });
         }
