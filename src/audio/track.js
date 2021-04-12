@@ -86,11 +86,10 @@ hamonengine.audio = hamonengine.audio || {};
             this._playingState = AUDIO_STATES.STOPPED;
 
             this._audioCtx = new AudioContext();
+            this._mediaSource = null;
             this._gainNode = this._audioCtx.createGain();
             this._panNode = new StereoPannerNode(this._audioCtx, { pan: 0 });
 
-            this._mediaSource = this._audioCtx.createMediaElementSource(this._audio);
-            this._mediaSource.connect(this._gainNode).connect(this._panNode);
             this._listenerPool = new listenerPool();
             
             //Make sure events are only bound once.
@@ -203,9 +202,8 @@ hamonengine.audio = hamonengine.audio || {};
          * Assigns the volume value between 0.0-1.0.
          */
         set volume(v) {
-            this._gainNode.gain.value = v;
+            this._gainNode.gain.value = v > 1.0 ? 1.0 : v;
         }
-
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -229,23 +227,28 @@ hamonengine.audio = hamonengine.audio || {};
          */
         async load(src = '') {
 
-            this._resourceState = AUDIO_STATES.LOADING;
-
-            //Handle statically loaded audio; those the DOM may have already loaded.
+            //Normalize the source if the argument is not passed.
             src = src || this._url;
+            
+            //Handle statically loaded audio; those the DOM may have already loaded.
             if (src !== '') {
                 this.audio.src = src;
                 this.audio.load();
             }
+
+            this._resourceState = AUDIO_STATES.LOADING;
 
             return new Promise((resolve, reject) => {
 
                 //Common success logic handling.
                 const handleSuccess = () => {
                     this._resourceState = AUDIO_STATES.COMPLETE;
-                    this._mediaSource.connect(this._audioCtx.destination);
+                    if (!this._mediaSource) {
+                        this._mediaSource = this._audioCtx.createMediaElementSource(this._audio);
+                        this._mediaSource.connect(this._gainNode).connect(this._panNode).connect(this._audioCtx.destination);
+                    }
                     console.debug(`[hamonengine.audio.track.load] Audio '${this.src}' has loaded successfully.`);
-                    resolve();
+                    resolve(this);
                 };
 
                 //Common failure logic handling.
@@ -278,14 +281,11 @@ hamonengine.audio = hamonengine.audio || {};
                         }
 
                         //Handle the timeupdate if our track end position is less than the duration.
-                        if (this._trackEnd !== this.audio.duration) {
+                        //if (this._trackEnd !== this.audio.duration) {
                             this.audio.addEventListener('timeupdate', (e) => {
-                                if (this.audio.currentTime >= this._trackEnd) {
-                                    this.onTrackEnd();
-                                    e.preventDefault();
-                                }
+                                this.onTrackUpdate(e);
                             }, false);
-                        }
+                        //}
                     }, false);
 
                     //Handle a situation where the DOM has completed the loading the data.
@@ -302,12 +302,14 @@ hamonengine.audio = hamonengine.audio || {};
          * Starts or resumes playback.
          */
         play() {
-            if (this._audioCtx.state === 'suspended') {
-                this._audioCtx.resume();
+            if (this._playingState !== AUDIO_STATES.PLAYING) {
+                if (this._audioCtx.state === 'suspended') {
+                    this._audioCtx.resume();
+                }
+                this._playingState = AUDIO_STATES.PLAYING;
+                this.onTrackBegin();
+                return this.audio.play();
             }
-            this._playingState = AUDIO_STATES.PLAYING;
-            this.onTrackBegin();
-            return this.audio.play();
         }
         /**
          * Pauses playback.
@@ -348,6 +350,21 @@ hamonengine.audio = hamonengine.audio || {};
             }
             else {
                 this._listenerPool.invoke('onTrackEnd', { track: this });
+            }
+        }
+        /**
+         * An event that is triggered on a track update.
+         */
+        onTrackUpdate(e) {
+            const remainingTime = this._trackEnd - this.audio.currentTime;
+            const elapsedTime = this.audio.currentTime - this._trackBegin;
+            //If the audio track exceeds our set track time then end the track.
+            if (remainingTime <= 0) {
+                this.onTrackEnd();
+                e.preventDefault();
+            }
+            else {
+                this._listenerPool.invoke('onTrackUpdate', { track: this, elapsedTime, remainingTime });
             }
         }
     }
