@@ -199,16 +199,29 @@ hamonengine.audio = hamonengine.audio || {};
          * Creates an autoplay fade filter where the track will fade before playing the next track.
          * NOTE: These filters only work when autoplay is enabled.
          * @param {number} fadeOutStart the percentage of the track's duration where fade out will start at the end of the track.  This is 1% by default.
-         * @param {number} rateOfFade the rate at which the track will fade.  The default is .2 (2 milliseconds and is the rate at which track information is updated).
+         * @param {number} rateOfFade the rate at which the track will fade in milliseconds.  This field can be used to create a hard fast fadeout before the track ends.  The default is 0, where the rate will be calculated based on the reamining time & currenct volume.
          */
-        static createAutoPlayFadeFilter({fadeOutStart = 0.01, rateOfFade = .2}) {
-            return ({elapsedTime, remainingTime, currentTrack, nextTrack }) => {
-                const fadeOutStartInterval = currentTrack.duration * fadeOutStart;
+        static createAutoPlayFadeFilter({fadeOutStart = 0.01, rateOfFade = 0}={}) {
+            return ({elapsedTime, remainingTime, currentTrack, nextTrack, playList }) => {
+                const fadeOutStartInterval = (currentTrack.duration * fadeOutStart);
+
                 if (remainingTime < fadeOutStartInterval) {
-                    currentTrack.volume = currentTrack.volume > 0 ? (remainingTime * rateOfFade / currentTrack.volume) : 0;
+
+                    //Reduce the volume by the specified rate or the rate determined by the current volume and amount of time remaining.
+                    const volume = rateOfFade > 0 ? (currentTrack.volume - rateOfFade) : (remainingTime / (currentTrack.volume * fadeOutStartInterval));
+
+                    if (volume > 0) {
+                        currentTrack.volume = volume;
+                    }
+                    else {
+                        //When the volume has reached zero, stop the current track, advanced the playlist and play the next track.
+                        currentTrack.stop({suspend: false});
+                        playList.next();
+                        playList.play();
+                    }
                 }
             }
-        }        
+        }
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
@@ -239,7 +252,7 @@ hamonengine.audio = hamonengine.audio || {};
         onTrackUpdate({ track, elapsedTime, remainingTime }) {
             const nextTrack = this._tracks[(this.index + 1 % this._tracks.length)];
             for (let i = 0; i < this._autoplayFilters.length; i++) {
-                this._autoplayFilters[i]({elapsedTime, remainingTime, currentTrack: track, nextTrack });
+                this._autoplayFilters[i]({elapsedTime, remainingTime, currentTrack: track, nextTrack, playList: this });
             }
         }
     }
