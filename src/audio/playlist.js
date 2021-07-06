@@ -47,12 +47,18 @@ hamonengine.audio = hamonengine.audio || {};
 
             //Audio properties.
             this._name = options.name;
-            this._tracks = options.tracks || [];
+            this._tracks = [];
             this._index = options.index || 0;
             this._loop = options.loop || 0;
             this._autoplay = (options.autoplay !== undefined) ? options.autoplay : false;
             this._autoplayFilters = options.autoplayFilters || [];
             this._volume = 1.0;
+
+            this._listenerPool = new listenerPool();
+
+            //Register any provided tracks.
+            const tracks = options.tracks || [];
+            tracks.forEach(track => this.addTrack(track));
 
             console.debug(`[hamonengine.audio.playlist.constructor] Name: ${this._name}`);
             console.debug(`[hamonengine.audio.playlist.constructor] Track Index: ${this._index}`);
@@ -145,6 +151,13 @@ hamonengine.audio = hamonengine.audio || {};
             return new hamonengine.audio.playlist(this);
         }
         /**
+         * Registers a listener that will receive specific events.
+         * @param {*} listener 
+         */
+         register(listener) {
+            this._listenerPool.register(listener);
+        }
+        /**
          * Attempts to load all tracks if they have not already been loaded.
          * @return {Object} a promise to complete loading.
          */
@@ -181,6 +194,8 @@ hamonengine.audio = hamonengine.audio || {};
 
                 this.currentTrack.volume = this.volume;
                 this.currentTrack.play();
+
+                this._listenerPool.invoke('onPlaylistPlay', { track: this.currentTrack });
             }
         }
         /**
@@ -188,13 +203,16 @@ hamonengine.audio = hamonengine.audio || {};
          */
          pause() {
             this.currentTrack.pause();
+            this._listenerPool.invoke('onPlaylistPause', { track: this.currentTrack });
         }
         /**
          * Stops and resets playlist playback.
+         * @param {string} reason an optional parameter that states why the playlist stopped.  By default this is user invoked.
          */
-        stop() {
+        stop({reason = 'invoked'} = {}) {
             this.currentTrack.stop();
             this.index = 0;
+            this._listenerPool.invoke('onPlaylistStop', { track: this.currentTrack, reason });
         }
         /**
          * Advances to the next track.
@@ -208,6 +226,8 @@ hamonengine.audio = hamonengine.audio || {};
             else {
                 this.index++;
             }
+
+            this._listenerPool.invoke('onPlaylistNext', { track: this.currentTrack });
         }
         /**
          * Recedes to the previous track.
@@ -221,6 +241,8 @@ hamonengine.audio = hamonengine.audio || {};
             else {
                 this.index--;
             }
+
+            this._listenerPool.invoke('onPlaylistPrevious', { track: this.currentTrack });
         }
         /**
          * Adds a new track.
@@ -278,7 +300,7 @@ hamonengine.audio = hamonengine.audio || {};
                     this.play();
                 }
                 else {
-                    this.index = 0;
+                    this.stop({reason: 'playlistend'});
                 }
             }
         }
@@ -290,6 +312,8 @@ hamonengine.audio = hamonengine.audio || {};
             for (let i = 0; i < this._autoplayFilters.length; i++) {
                 this._autoplayFilters[i]({elapsedTime, remainingTime, currentTrack: track, nextTrack, playList: this });
             }
+
+            this._listenerPool.invoke('onPlaylistUpdate', { track, elapsedTime, remainingTime, playlist: this });
         }
     }
 })();
