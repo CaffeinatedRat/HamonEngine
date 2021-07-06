@@ -74,7 +74,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Try to get the 2d context.
             try {
-            
+
                 // --- 3/7/21 --- Handle the Chromium 89 bug where if alpha is set to false, ClearRect will not properly clear the canvas resulting in a mirroring effect.
                 // This is not an issue in Firefox and was not an issue before Chromium 89.
                 if (this._alpha) {
@@ -176,9 +176,9 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Get the position of the layer.
-         */        
+         */
         get position() {
-            const boundRect = this.canvas.getBoundingClientRect() || { left: 0, top: 0};
+            const boundRect = this.canvas.getBoundingClientRect() || { left: 0, top: 0 };
             return new hamonengine.geometry.vector2(boundRect.left, boundRect.top);
         }
         /**
@@ -282,7 +282,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} name of the new canvas.
          * @returns {Object} a newly created canvas
          */
-        static createNewCanvas(width, height, id='', name='') {
+        static createNewCanvas(width, height, id = '', name = '') {
             const canvas = document.createElement('canvas');
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
@@ -293,19 +293,19 @@ hamonengine.graphics = hamonengine.graphics || {};
                 canvas.setAttribute('name', name);
             }
             return canvas;
-        }        
+        }
         /**
          * Clones the current layer with a new id & name and creates a new canvas element, while retaining all other properties from the source.
          * @param {string} canvasId of the new layer.
          * @param {string} name of the new layer.
          * @param {*} elementToAttach to attach the canvas.
          */
-        clone(canvasId, name, elementToAttach=null) {
+        clone(canvasId, name, elementToAttach = null) {
 
             //Create a new canvas element and attach it after the original.
             const newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
             //elementToAttach = elementToAttach || this.canvas.parentNode;
-            elementToAttach && elementToAttach.insertBefore(newCanvas,null);
+            elementToAttach && elementToAttach.insertBefore(newCanvas, null);
 
             //Create a new canvas instance.
             const newLayer = new hamonengine.graphics.layer({
@@ -354,7 +354,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         clear(x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height) {
             this._wasReset = false;
-            
+
             this.context.clearRect(x, y, width, height);
 
             // --- 3/7/21 --- Handle the Chromium 89 bug where if alpha is set to false, ClearRect will not properly clear the canvas resulting in a mirroring effect.
@@ -452,10 +452,21 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.font of the text.
          * @param {string} obj.color of the text.
          * @param {number} obj.textDrawType format to draw, by default this is TEXT_DRAW_TYPE.FILL.
+         * @param {number} obj.textOffset horizontal coordinate of where to offset the text.  By default this is centered.
          */
-        drawText(text, sourceX = 0, sourceY = 0, {font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL} = {}) {
+        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'center' } = {}) {
             this.context.font = font;
             this.context.textBaseline = 'top';
+
+            //Attempt to center the text based on its length.
+            if (textOffset == 'center') {
+                const metrics = this.context.measureText(text);
+                sourceX -= (metrics.width / 2);
+            }
+            else {
+                sourceX -= parseInt(textOffset);
+            }
+
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
                 this.context.strokeStyle = color;
                 this.context.strokeText(text, sourceX, sourceY);
@@ -498,9 +509,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} sourceY coordinate of where to draw the vector (Optional and set to zero).
          * @param {number} obj.lineWidth width of the vector's lines  (Optional and set to 1).
          * @param {string} obj.color of the vector's lines.
-         */    
-        drawVector(vector, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white'} = {}) {
-            
+         */
+        drawVector(vector, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white' } = {}) {
+
             if (!(vector instanceof hamonengine.geometry.vector2)
                 && !(vector instanceof hamonengine.geometry.vector3)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.vector2 or of type hamonengine.geometry.vector3.";
@@ -508,7 +519,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
-            
+
             this.context.beginPath();
             this.context.moveTo(sourceX, sourceY);
             this.context.lineTo(sourceX + vector.x, sourceY + vector.y);
@@ -524,9 +535,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.color of the rect's lines.
          * @param {boolean} obj.fill determines if the rect should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
-         */      
-        drawRect(rect, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', fill = false, fillColor='white'} = {}) {
-            this.simpleDrawRect(rect, sourceX, sourceY, {lineWidth, color, fill, fillColor} );
+         */
+        drawRect(rect, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
+            this.simpleDrawRect(rect, sourceX, sourceY, { lineWidth, color, fill, fillColor });
 
             //Handle rect wrapping.
             if (this.wrapHorizontal) {
@@ -534,14 +545,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the minimum vertex of a rect extends beyond the minimum edge (left side) of the viewport.
                 const xOffset = (sourceX + rect.x) - this.viewPort.x;
                 if (xOffset <= 0) {
-                    this.simpleDrawRect(rect, this.viewPort.width + xOffset, sourceY, {lineWidth, color, fill, fillColor} );
+                    this.simpleDrawRect(rect, this.viewPort.width + xOffset, sourceY, { lineWidth, color, fill, fillColor });
                 }
 
                 //DRAW LEFT
                 //Determine if the maximum vertex of a rect extends beyond the maximum edge (right side) of the viewport.
                 if (sourceX + rect.width >= this.viewPort.width) {
                     const xOffset = this.viewPort.width - (sourceX + rect.x);
-                    this.simpleDrawRect(rect, this.viewPort.x - xOffset, sourceY, {lineWidth, color, fill, fillColor} );
+                    this.simpleDrawRect(rect, this.viewPort.x - xOffset, sourceY, { lineWidth, color, fill, fillColor });
                 }
             }
 
@@ -551,17 +562,17 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the minimum vertex of a rect extends beyond the minimum edge (top side) of the viewport.
                 const yOffset = (sourceY + rect.y) - this.viewPort.y;
                 if (yOffset <= 0) {
-                    this.simpleDrawRect(rect, sourceX, this.viewPort.height + yOffset, {lineWidth, color, fill, fillColor} );
+                    this.simpleDrawRect(rect, sourceX, this.viewPort.height + yOffset, { lineWidth, color, fill, fillColor });
                 }
 
                 //DRAW UP
                 //Determine if the maximum vertex of a rect extends beyond the maximum edge (bottom side) of the viewport.
                 if (sourceY + rect.height >= this.viewPort.height) {
                     const yOffset = this.viewPort.height - (sourceY + rect.y);
-                    this.simpleDrawRect(rect, sourceX, this.viewPort.y - yOffset, {lineWidth, color, fill, fillColor} );
+                    this.simpleDrawRect(rect, sourceX, this.viewPort.y - yOffset, { lineWidth, color, fill, fillColor });
                 }
             }
-        }     
+        }
         /**
          * A method that draws the rect object without wrapping (hamonengine.geometry.rect) based on the dimension parameters provided.
          * @param {object} rect object to draw.
@@ -572,7 +583,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.fill determines if the rect should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
          */
-        simpleDrawRect(rect, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', fill = false, fillColor='white'} = {}) {
+        simpleDrawRect(rect, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
 
             if (!(rect instanceof hamonengine.geometry.rect)) {
                 throw "Parameter rect is not of type hamonengine.geometry.rect.";
@@ -606,7 +617,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
 
             this.context.stroke();
-        }  
+        }
         /**
          * A method that draws the polygon object with wrapping (hamonengine.geometry.polygon) based on the dimension parameters provided.
          * @param {object} polygon object to draw.
@@ -618,8 +629,8 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.fill determines if the polygon should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the polygon (Default is 'white').
          */
-        drawPolygon(polygon, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor='white'} = {}) {
-            this.simpleDrawPolygon(polygon, sourceX, sourceY, {lineWidth, color, drawNormals, fill, fillColor} );
+        drawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
+            this.simpleDrawPolygon(polygon, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
 
             //Handle polygon wrapping.
             if (this.wrapHorizontal) {
@@ -627,14 +638,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the minimum vertex of a polygon extends beyond the minimum edge (left side) of the viewport.
                 const xOffset = (sourceX + polygon.min.x) - this.viewPort.x;
                 if (xOffset <= 0) {
-                    this.simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, {lineWidth, color, drawNormals, fill, fillColor} );
+                    this.simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
                 }
 
                 //DRAW LEFT
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (right side) of the viewport.
                 if (sourceX + polygon.width >= this.viewPort.width) {
                     const xOffset = this.viewPort.width - (sourceX + polygon.min.x);
-                    this.simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, {lineWidth, color, drawNormals, fill, fillColor} );
+                    this.simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
                 }
             }
 
@@ -644,14 +655,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the minimum vertex of a polygon extends beyond the minimum edge (top side) of the viewport.
                 const yOffset = (sourceY + polygon.min.y) - this.viewPort.y;
                 if (yOffset <= 0) {
-                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, {lineWidth, color, drawNormals, fill, fillColor} );
+                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, { lineWidth, color, drawNormals, fill, fillColor });
                 }
 
                 //DRAW UP
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (bottom side) of the viewport.
                 if (sourceY + polygon.height >= this.viewPort.height) {
                     const yOffset = this.viewPort.height - (sourceY + polygon.min.y);
-                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, {lineWidth, color, drawNormals, fill, fillColor} );
+                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, { lineWidth, color, drawNormals, fill, fillColor });
                 }
             }
         }
@@ -666,7 +677,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.fill determines if the polygon should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the polygon (Default is 'white').
          */
-        simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, {lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor='white'} = {}) {
+        simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
 
             if (!(polygon instanceof hamonengine.geometry.polygon)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
@@ -734,7 +745,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     //Find the normal for the current edge and draw a line to it.
                     const normal = polygon.normals[index];
                     const normalSize = Math.bitRound(edge.length / 2);
-                    
+
                     if (this.invertYAxis) {
                         normal.y = -normal.y;
                     }
