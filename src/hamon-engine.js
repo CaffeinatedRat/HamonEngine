@@ -60,6 +60,9 @@ hamonengine.core = hamonengine.core || {};
             this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
             this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
 
+            //Add support for external elements.
+            this._externalElements = options.externalElements || [];
+
             //Initialize internal states 
             this._state = ENGINE_STATES.STOPPED;
             this._startTimeStamp = 0;
@@ -137,10 +140,16 @@ hamonengine.core = hamonengine.core || {};
             return this._fpsCounter;
         }
         /**
-         * Returns all registered layers
-         */        
+         * Returns all registered layers.
+         */
         get layers() {
             return Object.values(this._layers);
+        }
+        /**
+         * Returns all external elements.
+         */
+        get externalElements() {
+            return this._externalElements;
         }
         /**
          * Returns true if the processing & drawing frames are sync'ed.
@@ -157,16 +166,16 @@ hamonengine.core = hamonengine.core || {};
         }
         /**
          * Returns true if touch events are captured as mout events.
-         */        
+         */
         get captureTouchAsMouseEvents() {
             return this._captureTouchAsMouseEvents;
         }
         /**
          * Toggles the ability to cature touch events as sync.
-         */        
+         */
         set captureTouchAsMouseEvents(v) {
             this._captureTouchAsMouseEvents = v;
-        }        
+        }
         /**
          * Assigns the sync value for processing & drawing frames together.
          * Warning: When enabled this can impact FPS performance.
@@ -349,6 +358,8 @@ hamonengine.core = hamonengine.core || {};
                         elementToBind.addEventListener('mouseup', (e) => mouseEvent('up',e));
                         elementToBind.addEventListener('mousedown', (e) => mouseEvent('down',e));
                         elementToBind.addEventListener('mousemove', (e) => mouseEvent('move',e));
+                        elementToBind.addEventListener('mouseenter', (e) => mouseEvent('enter',e));
+                        elementToBind.addEventListener('mouseleave', (e) => mouseEvent('leave',e));
                         elementToBind.addEventListener('touchstart', (e) => touchEvent('start',e), {passive: false});
                         elementToBind.addEventListener('touchmove', (e) =>  touchEvent('move',e), {passive: false});
                         elementToBind.addEventListener("touchend", (e) => touchEvent('end', e), {passive: false});
@@ -356,14 +367,13 @@ hamonengine.core = hamonengine.core || {};
                     };
 
                     //Allow document event binding.
-                    if (this.allowDocumentEventBinding) {
-                        bindEvents(document, this);
-                    }
+                    this.allowDocumentEventBinding && bindEvents(document, this);
+
+                    //Allow support for external elements.
+                    this.externalElements.forEach(externalElement => bindEvents(externalElement, externalElement));
 
                     // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
-                    this.layers.forEach(layer => {
-                        layer.allowEventBinding && bindEvents(layer.canvas, layer);
-                    });
+                    this.layers.forEach(layer => layer.allowEventBinding && bindEvents(layer.canvas, layer));
                 });
 
                 resolve();
@@ -373,17 +383,17 @@ hamonengine.core = hamonengine.core || {};
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
-        onKeyEvent(type, keyCode, e, layer) {
+        onKeyEvent(type, keyCode, e, caller) {
             e && e.preventDefault();
             console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
-        onMouseEvent(type, v, e, layer) {
+        onMouseEvent(type, v, e, caller) {
             console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
-        }        
-        onTouchEvent(type, touches, e, layer) {
+        }
+        onTouchEvent(type, touches, e, caller) {
             e && e.preventDefault();
             console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
-        }  
+        }
         /**
          * A draw loop event that is triggered once the engine starts.
          * @param {?number} timestampInMilliseconds elapsed since the origin.  See DOMHighResTimeStamp.
@@ -438,14 +448,14 @@ hamonengine.core = hamonengine.core || {};
         /**
          * An onProcessingFrame event that is triggered when a single frame is being processed before drawn.
          * @param {number} elapsedTimeInMilliseconds since the engine has started.
-         */        
+         */
         onProcessingFrame(elapsedTimeInMilliseconds) {
             return this;
         }
         /**
          * An event that is triggered when the engine has been stopped.
          * @param {string} reasons as to why the engine stopped.
-         */         
+         */
         onStop(reasons) {
             return this;
         }
