@@ -81,6 +81,12 @@ hamonengine.audio = hamonengine.audio || {};
             return this._index;
         }
         /**
+         * Returns true if the playlist is playing.
+         */
+        get isPlaying() {
+            return this.currentTrack.isPlaying;
+        }
+        /**
          * Assigns the current track index.
          */
         set index(v) {
@@ -128,7 +134,7 @@ hamonengine.audio = hamonengine.audio || {};
          */
         set volume(v) {
             this._volume = v;
-        }        
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -139,12 +145,42 @@ hamonengine.audio = hamonengine.audio || {};
             return new hamonengine.audio.playlist(this);
         }
         /**
-         * Starts or resumes playlist playback.
+         * Attempts to load all tracks if they have not already been loaded.
+         * @return {Object} a promise to complete loading.
          */
-        play() {
+         async load() {
+
+            //NOTE: Reduced readability for better performance.
+            const unloadedTracks = [];
+            for(let i = 0; i < this._tracks.length; i++) {
+                if (!this._tracks[i].isLoaded) {
+                    unloadedTracks.push(this._tracks[i].load());
+                }
+            }
+
+            if (unloadedTracks.length > 0) {
+                return Promise.all(unloadedTracks);
+            }
+
+            return Promise.resolve();
+        }
+        /**
+         * Starts or resumes playlist playback.
+         * @param {string} trackname is an optional parameter that will play the track by name.  If no trackname is provided the current track is played.
+         */
+        play(trackname = '') {
             if (!this.currentTrack.isPlaying) {
-                this.currentTrack.play();
+
+                //If the trackname is specified then change the track to that index.
+                if (trackname !== '')  {
+                    const index = this._tracks.findIndex(track => track.name === trackname);
+                    if (index > -1) {
+                        this.index = index;
+                    }
+                }
+
                 this.currentTrack.volume = this.volume;
+                this.currentTrack.play();
             }
         }
         /**
