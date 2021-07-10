@@ -454,17 +454,32 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} obj.textDrawType format to draw, by default this is TEXT_DRAW_TYPE.FILL.
          * @param {number} obj.textOffset horizontal coordinate of where to offset the text.  By default this is centered.
          */
-        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'center' } = {}) {
+        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left' } = {}) {
             this.context.font = font;
             this.context.textBaseline = 'top';
 
-            //Attempt to center the text based on its length.
-            if (textOffset == 'center') {
-                const metrics = this.context.measureText(text);
-                sourceX -= (metrics.width / 2);
-            }
-            else {
-                sourceX -= parseInt(textOffset);
+            //Attempt to handle predefined text offsets.
+            switch(textOffset) {
+                case 'center':
+                    {
+                        const metrics = this.context.measureText(text);
+                        sourceX -= (metrics.width / 2);
+                    }
+                    break;
+
+                case 'left':
+                    break;
+
+                case 'right':
+                    {
+                        const metrics = this.context.measureText(text);
+                        sourceX -= metrics.width;
+                    }
+                    break;
+                
+                default:
+                    sourceX -= parseInt(textOffset);
+                    break;
             }
 
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
