@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2020-2021, CaffeinatedRat.
+* Copyright (c) 2020-2022, CaffeinatedRat.
 * All rights reserved.
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -29,24 +29,6 @@ hamonengine.audio = hamonengine.audio || {};
 
 (function () {
 
-    const AUDIO_STATES = {
-        UNLOADED: 0,
-        LOADING: 1,
-        COMPLETE: 2,
-        ERROR: 3,
-        PLAYING: 4,
-        STOPPED: 5,
-        PAUSED: 6
-    };
-
-    const READY_STATES = {
-        HAVE_NOTHING: 0,
-        HAVE_METADATA: 1,
-        HAVE_CURRENT_DATA: 2,
-        HAVE_FUTURE_DATA: 3,
-        HAVE_ENOUGH_DATA: 4
-    }
-
     /**
      * This class represents an audio track object.
      */
@@ -55,7 +37,9 @@ hamonengine.audio = hamonengine.audio || {};
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.audio.track) {
                 options = {
-                    audio: options._audio && options._audio.clone(),
+                    name: options._name,
+                    audioext: options._audioext,
+                    audio: options._audio,
                     url: options._url,
                     trackBegin: options._trackBegin,
                     trackEnd: options._trackEnd
@@ -64,36 +48,16 @@ hamonengine.audio = hamonengine.audio || {};
 
             //Audio properties.
             this._name = options.name;
-            this._audio = options.audio || new Audio();
-            this._url = options.url || '';
+            this._audioext = options.audioext || new hamonengine.audio.audioext({
+                audio: options.audio,
+                url: options.url
+            });
 
             //Contains the position of the track if contained in one file.
             this._trackBegin = options.trackBegin || 0;
             this._trackEnd = options.trackEnd;
 
-            //Collect all of the fallback sources.  Although these sources can be used to load mutliple tracks.
-            //According to MDN the source tag is a fallback mechanism if the browser cannot support the first audio type.
-            //https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio#%3Caudio%3E_with_multiple_%3Csource%3E_elements
-            this._fallbackSourceURLs = [];
-            const sourceElements = this._audio.children;
-            if (sourceElements.length > 0) {
-                for (let i = 0; i < sourceElements.length; i++) {
-                    this._fallbackSourceURLs.push(sourceElements[i].src);
-                }
-            }
-
-            this._resourceState = AUDIO_STATES.UNLOADED;
-            this._playingState = AUDIO_STATES.STOPPED;
-
-            this._audioCtx = new AudioContext();
-            this._mediaSource = null;
-            this._gainNode = this._audioCtx.createGain();
-            this._panNode = new StereoPannerNode(this._audioCtx, { pan: 0 });
-
             this._listenerPool = new listenerPool();
-            
-            //Make sure events are only bound once.
-            this._eventsBound = false;
 
             console.debug(`[hamonengine.audio.track.constructor] Name: ${this._name}`);
             console.debug(`[hamonengine.audio.track.constructor] Track Begin: ${this._trackBegin}`);
@@ -106,7 +70,7 @@ hamonengine.audio = hamonengine.audio || {};
          * Gets the audio's current src.
          */
         get src() {
-            return this._audio.currentSrc;
+            return this._audioext.src;
         }
         /**
          * Gets the audio element's name.
@@ -124,85 +88,85 @@ hamonengine.audio = hamonengine.audio || {};
          * Get the context.
          */
         get context() {
-            return this._audioCtx;
+            return this._audioext.context;
         }
         /**
          * Determines if the audio is ready.
          */
         get isLoaded() {
-            return this._resourceState === AUDIO_STATES.COMPLETE;
+            return this._audioext.isLoaded;
         }
         /**
          * Determines if the track is playing.
          */
         get isPlaying() {
-            return this._playingState === AUDIO_STATES.PLAYING;
+            return this._audioext.isPlaying;
         }
         /**
          * Returns the internal audio data of the type Audio.
          */
         get audio() {
-            return this._audio;
+            return this._audioext.audio;
         }
         /**
          * Returns the duration of the track.
          */
         get duration() {
-            return (this._trackEnd || 0) - this._trackBegin;
+            return (this._trackEnd || this.audio.duration) - this._trackBegin;
         }
         /**
          * Returns a collection of fallback source URLs.
          */
         get fallbackSourceURLs() {
-            return this._fallbackSourceURLs;
+            return this._audioext.fallbackSourceURLs;
         }
         /**
          * Returns true if the track is allowed to autoplay.
          */
         get autoplay() {
-            return this._audio.autoplay;
+            return this._audioext.autoplay;
         }
         /**
          * Assigns the autoplay value to determine if the audio element should be allowed to automatically play when the media is ready.
          */
         set autoplay(v) {
-            this._audio.autoplay = v;
+            this._audioext.autoplay = v;
         }
         /**
          * Returns true if the track is allowed to loop.
          */
         get loop() {
-            return this._audio.loop;
+            return this._audioext.loop;
         }
         /**
          * Assigns the loop value to determine if the audio element should be allowed to loop after the track ends.
          */
         set loop(v) {
-            this._audio.loop = v;
+            this._audioext.loop = v;
         }
         /**
          * Returns true if the track is allowed muted.
          */
         get muted() {
-            return this._audio.muted;
+            return this._audioext.muted;
         }
         /**
          * Assigns the mute value to determine if the audio element is muted.
          */
         set muted(v) {
-            this._audio.muted = v;
+            this._audioext.muted = v;
         }
         /**
          * Returns the volume value of the audio element between 0.0-1.0
          */
         get volume() {
-            return this._gainNode.gain.value;
+            return this._audioext.volume;
         }
         /**
          * Assigns the volume value between 0.0-1.0.
          */
         set volume(v) {
-            this._gainNode.gain.value = v > 1.0 ? 1.0 : v;
+            this._audioext.volume = v;
         }
         //--------------------------------------------------------
         // Methods
@@ -226,110 +190,40 @@ hamonengine.audio = hamonengine.audio || {};
          * @return {Object} a promise to complete loading.
          */
         async load(src = '') {
-
-            //Normalize the source if the argument is not passed.
-            src = src || this._url;
-            
-            //Handle statically loaded audio; those the DOM may have already loaded.
-            if (src !== '') {
-                this.audio.src = src;
-                this.audio.load();
-            }
-
-            this._resourceState = AUDIO_STATES.LOADING;
-
-            return new Promise((resolve, reject) => {
-
-                //Common success logic handling.
-                const handleSuccess = () => {
-                    this._resourceState = AUDIO_STATES.COMPLETE;
-                    if (!this._mediaSource) {
-                        this._mediaSource = this._audioCtx.createMediaElementSource(this._audio);
-                        this._mediaSource.connect(this._gainNode).connect(this._panNode).connect(this._audioCtx.destination);
-                    }
-                    console.debug(`[hamonengine.audio.track.load] Audio '${this.src}' has loaded successfully.`);
-                    resolve(this);
-                };
-
-                //Common failure logic handling.
-                const handleFailure = () => {
-                    this._resourceState = AUDIO_STATES.ERROR;
-                    const audioPath = error && error.path && error.path.length > 0 && error.path[0].src || '';
-                    const errorMsg = `The audio '${audioPath}' could not be loaded.`;
-                    reject(errorMsg);
-                }
-
-                //Bind events only once.
-                if (!this._eventsBound) {
-                    this._eventsBound = true;
-
-                    //Handle errors and reject the promise.
-                    this.audio.addEventListener('error', () => handleFailure(), false);
-                    this.audio.addEventListener('stalled', () => handleFailure(), false);
-
-                    //Handle the track ending.
-                    this.audio.addEventListener('ended', () => this.onTrackEnd(), false);
-
-                    //Handle the completed metadata loading event.
-                    this.audio.addEventListener('loadedmetadata', () => {
-                        //Set the initial track position.
-                        this.audio.currentTime = this._trackBegin;
-
-                        //Find the end of the track if one doesn't exist.
-                        if (!this._trackEnd) {
-                            this._trackEnd = this.audio.duration;
-                        }
-
-                        //Handle the timeupdate if our track end position is less than the duration.
-                        //if (this._trackEnd !== this.audio.duration) {
-                            this.audio.addEventListener('timeupdate', (e) => {
-                                this.onTrackUpdate(e);
-                            }, false);
-                        //}
-                    }, false);
-
-                    //Handle a situation where the DOM has completed the loading the data.
-                    if (this.audio.readyState === READY_STATES.HAVE_NOTHING) {
-                        this.audio.addEventListener('loadeddata', () => handleSuccess(), false);
-                    }
-                    else {
-                        handleSuccess();
-                    }
-                }
-            });
+            return this._audioext.load(src);
         }
         /**
          * Starts or resumes playback.
+         * @return {Object} a promise that playback has started.
          */
-        play() {
-            if (this._playingState !== AUDIO_STATES.PLAYING) {
-                if (this._audioCtx.state === 'suspended') {
-                    this._audioCtx.resume();
+        async play() {
+            if (!this._audioext.isPlaying) {
+                //Assign the delegates so only this track has exclusive control of this audio object while the audio is playing.
+                this._audioext.audioListenerDelegate = this;
+
+                //Only reset the track if the audio extension has been stopped (not paused).
+                if (this._audioext.isStopped) {
+                    this.audio.currentTime = this._trackBegin;
+                    this.onTrackBegin();
                 }
-                this._playingState = AUDIO_STATES.PLAYING;
-                this.onTrackBegin();
-                return this.audio.play();
+                
+                return this._audioext.play();
             }
         }
         /**
          * Pauses playback.
          */
         pause() {
-            this._playingState = AUDIO_STATES.PAUSED;
-            this.audio.pause();
+            this._audioext.pause();
         }
         /**
          * Stops and resets playback.
          * @param {object} options
          * @param {boolean} options.suspend determines if the playback should be suspended.
+         * @return {Object} a promise that playback has stopped and has been suspended.
          */
-        stop({suspend = true} = {}) {
-            this.pause();
-            //Reset the track.
-            this.audio.currentTime = this._trackBegin;
-            suspend && this._audioCtx.suspend();
-
-            this._playingState = AUDIO_STATES.STOPPED;
+        async stop({ suspend = true } = {}) {
+            return this._audioext.stop({suspend});
         }
         //--------------------------------------------------------
         // Events
@@ -341,10 +235,9 @@ hamonengine.audio = hamonengine.audio || {};
             this._listenerPool.invoke('onTrackBegin', { track: this });
         }
         /**
-         * An event that is triggered when the track ends.
+         * An event that is triggered when the track ends not when stop is invoked.
          */
-        onTrackEnd() {
-            this.stop({suspend: false});
+        onAudioEnd() {
             if (this.loop) {
                 this.play();
             }
@@ -355,15 +248,17 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * An event that is triggered on a track update.
          */
-        onTrackUpdate(e) {
-            const remainingTime = this._trackEnd - this.audio.currentTime;
-            const elapsedTime = this.audio.currentTime - this._trackBegin;
-            //If the audio track exceeds our set track time then end the track.
-            if (remainingTime <= 0) {
-                this.onTrackEnd();
+         onAudioTimeUpdate(e) {
+            const trackEnd = this._trackEnd || this.audio.duration;
+            const remainingTime = trackEnd - this.audio.currentTime;
+            
+            //End the track if the currentTime has exceeded the track's end time.
+            if (remainingTime < 0) {
+                this.stop({ suspend: false });
                 e.preventDefault();
             }
             else {
+                const elapsedTime = this.audio.currentTime - this._trackBegin;
                 this._listenerPool.invoke('onTrackUpdate', { track: this, elapsedTime, remainingTime });
             }
         }
