@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2020-2021, CaffeinatedRat.
+* Copyright (c) 2020-2022, CaffeinatedRat.
 * All rights reserved.
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -154,7 +154,7 @@ hamonengine.audio = hamonengine.audio || {};
          * Registers a listener that will receive specific events.
          * @param {*} listener 
          */
-         register(listener) {
+        register(listener) {
             this._listenerPool.register(listener);
         }
         /**
