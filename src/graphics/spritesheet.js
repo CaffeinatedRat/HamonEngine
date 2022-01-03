@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2020-2021, CaffeinatedRat.
+* Copyright (c) 2020-2022, CaffeinatedRat.
 * All rights reserved.
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,16 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._sprites = {};
             this._spriteIndex = [];
             this._url = options.url || '';
+            this._name = options.name || '';
+
+            console.debug(`[hamonengine.audio.album.constructor] Name: '${this._name}'`);
+            console.debug(`[hamonengine.graphics.spritesheet.constructor] Url: '${this._url}''`);
+        }
+        /**
+         * Returns the name of the spritesheet.
+         */
+         get name() {
+            return this._name;
         }
         /**
          * Returns the number of sprites in the sheet.
@@ -69,6 +79,9 @@ hamonengine.graphics = hamonengine.graphics || {};
                 const spriteSheetMetadataResponse = await connect.get(spriteSheetMetadata);
                 spriteSheetMetadata = JSON.parse(spriteSheetMetadataResponse.data);
             }
+
+            //Assign the name if one doesn't exist.
+            this._name = this._name || spriteSheetMetadata.name;
 
             //Start the image resource loading and get the promise to complete.
             const resourceLoadingPromise = this._imageResource.load(spriteSheetMetadata.spritesheetUrl);
