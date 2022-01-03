@@ -132,7 +132,7 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * Returns the volume value of the audio element between 0.0-1.0
          */
-         get volume() {
+        get volume() {
             return this._volume;
         }
         /**
@@ -161,11 +161,11 @@ hamonengine.audio = hamonengine.audio || {};
          * Attempts to load all tracks if they have not already been loaded.
          * @return {Object} a promise to complete loading.
          */
-         async load() {
+        async load() {
 
             //NOTE: Reduced readability for better performance.
             const unloadedTracks = [];
-            for(let i = 0; i < this._tracks.length; i++) {
+            for (let i = 0; i < this._tracks.length; i++) {
                 if (!this._tracks[i].isLoaded) {
                     unloadedTracks.push(this._tracks[i].load());
                 }
@@ -185,7 +185,7 @@ hamonengine.audio = hamonengine.audio || {};
             if (!this.currentTrack.isPlaying) {
 
                 //If the trackname is specified then change the track to that index.
-                if (trackname !== '')  {
+                if (trackname !== '') {
                     const index = this._tracks.findIndex(track => track.name === trackname);
                     if (index > -1) {
                         this.index = index;
@@ -201,7 +201,7 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * Pauses playlist playback.
          */
-         pause() {
+        pause() {
             this.currentTrack.pause();
             this._listenerPool.invoke('onPlaylistPause', { track: this.currentTrack });
         }
@@ -209,7 +209,7 @@ hamonengine.audio = hamonengine.audio || {};
          * Stops and resets playlist playback.
          * @param {string} reason an optional parameter that states why the playlist stopped.  By default this is user invoked.
          */
-        stop({reason = 'invoked'} = {}) {
+        stop({ reason = 'invoked' } = {}) {
             this.currentTrack.stop();
             this.index = 0;
             this._listenerPool.invoke('onPlaylistStop', { track: this.currentTrack, reason });
@@ -259,8 +259,8 @@ hamonengine.audio = hamonengine.audio || {};
          * @param {number} fadeOutStart the percentage of the track's duration where fade out will start at the end of the track.  This is 1% by default.
          * @param {number} rateOfFade the rate at which the track will fade in milliseconds.  This field can be used to create a hard fast fadeout before the track ends.  The default is 0, where the rate will be calculated based on the reamining time & currenct volume.
          */
-        static createAutoPlayFadeFilter({fadeOutStart = 0.01, rateOfFade = 0}={}) {
-            return ({elapsedTime, remainingTime, currentTrack, nextTrack, playList }) => {
+        static createAutoPlayFadeFilter({ fadeOutStart = 0.01, rateOfFade = 0 } = {}) {
+            return ({ elapsedTime, remainingTime, currentTrack, nextTrack, playList }) => {
                 const fadeOutStartInterval = (currentTrack.duration * fadeOutStart);
 
                 if (remainingTime < fadeOutStartInterval) {
@@ -273,7 +273,7 @@ hamonengine.audio = hamonengine.audio || {};
                     }
                     else {
                         //When the volume has reached zero, stop the current track, advanced the playlist and play the next track.
-                        currentTrack.stop({suspend: false});
+                        currentTrack.stop({ suspend: false });
                         playList.next();
                         playList.play();
                     }
@@ -300,7 +300,7 @@ hamonengine.audio = hamonengine.audio || {};
                     this.play();
                 }
                 else {
-                    this.stop({reason: 'playlistend'});
+                    this.stop({ reason: 'playlistend' });
                 }
             }
         }
@@ -308,9 +308,11 @@ hamonengine.audio = hamonengine.audio || {};
          * An event that is triggered on a track update.
          */
         onTrackUpdate({ track, elapsedTime, remainingTime }) {
-            const nextTrack = this._tracks[(this.index + 1 % this._tracks.length)];
-            for (let i = 0; i < this._autoplayFilters.length; i++) {
-                this._autoplayFilters[i]({elapsedTime, remainingTime, currentTrack: track, nextTrack, playList: this });
+            if (this._autoplayFilters.length > 0) {
+                const nextTrack = this._tracks[(this.index + 1 % this._tracks.length)];
+                for (let i = 0; i < this._autoplayFilters.length; i++) {
+                    this._autoplayFilters[i]({ elapsedTime, remainingTime, currentTrack: track, nextTrack, playList: this });
+                }
             }
 
             this._listenerPool.invoke('onPlaylistUpdate', { track, elapsedTime, remainingTime, playlist: this });
