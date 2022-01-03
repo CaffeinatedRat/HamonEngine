@@ -85,6 +85,7 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * Loads the album based on the provided metadata or URL.
          * @param {*} albumMetadata JSON metadata or a URL
+         * @return {Object} a promise that the album has loaded.
          */
         async load(albumMetadata) {
 
