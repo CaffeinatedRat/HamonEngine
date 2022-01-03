@@ -328,7 +328,6 @@ hamonengine.audio = hamonengine.audio || {};
          * Any assigned delegates will be invoked as well.
          */
         onAudioEnd() {
-            console.log('end');
             this._playingState = AUDIO_STATES.STOPPED;
             this.audioListenerDelegate && this.audioListenerDelegate.onAudioEnd && this.audioListenerDelegate.onAudioEnd();
         }
