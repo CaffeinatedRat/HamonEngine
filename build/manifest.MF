@@ -1,9 +1,16 @@
 src/global.js
+./src/util/bitflag.js
+./src/util/connect.js
 ./src/util/fps-counter.js
-./src/util/util.js
+./src/util/listenerPool.js
+./src/util/worker.js
 src/math/util.js
 src/math/sort.js
 src/math/LCGRandom.js
+./src/audio/album.js
+./src/audio/audioext.js
+./src/audio/playlist.js
+./src/audio/track.js
 ./src/geometry/line.js
 ./src/geometry/polygon.js
 ./src/geometry/rect.js
