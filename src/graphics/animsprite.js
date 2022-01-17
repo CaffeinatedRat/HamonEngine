@@ -27,13 +27,13 @@
 
 hamonengine.graphics = hamonengine.graphics || {};
 
-(function() {
+(function () {
 
     /**
      * This class represents a graphical animated sprite object.
      */
     hamonengine.graphics.animsprite = class extends hamonengine.graphics.sprite {
-        constructor(options={}) {
+        constructor(options = {}) {
             super(options);
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.graphics.animsprite) {
@@ -54,10 +54,12 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._numberOfAnimationCycles = 0;
             this._enableAnimation = true;
 
-            console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Rate: ${this._animationRate}`);
-            console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Cycle: ${this._animationCycles}`);
-            console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Index: ${this._index}`);
-            console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Enable Animation: ${this._enableAnimation}`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Rate: ${this._animationRate}`);
+                console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Cycle: ${this._animationCycles}`);
+                console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Index: ${this._index}`);
+                console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Enable Animation: ${this._enableAnimation}`);
+            }
         }
         //--------------------------------------------------------
         // Properties
@@ -131,13 +133,13 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * Advances to the next frame.
          */
-        next () {
+        next() {
             this.index++;
         }
         /**
          * Reverses to the previous frame.
          */
-        prev () {
+        prev() {
             const index = this.index - 1;
             this.index = (index < 0) ? this._frames.length + index : index;
         }
@@ -146,7 +148,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {Object} frame to add.
          */
         addFrame(frame) {
-            console.debug("[hamonengine.graphics.animsprite.animsprite.addFrame]");
+            hamonengine.debug && console.debug("[hamonengine.graphics.animsprite.animsprite.addFrame]");
             this._frames.push(frame);
         }
         /**
@@ -157,9 +159,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} a alpha channel ranging from 0-255.
          * @param {number} blendingOps (BLENDING_OPS) blending operation to perform.
          */
-        blendColor(r=0, g=0, b=0, a=0, blendingOps=BLENDING_OPS.REPLACE) {
-            for(let i = 0 ; i < this._frames.length; i++) {
-                this._frames[i].blendColor(r,g,b,a, blendingOps);
+        blendColor(r = 0, g = 0, b = 0, a = 0, blendingOps = BLENDING_OPS.REPLACE) {
+            for (let i = 0; i < this._frames.length; i++) {
+                this._frames[i].blendColor(r, g, b, a, blendingOps);
             }
         }
         /**
@@ -169,9 +171,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} b blue channel ranging from 0.0-1.0.
          * @param {number} a alpha channel ranging from 0.0-1.0.
          */
-        adjustColorChannel(r=1.0, g=1.0, b=1.0, a=1.0) {
-            for(let i = 0 ; i < this._frames.length; i++) {
-                this._frames[i].adjustColorChannel(r,g,b,a);
+        adjustColorChannel(r = 1.0, g = 1.0, b = 1.0, a = 1.0) {
+            for (let i = 0; i < this._frames.length; i++) {
+                this._frames[i].adjustColorChannel(r, g, b, a);
             }
         }
         /**
@@ -183,17 +185,17 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {?number} width the optional width of the sprite to scale.
          * @param {?number} height the option height of the sprite to scale.
          */
-        draw(layer, elapsedTimeInMilliseconds, x, y, width=null, height=null) {
+        draw(layer, elapsedTimeInMilliseconds, x, y, width = null, height = null) {
 
             //Timestamp accumulator.
             //Since the time elapsed since the lastframe may be smaller than our rate, we need to accumlate it.
             //NOTE: That the time elapsed between frames can be dramatically different between each frame if there is a disruption in the draw loop.
             //For example, if the animtation rate is 30ms but the current elapsed time is 15ms, then we are not ready to switch frames.
             const timeSinceLastFrame = this._timeSinceLastFrame + elapsedTimeInMilliseconds;
-            
+
             //Determine if animation is enabled.
             if (this._enableAnimation) {
-                
+
                 //Based on the amount of time that has passed, determine the number of animation frames that have passed.
                 const numberOfFrames = parseInt(timeSinceLastFrame / this.animationRate, 10);
 
@@ -220,7 +222,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Apply any transformations.
                 currentFrame.copyProperties(this);
                 //Finally draw the sprite at the current frame index.
-                currentFrame.draw(layer, elapsedTimeInMilliseconds, x, y, width || currentFrame.width , height || currentFrame.height);
+                currentFrame.draw(layer, elapsedTimeInMilliseconds, x, y, width || currentFrame.width, height || currentFrame.height);
             }
 
             //Reset the timestamp after this animation frame.

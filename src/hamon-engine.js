@@ -27,7 +27,7 @@
 
 hamonengine.core = hamonengine.core || {};
 
-(function() {
+(function () {
     const ENGINE_STATES = {
         STOPPED: 0,
         STARTED: 1,
@@ -46,8 +46,8 @@ hamonengine.core = hamonengine.core || {};
     const VERSION = '0.1.2';
 
     hamonengine.core.engine = class {
-        constructor(options={}) {
-            
+        constructor(options = {}) {
+
             console.log(`HamonEngine -- Using version: ${VERSION}`);
 
             //Options.
@@ -69,34 +69,34 @@ hamonengine.core = hamonengine.core || {};
             this._lastFrameTimeStamp = 0;
             this._animationId = 0;
             this._fpsCounter = new fpscounter();
-            
+
             //Add support for multiple layers that will house our canvas, and other drawing components.
             this._layers = {};
 
             //Try to detect all canvas if the feature is enabled and none are passsed in.
             const canvasCollection = options.canvas || [];
             if (this._detectCanvas && canvasCollection.length === 0) {
-                console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: true.  Attempting to detect all canvas.`);
+                hamonengine.debug && console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: true.  Attempting to detect all canvas.`);
                 const discoveredCanvas = Object.entries(document.getElementsByTagName('canvas'));
                 discoveredCanvas.forEach(([key, value]) => {
                     const canvasName = value.getAttribute('name') || `${canvas_default_name}${key}`;
-                     this._layers[canvasName]= new hamonengine.graphics.layer({
+                    this._layers[canvasName] = new hamonengine.graphics.layer({
                         name: canvasName,
                         canvas: value,
                         allowEventBinding: value.dataset.alloweventbinding,
-                        enableImageSmoothing:  value.dataset.enableimagesmoothing,
+                        enableImageSmoothing: value.dataset.enableimagesmoothing,
                         clipToViewPort: value.dataset.alloweventbinding
                     });
-                });    
+                });
             }
             //If a collection of canvas objects are provided then use those instead.
             else {
-                console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: false.  Using collection of options.canvas.`);
+                hamonengine.debug && console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: false.  Using collection of options.canvas.`);
                 let index = 0;
-                for (let i = 0; i < canvasCollection.length; i ++) {
+                for (let i = 0; i < canvasCollection.length; i++) {
                     const canvas = canvasCollection[i];
                     const canvasName = canvas.name || `${canvas_default_name}${index++}`;
-                    this._layers[canvasName]= new hamonengine.graphics.layer({
+                    this._layers[canvasName] = new hamonengine.graphics.layer({
                         name: canvasName,
                         canvasId: canvas.id,
                         viewPort: canvas.viewPort,
@@ -110,15 +110,17 @@ hamonengine.core = hamonengine.core || {};
             this._resourcesLoaded = false;
 
             //Log initialization values
-            console.debug(`[hamonengine.core.engine.constructor] MovementRate: ${this._movementRate}`);
-            console.debug(`[hamonengine.core.engine.constructor] State: ${ENGINE_STATES_NAMES[this._state]}`);
-            console.debug(`[hamonengine.core.engine.constructor] SyncFrames: ${this.syncFrames ? 'Enabled' : 'Disabled'}`);
-            console.debug(`[hamonengine.core.engine.constructor] SplashScreen Wait Time: ${this._splashScreenWait} milliseconds.`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.core.engine.constructor] MovementRate: ${this._movementRate}`);
+                console.debug(`[hamonengine.core.engine.constructor] State: ${ENGINE_STATES_NAMES[this._state]}`);
+                console.debug(`[hamonengine.core.engine.constructor] SyncFrames: ${this.syncFrames ? 'Enabled' : 'Disabled'}`);
+                console.debug(`[hamonengine.core.engine.constructor] SplashScreen Wait Time: ${this._splashScreenWait} milliseconds.`);
 
-            console.debug(`[hamonengine.core.engine.constructor] Global States`);
-            console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.floor: ${hamonengine.geometry.settings.collisionDetection.floor}`);
-            console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.limit: ${hamonengine.geometry.settings.collisionDetection.limit}`);
-            console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.coordinateSystem: ${hamonengine.geometry.settings.coordinateSystem}`);
+                console.debug(`[hamonengine.core.engine.constructor] Global States`);
+                console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.floor: ${hamonengine.geometry.settings.collisionDetection.floor}`);
+                console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.limit: ${hamonengine.geometry.settings.collisionDetection.limit}`);
+                console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.coordinateSystem: ${hamonengine.geometry.settings.coordinateSystem}`);
+            }
 
         }
         //--------------------------------------------------------
@@ -198,11 +200,11 @@ hamonengine.core = hamonengine.core || {};
          * @return {Object} a promise to complete resource loading.
          */
         async load() {
-            console.debug("[hamonengine.core.engine.load]");
+            hamonengine.debug &&console.debug("[hamonengine.core.engine.load]");
 
             //Perform a preload and wait if a splashscreen is present.
             const preloadPromise = new Promise(resolve => {
-                if(this.onPreload()) {
+                if (this.onPreload()) {
                     setTimeout(() => resolve(), this._splashScreenWait);
                 }
                 else {
@@ -221,7 +223,7 @@ hamonengine.core = hamonengine.core || {};
                     throw 'onEventBinding is not returning a promise!  This event must return an unhandled promise.';
                 }
 
-                console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for event binding to resolve...", "color: yellow");  
+                console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for event binding to resolve...", "color: yellow");
                 await eventBindingPromise;
                 console.log("%c[hamonengine.core.engine.load] Engine has resumed loading, event binding has completed.", "color: green");
 
@@ -233,17 +235,17 @@ hamonengine.core = hamonengine.core || {};
                 console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve...", "color: yellow");
                 await loadingResource;
                 this._resourcesLoaded = true;
-                console.log("%c[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.", "color: green");   
-                
+                console.log("%c[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.", "color: green");
+
                 //Wait at the preload promise while the other events & resources are loading.
-                console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for preload event to resolve...", "color: yellow");  
+                console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for preload event to resolve...", "color: yellow");
                 await preloadPromise;
-                console.log("%c[hamonengine.core.engine.load] Preload completed.", "color: green"); 
+                console.log("%c[hamonengine.core.engine.load] Preload completed.", "color: green");
             }
-            catch(error) {
+            catch (error) {
                 console.error("[hamonengine.core.engine.load] Resources could not be loaded due to a failure! Stopping the engine.");
                 console.error(error);
-                this.stop({reasons: `A critical error occured during resource loading.`});
+                this.stop({ reasons: `A critical error occured during resource loading.` });
             }
 
             return this;
@@ -252,7 +254,7 @@ hamonengine.core = hamonengine.core || {};
          * Starts the engine.
          */
         start() {
-            console.debug("[hamonengine.core.engine.start]");
+            hamonengine.debug && console.debug("[hamonengine.core.engine.start]");
 
             //Don't start the engine until we are in a loading state.
             if (this._state === ENGINE_STATES.LOADING) {
@@ -269,8 +271,8 @@ hamonengine.core = hamonengine.core || {};
         /**
          * Stops the engine.
          */
-        stop({reasons} = {reasons: 'Stopped By User'}) {
-            console.debug("[hamonengine.core.engine.stop]");
+        stop({ reasons } = { reasons: 'Stopped By User' }) {
+            hamonengine.debug && console.debug("[hamonengine.core.engine.stop]");
             window.cancelAnimationFrame(this._animationId);
             this._animationId = 0;
             this._startTimeStamp = 0;
@@ -291,7 +293,7 @@ hamonengine.core = hamonengine.core || {};
          * You can use this event to display static images that have already been loaded.
          */
         onPreload() {
-            console.debug("[hamonengine.core.engine.onPreload]");
+            hamonengine.debug && console.debug("[hamonengine.core.engine.onPreload]");
             return false;
         }
         /**
@@ -299,7 +301,7 @@ hamonengine.core = hamonengine.core || {};
          * @return {Object} a promise that the resource has loaded successfully.
          */
         async onloadResources() {
-            console.debug("[hamonengine.core.engine.onloadResources]");
+            hamonengine.debug && console.debug("[hamonengine.core.engine.onloadResources]");
             return Promise.resolve();
         }
         /**
@@ -317,7 +319,7 @@ hamonengine.core = hamonengine.core || {};
                             this.onMouseEvent(type, v, e, eventContainer);
                         }
                         const touchEvent = (type, e) => {
-                            
+
                             //Retain the current touch type so we can determine if the next event is a click.
                             const lasttouchevent = touchEventMap.has(eventContainer.name) ? touchEventMap.get(eventContainer.name) : '';
                             touchEventMap.set(eventContainer.name, type);
@@ -325,7 +327,7 @@ hamonengine.core = hamonengine.core || {};
                             const position = eventContainer.position;
                             if (position) {
                                 const touches = [];
-                                for(let i = 0; i < e.touches.length; i++) {
+                                for (let i = 0; i < e.touches.length; i++) {
                                     touches.push(new hamonengine.geometry.vector2(e.touches[i].clientX - position.x, e.touches[i].clientY - position.y));
                                 }
                                 //Mimic the click event for touch.
@@ -344,7 +346,7 @@ hamonengine.core = hamonengine.core || {};
                                     type = (type === 'end') ? 'up' : type;
                                     //Capture only changedTouches as the touches collection will contain no coordinates.
                                     const v = new hamonengine.geometry.vector2(e.changedTouches[0].clientX - position.x, e.changedTouches[0].clientY - position.y)
-                                    
+
                                     //Triger the mouse events.
                                     this.onMouseEvent(type, v, e, eventContainer);
                                     isClick && this.onMouseEvent('click', v, e, eventContainer);
@@ -352,18 +354,18 @@ hamonengine.core = hamonengine.core || {};
                             }
                         };
 
-                        elementToBind.addEventListener('keyup', (e) => keyEvent('up',e));
-                        elementToBind.addEventListener('keydown', (e) => keyEvent('down',e));
+                        elementToBind.addEventListener('keyup', (e) => keyEvent('up', e));
+                        elementToBind.addEventListener('keydown', (e) => keyEvent('down', e));
                         elementToBind.addEventListener('click', (e) => mouseEvent('click', e));
-                        elementToBind.addEventListener('mouseup', (e) => mouseEvent('up',e));
-                        elementToBind.addEventListener('mousedown', (e) => mouseEvent('down',e));
-                        elementToBind.addEventListener('mousemove', (e) => mouseEvent('move',e));
-                        elementToBind.addEventListener('mouseenter', (e) => mouseEvent('enter',e));
-                        elementToBind.addEventListener('mouseleave', (e) => mouseEvent('leave',e));
-                        elementToBind.addEventListener('touchstart', (e) => touchEvent('start',e), {passive: false});
-                        elementToBind.addEventListener('touchmove', (e) =>  touchEvent('move',e), {passive: false});
-                        elementToBind.addEventListener("touchend", (e) => touchEvent('end', e), {passive: false});
-                        elementToBind.addEventListener("touchcancel", (e) => touchEvent('cancel', e), {passive: false});
+                        elementToBind.addEventListener('mouseup', (e) => mouseEvent('up', e));
+                        elementToBind.addEventListener('mousedown', (e) => mouseEvent('down', e));
+                        elementToBind.addEventListener('mousemove', (e) => mouseEvent('move', e));
+                        elementToBind.addEventListener('mouseenter', (e) => mouseEvent('enter', e));
+                        elementToBind.addEventListener('mouseleave', (e) => mouseEvent('leave', e));
+                        elementToBind.addEventListener('touchstart', (e) => touchEvent('start', e), { passive: false });
+                        elementToBind.addEventListener('touchmove', (e) => touchEvent('move', e), { passive: false });
+                        elementToBind.addEventListener("touchend", (e) => touchEvent('end', e), { passive: false });
+                        elementToBind.addEventListener("touchcancel", (e) => touchEvent('cancel', e), { passive: false });
                     };
 
                     //Allow document event binding.
@@ -385,14 +387,14 @@ hamonengine.core = hamonengine.core || {};
         //--------------------------------------------------------
         onKeyEvent(type, keyCode, e, caller) {
             e && e.preventDefault();
-            console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
+            hamonengine.debug && console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
         onMouseEvent(type, v, e, caller) {
-            console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
+            hamonengine.debug && console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
         }
         onTouchEvent(type, touches, e, caller) {
             e && e.preventDefault();
-            console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
+            hamonengine.debug && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }
         /**
          * A draw loop event that is triggered once the engine starts.
@@ -428,9 +430,9 @@ hamonengine.core = hamonengine.core || {};
                     this.onDraw(scopedTimestampInMS);
                 });
             }
-            catch(exception) {
+            catch (exception) {
                 this.stop();
-                console.debug(exception);
+                hamonengine.debug && console.debug(exception);
             }
 
             //Record the timestamp of the current frame.

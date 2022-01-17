@@ -95,8 +95,10 @@ hamonengine.audio = hamonengine.audio || {};
             //Make sure events are only bound once.
             this._eventsBound = options.eventBound !== undefined ? options.eventBound : false;
 
-            console.debug(`[hamonengine.audio.audioext.constructor] ResourceState: {${this._resourceState}}`);
-            console.debug(`[hamonengine.audio.audioext.constructor] PlayingState: {${this._playingState}}`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.audio.audioext.constructor] ResourceState: {${this._resourceState}}`);
+                console.debug(`[hamonengine.audio.audioext.constructor] PlayingState: {${this._playingState}}`);
+            }
         }
         //--------------------------------------------------------
         // Properties
@@ -246,9 +248,8 @@ hamonengine.audio = hamonengine.audio || {};
                     if (!this._mediaSource) {
                         this._mediaSource = this.context.createMediaElementSource(this._audio);
                         this._mediaSource.connect(this._gainNode).connect(this._panNode).connect(this.context.destination);
-                        console.log(this.context.createBufferSource().buffer);
                     }
-                    console.debug(`[hamonengine.audio.audioext.load] Audio '${this.src}' has loaded successfully.`);
+                    hamonengine.debug && console.debug(`[hamonengine.audio.audioext.load] Audio '${this.src}' has loaded successfully.`);
                     return resolve(this);
                 };
 

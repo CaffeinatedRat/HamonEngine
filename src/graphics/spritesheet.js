@@ -41,13 +41,15 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._url = options.url || '';
             this._name = options.name || '';
 
-            console.debug(`[hamonengine.audio.album.constructor] Name: '${this._name}'`);
-            console.debug(`[hamonengine.graphics.spritesheet.constructor] Url: '${this._url}''`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.audio.album.constructor] Name: '${this._name}'`);
+                console.debug(`[hamonengine.graphics.spritesheet.constructor] Url: '${this._url}''`);
+            }
         }
         /**
          * Returns the name of the spritesheet.
          */
-         get name() {
+        get name() {
             return this._name;
         }
         /**

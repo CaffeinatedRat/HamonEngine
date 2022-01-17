@@ -59,9 +59,11 @@ hamonengine.audio = hamonengine.audio || {};
 
             this._listenerPool = new listenerPool();
 
-            console.debug(`[hamonengine.audio.track.constructor] Name: ${this._name}`);
-            console.debug(`[hamonengine.audio.track.constructor] Track Begin: ${this._trackBegin}`);
-            console.debug(`[hamonengine.audio.track.constructor] Track End: {${this._trackEnd}}`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.audio.track.constructor] Name: ${this._name}`);
+                console.debug(`[hamonengine.audio.track.constructor] Track Begin: ${this._trackBegin}`);
+                console.debug(`[hamonengine.audio.track.constructor] Track End: {${this._trackEnd}}`);
+            }
         }
         //--------------------------------------------------------
         // Properties
@@ -206,7 +208,7 @@ hamonengine.audio = hamonengine.audio || {};
                     this.audio.currentTime = this._trackBegin;
                     this.onTrackBegin();
                 }
-                
+
                 return this._audioext.play();
             }
         }
@@ -223,7 +225,7 @@ hamonengine.audio = hamonengine.audio || {};
          * @return {Object} a promise that playback has stopped and has been suspended.
          */
         async stop({ suspend = true } = {}) {
-            return this._audioext.stop({suspend});
+            return this._audioext.stop({ suspend });
         }
         //--------------------------------------------------------
         // Events
@@ -248,10 +250,10 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * An event that is triggered on a track update.
          */
-         onAudioTimeUpdate(e) {
+        onAudioTimeUpdate(e) {
             const trackEnd = this._trackEnd || this.audio.duration;
             const remainingTime = trackEnd - this.audio.currentTime;
-            
+
             //End the track if the currentTime has exceeded the track's end time.
             if (remainingTime < 0) {
                 this.stop({ suspend: false });

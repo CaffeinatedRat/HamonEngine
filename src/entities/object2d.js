@@ -27,19 +27,19 @@
 
 hamonengine.entities = hamonengine.entities || {};
 
-(function() {
+(function () {
     /**
      * This class represents a 2d object.
      */
     hamonengine.entities.object2d = class {
-        constructor(options={}) {
+        constructor(options = {}) {
             //Object properties.
             this._name = options.name || '';
             this._boundingShape = options.boundingShape;
             this._width = options.width || 0;
             this._height = options.height || 0;
             this._zindex = options.zindex || 0;
-            
+
             //Movement variables
             this._movementRate = options.movementRate || 0;
             this._position = options.position || new hamonengine.geometry.vector2();
@@ -57,15 +57,17 @@ hamonengine.entities = hamonengine.entities || {};
             //Determine if the object is visible, it is visible by default.
             this._isVisible = (options.isVisible === undefined) ? true : false;
 
-            console.debug(`[hamonengine.entities.object2d.constructor] Name: ${this.name}`);
-            console.debug(`[hamonengine.entities.object2d.constructor] Starting Dimensions {Width: ${this.width}, Height: ${this.height}}`);
-            console.debug(`[hamonengine.entities.object2d.constructor] Starting Direction: {x: ${this.direction.x}, y: ${this.direction.y}}`);
-            console.debug(`[hamonengine.entities.object2d.constructor] Starting Position: {x: ${this.position.x}, y: ${this.position.y}}`);
-            console.debug(`[hamonengine.entities.object2d.constructor] Starting Theta: ${this.theta}`);
-            console.debug(`[hamonengine.entities.object2d.constructor] Movement Rate: ${this._movementRate}`);
-            console.debug(`[hamonengine.entities.object2d.constructor] isSolid: ${this.isSolid}`);
-            console.debug(`[hamonengine.entities.object2d.constructor] isMoveable: ${this.isMoveable}`);
-            console.debug(`[hamonengine.entities.object2d.constructor] isVisible: ${this.isVisible}`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.entities.object2d.constructor] Name: ${this.name}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] Starting Dimensions {Width: ${this.width}, Height: ${this.height}}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] Starting Direction: {x: ${this.direction.x}, y: ${this.direction.y}}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] Starting Position: {x: ${this.position.x}, y: ${this.position.y}}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] Starting Theta: ${this.theta}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] Movement Rate: ${this._movementRate}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] isSolid: ${this.isSolid}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] isMoveable: ${this.isMoveable}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] isVisible: ${this.isVisible}`);
+            }
         }
         //--------------------------------------------------------
         // Properties
@@ -91,7 +93,7 @@ hamonengine.entities = hamonengine.entities || {};
         /**
          * Returns the direction as a vector2.
          */
-        get direction () {
+        get direction() {
             return this._direction;
         }
         /**
@@ -103,7 +105,7 @@ hamonengine.entities = hamonengine.entities || {};
         /**
          * Returns the width of the object.
          */
-        get width () {
+        get width() {
             return this._width;
         }
         /**
@@ -165,7 +167,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          * @param {Object} movementVector the movement vector to move the object. 
          */
-        move(elapsedTimeInMilliseconds, movementVector=null) {
+        move(elapsedTimeInMilliseconds, movementVector = null) {
             if (this.isMoveable) {
                 //Calculate the movement vector if one is not passed.
                 movementVector = movementVector || this.calcMove(elapsedTimeInMilliseconds);
@@ -209,7 +211,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
         render(layer, elapsedTimeInMilliseconds) {
-            
+
         }
         /**
          * Outputs the objects as a string.

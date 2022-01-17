@@ -27,13 +27,13 @@
 
 hamonengine.audio = hamonengine.audio || {};
 
-(function() {
+(function () {
 
     /**
      * This class represents an album a collection of tracks.
      */
     hamonengine.audio.album = class {
-        constructor(options={}) {
+        constructor(options = {}) {
 
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.audio.album) {
@@ -52,8 +52,10 @@ hamonengine.audio = hamonengine.audio || {};
             this._url = options.url || '';
             this._name = options.name || '';
 
-            console.debug(`[hamonengine.audio.album.constructor] Name: '${this._name}'`);
-            console.debug(`[hamonengine.audio.album.constructor] Url: '${this._url}'`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.audio.album.constructor] Name: '${this._name}'`);
+                console.debug(`[hamonengine.audio.album.constructor] Url: '${this._url}'`);
+            }
         }
         /**
          * Returns the name of the album.
@@ -64,7 +66,7 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * Returns the number of tracks in the album.
          */
-        get length () {
+        get length() {
             return this._trackIndex.length;
         }
         /**
@@ -79,7 +81,7 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * Makes a clone of the album.
          */
-         clone() {
+        clone() {
             return new hamonengine.audio.album(this);
         }
         /**
@@ -109,7 +111,7 @@ hamonengine.audio = hamonengine.audio || {};
             //--------------------------------------------------------------------------
 
             //Load all of the static tracks from the metadata.
-            for(let i = 0; i < albumMetadata.tracks.length; i++) {
+            for (let i = 0; i < albumMetadata.tracks.length; i++) {
                 const trackData = albumMetadata.tracks[i];
                 this._trackIndex.push(trackData.name);
                 this._tracks[trackData.name] = new hamonengine.audio.track({

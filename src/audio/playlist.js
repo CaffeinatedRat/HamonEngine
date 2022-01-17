@@ -60,10 +60,12 @@ hamonengine.audio = hamonengine.audio || {};
             const tracks = options.tracks || [];
             tracks.forEach(track => this.addTrack(track));
 
-            console.debug(`[hamonengine.audio.playlist.constructor] Name: ${this._name}`);
-            console.debug(`[hamonengine.audio.playlist.constructor] Track Index: ${this._index}`);
-            console.debug(`[hamonengine.audio.playlist.constructor] Loop: ${(this._loop ? 'true' : 'false')}`);
-            console.debug(`[hamonengine.audio.playlist.constructor] Autoplay: ${(this._autoplay ? 'true' : 'false')}`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.audio.playlist.constructor] Name: ${this._name}`);
+                console.debug(`[hamonengine.audio.playlist.constructor] Track Index: ${this._index}`);
+                console.debug(`[hamonengine.audio.playlist.constructor] Loop: ${(this._loop ? 'true' : 'false')}`);
+                console.debug(`[hamonengine.audio.playlist.constructor] Autoplay: ${(this._autoplay ? 'true' : 'false')}`);
+            }
         }
         //--------------------------------------------------------
         // Properties

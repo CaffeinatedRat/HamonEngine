@@ -109,13 +109,15 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Allow the viewport border to be drawn.
             this._viewPortBorderColor = '';
 
-            console.debug(`[hamonengine.graphics.layer.constructor] Canvas Id: ${this._canvasId}`);
-            console.debug(`[hamonengine.graphics.layer.constructor] Name: ${this._name}`);
-            console.debug(`[hamonengine.graphics.layer.constructor] Alpha: ${this._alpha}`);
-            console.debug(`[hamonengine.graphics.layer.constructor] AllowEventBinding: ${this._allowEventBinding}`);
-            console.debug(`[hamonengine.graphics.layer.constructor] WrapVertical: ${this._wrapVertical}`);
-            console.debug(`[hamonengine.graphics.layer.constructor] WrapHorizontal: ${this._wrapHorizontal}`);
-            console.debug(`[hamonengine.graphics.layer.constructor] ClipToViewPort: ${this._clipToViewPort}`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.graphics.layer.constructor] Canvas Id: ${this._canvasId}`);
+                console.debug(`[hamonengine.graphics.layer.constructor] Name: ${this._name}`);
+                console.debug(`[hamonengine.graphics.layer.constructor] Alpha: ${this._alpha}`);
+                console.debug(`[hamonengine.graphics.layer.constructor] AllowEventBinding: ${this._allowEventBinding}`);
+                console.debug(`[hamonengine.graphics.layer.constructor] WrapVertical: ${this._wrapVertical}`);
+                console.debug(`[hamonengine.graphics.layer.constructor] WrapHorizontal: ${this._wrapHorizontal}`);
+                console.debug(`[hamonengine.graphics.layer.constructor] ClipToViewPort: ${this._clipToViewPort}`);
+            }
         }
         //--------------------------------------------------------
         // Properties
@@ -334,7 +336,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} enable true to enable.
          */
         enableImageSmoothing(enable = true) {
-            console.debug(`[hamonengine.graphics.layer.constructor] EnableImageSmoothing: ${enable}`);
+            hamonengine.debug && console.debug(`[hamonengine.graphics.layer.constructor] EnableImageSmoothing: ${enable}`);
             this._enableImageSmoothing = enable;
             try {
                 this.context.webkitImageSmoothingEnabled = enable;
@@ -459,7 +461,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.textBaseline = 'top';
 
             //Attempt to handle predefined text offsets.
-            switch(textOffset) {
+            switch (textOffset) {
                 case 'center':
                     {
                         const metrics = this.context.measureText(text);
@@ -476,7 +478,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                         sourceX -= metrics.width;
                     }
                     break;
-                
+
                 default:
                     sourceX -= parseInt(textOffset);
                     break;

@@ -39,7 +39,7 @@ hamonengine.graphics = hamonengine.graphics || {};
      * This class represents a graphical sprite object.
      */
     hamonengine.graphics.sprite = class {
-        constructor(options={}) {
+        constructor(options = {}) {
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.graphics.sprite) {
                 options = {
@@ -66,7 +66,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     this._dimensions = new hamonengine.geometry.rect();
                 }
             }
-           
+
             //Transformation variables.
             this._theta = options.theta || 0.0;
             this._scaleVector = new hamonengine.geometry.vector2(1.0, 1.0);
@@ -76,10 +76,12 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._showFullImage = false;
             this._maxWrapping = 0;
 
-            console.debug(`[hamonengine.graphics.sprite.constructor] Starting Dimensions: {${this._dimensions.toString()}}`);
-            console.debug(`[hamonengine.graphics.sprite.constructor] Name: ${this._name}`);
-            console.debug(`[hamonengine.graphics.sprite.constructor] Theta: ${this._theta}`);
-            console.debug(`[hamonengine.graphics.sprite.constructor] ScaleVector: {${this._scaleVector.toString()}}`);
+            if (hamonengine.debug) {
+                console.debug(`[hamonengine.graphics.sprite.constructor] Starting Dimensions: {${this._dimensions.toString()}}`);
+                console.debug(`[hamonengine.graphics.sprite.constructor] Name: ${this._name}`);
+                console.debug(`[hamonengine.graphics.sprite.constructor] Theta: ${this._theta}`);
+                console.debug(`[hamonengine.graphics.sprite.constructor] ScaleVector: {${this._scaleVector.toString()}}`);
+            }
         }
         //--------------------------------------------------------
         // Properties
