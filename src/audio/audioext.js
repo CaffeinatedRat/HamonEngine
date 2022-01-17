@@ -104,13 +104,13 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * Returns the internal audio data of the type Audio.
          */
-         get audio() {
+        get audio() {
             return this._audio;
         }
         /**
          * Get the context.
          */
-         get context() {
+        get context() {
             return this._audioCtx;
         }
         /**
@@ -239,49 +239,53 @@ hamonengine.audio = hamonengine.audio || {};
 
             this._resourceState = AUDIO_STATES.LOADING;
 
-            //Common success logic handling.
-            const handleSuccess = () => {
-                this._resourceState = AUDIO_STATES.COMPLETE;
-                if (!this._mediaSource) {
-                    this._mediaSource = this.context.createMediaElementSource(this._audio);
-                    this._mediaSource.connect(this._gainNode).connect(this._panNode).connect(this.context.destination);
+            return new Promise((resolve, reject) => {
+                //Common success logic handling.
+                const handleSuccess = () => {
+                    this._resourceState = AUDIO_STATES.COMPLETE;
+                    if (!this._mediaSource) {
+                        this._mediaSource = this.context.createMediaElementSource(this._audio);
+                        this._mediaSource.connect(this._gainNode).connect(this._panNode).connect(this.context.destination);
+                        console.log(this.context.createBufferSource().buffer);
+                    }
+                    console.debug(`[hamonengine.audio.audioext.load] Audio '${this.src}' has loaded successfully.`);
+                    return resolve(this);
+                };
+
+                //Common failure logic handling.
+                const handleFailure = (error) => {
+                    this._resourceState = AUDIO_STATES.ERROR;
+                    const audioPath = error && error.path && error.path.length > 0 && error.path[0].src || '';
+                    const errorMsg = `The audio '${audioPath}' could not be loaded.`;
+                    return reject(errorMsg);
                 }
-                console.debug(`[hamonengine.audio.audioext.load] Audio '${this.src}' has loaded successfully.`);
-                return Promise.resolve(this);
-            };
 
-            //Common failure logic handling.
-            const handleFailure = (error) => {
-                this._resourceState = AUDIO_STATES.ERROR;
-                const audioPath = error && error.path && error.path.length > 0 && error.path[0].src || '';
-                const errorMsg = `The audio '${audioPath}' could not be loaded.`;
-                return Promise.reject(errorMsg);
-            }
+                //Bind events only once.
+                if (!this._eventsBound) {
+                    this._eventsBound = true;
 
-            //Bind events only once.
-            if (!this._eventsBound) {
-                this._eventsBound = true;
+                    //Handle errors and reject the promise.
+                    this.audio.addEventListener('error', error => handleFailure(error), false);
+                    this.audio.addEventListener('stalled', error => handleFailure(error), false);
 
-                //Handle errors and reject the promise.
-                this.audio.addEventListener('error', error => handleFailure(error), false);
-                this.audio.addEventListener('stalled', error => handleFailure(error), false);
+                    //Handle the track ending.
+                    this.audio.addEventListener('ended', () => this.onAudioEnd(), false);
 
-                //Handle the track ending.
-                this.audio.addEventListener('ended', () => this.onAudioEnd(), false);
+                    //Handle the completed metadata loading event.
+                    //this.audio.addEventListener('loadedmetadata', () => {}, false);
 
-                //Handle the completed metadata loading event.
-                //this.audio.addEventListener('loadedmetadata', () => {}, false);
+                    this.audio.addEventListener('timeupdate', e => this.onAudioTimeUpdate(e), false);
 
-                this.audio.addEventListener('timeupdate', e => this.onAudioTimeUpdate(e), false);
-
-                //Handle a situation where the DOM has completed the loading the data.
-                if (this.audio.readyState === READY_STATES.HAVE_NOTHING) {
-                    this.audio.addEventListener('loadeddata', () => handleSuccess(), false);
+                    //Handle a situation where the DOM has completed the loading the data.
+                    if (this.audio.readyState === READY_STATES.HAVE_NOTHING) {
+                        this.audio.addEventListener('loadeddata', () => handleSuccess(), false);
+                    }
+                    else {
+                        handleSuccess();
+                    }
                 }
-                else {
-                    handleSuccess();
-                }
-            }
+            });
+
         }
         /**
          * Starts or resumes playback.
@@ -289,13 +293,12 @@ hamonengine.audio = hamonengine.audio || {};
          */
         async play() {
             if (!this.isPlaying) {
-                
+
                 if (this.context.state === 'suspended') {
                     await this.context.resume();
                 }
 
                 this._playingState = AUDIO_STATES.PLAYING;
-                //this.audio.currentTime = startTime;
                 return this.audio.play();
             }
         }
@@ -315,7 +318,7 @@ hamonengine.audio = hamonengine.audio || {};
         async stop({ suspend = true } = {}) {
             this.audio.pause();
             this._playingState = AUDIO_STATES.STOPPED;
-            
+
             if (suspend) {
                 return this.context.suspend();
             }
