@@ -83,8 +83,9 @@ class connect {
      * @param {number} options.timeout the timeout value in the number of milliseconds.
      * @param {string} options.contentType the type of content being sent to the server.
      * @param {string} options.accept the type of content being sent to the server.
-     */    
-    static post(url, data, {timeout, contentType, accept}={}) {
+     * @param {string} options.responseType the data type of the response body.
+     */
+    static post(url, data, {timeout, contentType, accept, responseType}={}) {
 
         if (!url) {
             throw `Invalid url '${url}'`;
@@ -100,9 +101,13 @@ class connect {
             xhr.timeout = timeout;
         }
 
+        if (!responseType) {
+            xhr.responseType = responseType;
+        }
+
         return new Promise((resolve, reject) => {
             xhr.addEventListener("load", e => {
-                const stautss = xhr.status;
+                const status = xhr.status;
                 if (status === 0 || status >= 200 && status < 400) {
                     resolve({data: xhr.responseText, status: xhr.status, statusText: xhr.statusText, event: e});
                 }
@@ -127,7 +132,7 @@ class connect {
                 xhr.setRequestHeader("Accept", "application/x-www-form-urlencoded");
             }
 
-            xhr.send(data);            
+            xhr.send(data);
         });
     }
 }
