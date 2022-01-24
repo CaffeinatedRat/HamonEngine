@@ -43,8 +43,9 @@ class connect {
      * @param {*} url to call.
      * @param {Object} options
      * @param {number} options.timeout the timeout value in the number of milliseconds.
+     * @param {string} options.responseType the data type of the response body.
      */
-    static get(url, {timeout}={}) {
+    static get(url, {timeout, responseType}={}) {
 
         if (!url) {
             throw `Invalid url '${url}'`;
@@ -60,11 +61,15 @@ class connect {
             xhr.timeout = timeout;
         }
 
+        if (responseType !== undefined) {
+            xhr.responseType = responseType;
+        }
+
         return new Promise((resolve, reject) => {
             xhr.addEventListener("load", e => {
                 const status = xhr.status;
                 if (status === 0 || status >= 200 && status < 400) {
-                    resolve({data: xhr.responseText, status: xhr.status, statusText: xhr.statusText, event: e});
+                    resolve({data: xhr.response, status: xhr.status, statusText: xhr.statusText, event: e});
                 }
                 else {
                     reject({status: xhr.status, statusText: xhr.statusText, event: e});
@@ -109,7 +114,7 @@ class connect {
             xhr.addEventListener("load", e => {
                 const status = xhr.status;
                 if (status === 0 || status >= 200 && status < 400) {
-                    resolve({data: xhr.responseText, status: xhr.status, statusText: xhr.statusText, event: e});
+                    resolve({data: xhr.response, status: xhr.status, statusText: xhr.statusText, event: e});
                 }
                 else {
                     reject({status: xhr.status, statusText: xhr.statusText, event: e});
