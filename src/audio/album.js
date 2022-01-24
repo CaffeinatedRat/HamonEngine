@@ -104,7 +104,7 @@ hamonengine.audio = hamonengine.audio || {};
             this._name = this._name || albumMetadata.name;
 
             //Start the image resource loading and get the promise to complete.
-            const resourceLoadingPromise = this._audioResource.load(albumMetadata.albumUrl);
+            const resourceLoadingPromise = await this._audioResource.load(albumMetadata.albumUrl);
 
             //--------------------------------------------------------------------------
             // Continue loading album information while the resources are loading.
@@ -115,14 +115,15 @@ hamonengine.audio = hamonengine.audio || {};
                 const trackData = albumMetadata.tracks[i];
                 this._trackIndex.push(trackData.name);
                 this._tracks[trackData.name] = new hamonengine.audio.track({
-                    audioext: this._audioResource,
+                    audioext: this._audioResource.clone(),
                     name: trackData.name,
                     trackBegin: trackData.begin,
                     trackEnd: trackData.end
                 });
             }
 
-            return resourceLoadingPromise;
+            return Promise.resolve();
+            //return resourceLoadingPromise;
         }
         /**
          * Returns the track based on the name.
