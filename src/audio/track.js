@@ -38,9 +38,8 @@ hamonengine.audio = hamonengine.audio || {};
             if (options instanceof hamonengine.audio.track) {
                 options = {
                     name: options._name,
-                    audioext: options._audioext,
-                    audio: options._audio,
-                    url: options._url,
+                    audioext: options._audioext.clone(),
+                    src: options._src,
                     trackBegin: options._trackBegin,
                     trackEnd: options._trackEnd
                 }
@@ -50,7 +49,7 @@ hamonengine.audio = hamonengine.audio || {};
             this._name = options.name;
             this._audioext = options.audioext || new hamonengine.audio.audioext({
                 audio: options.audio,
-                url: options.url
+                src: options.src
             });
 
             //Contains the position of the track if contained in one file.
@@ -107,14 +106,14 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * Returns the internal audio data of the type Audio.
          */
-        get audio() {
-            return this._audioext.audio;
-        }
+        //get audio() {
+        //    return this._audioext.audio;
+        //}
         /**
          * Returns the duration of the track.
          */
         get duration() {
-            return (this._trackEnd || this.audio.duration) - this._trackBegin;
+            return (this._trackEnd || this._audioext.duration) - this._trackBegin;
         }
         /**
          * Returns a collection of fallback source URLs.
@@ -199,18 +198,8 @@ hamonengine.audio = hamonengine.audio || {};
          * @return {Object} a promise that playback has started.
          */
         async play() {
-            if (!this._audioext.isPlaying) {
-                //Assign the delegates so only this track has exclusive control of this audio object while the audio is playing.
-                this._audioext.audioListenerDelegate = this;
-
-                //Only reset the track if the audio extension has been stopped (not paused).
-                if (this._audioext.isStopped) {
-                    this.audio.currentTime = this._trackBegin;
-                    this.onTrackBegin();
-                }
-
-                return this._audioext.play();
-            }
+            this._audioext.audioListenerDelegate = this;
+            this._audioext.play(this._trackBegin, this._trackEnd);
         }
         /**
          * Pauses playback.
@@ -251,8 +240,8 @@ hamonengine.audio = hamonengine.audio || {};
          * An event that is triggered on a track update.
          */
         onAudioTimeUpdate(e) {
-            const trackEnd = this._trackEnd || this.audio.duration;
-            const remainingTime = trackEnd - this.audio.currentTime;
+            const trackEnd = this._trackEnd || this._audioext.duration;
+            const remainingTime = trackEnd - this._audioext.currentTime;
 
             //End the track if the currentTime has exceeded the track's end time.
             if (remainingTime < 0) {
@@ -260,7 +249,7 @@ hamonengine.audio = hamonengine.audio || {};
                 e.preventDefault();
             }
             else {
-                const elapsedTime = this.audio.currentTime - this._trackBegin;
+                const elapsedTime = this._audioext.currentTime - this._trackBegin;
                 this._listenerPool.invoke('onTrackUpdate', { track: this, elapsedTime, remainingTime });
             }
         }
