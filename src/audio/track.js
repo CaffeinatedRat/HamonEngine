@@ -239,6 +239,8 @@ hamonengine.audio = hamonengine.audio || {};
         /**
          * An event that is triggered on a track update.
          */
+        //Deprecated as the AudioBufferSourceNode does not provide a timeupdate event.
+        /*
         onAudioTimeUpdate(e) {
             const trackEnd = this._trackEnd || this._audioext.duration;
             const remainingTime = trackEnd - this._audioext.currentTime;
@@ -252,6 +254,6 @@ hamonengine.audio = hamonengine.audio || {};
                 const elapsedTime = this._audioext.currentTime - this._trackBegin;
                 this._listenerPool.invoke('onTrackUpdate', { track: this, elapsedTime, remainingTime });
             }
-        }
+        }*/
     }
 })();
