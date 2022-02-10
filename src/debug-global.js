@@ -28,5 +28,6 @@
 
 //Used to compile the debug minification file.
 var hamonengine = {
-    debug: true
+    debug: true,
+    verbose: true
 };

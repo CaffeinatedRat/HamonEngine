@@ -28,5 +28,6 @@
 
 //Used to compile the release minification file.
 var hamonengine = {
-    debug: false
+    debug: false,
+    verbose: false
 };

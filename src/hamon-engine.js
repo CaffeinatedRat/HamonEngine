@@ -390,11 +390,11 @@ hamonengine.core = hamonengine.core || {};
             hamonengine.debug && console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
         onMouseEvent(type, v, e, caller) {
-            hamonengine.debug && console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
+            hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
         }
         onTouchEvent(type, touches, e, caller) {
             e && e.preventDefault();
-            hamonengine.debug && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
+            hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }
         /**
          * A draw loop event that is triggered once the engine starts.
