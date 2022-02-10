@@ -33,6 +33,23 @@ hamonengine.entities = hamonengine.entities || {};
      */
     hamonengine.entities.object2d = class {
         constructor(options = {}) {
+
+            //Handle copy-constructor operations.
+            if (options instanceof hamonengine.entities.object2d) {
+                options = {
+                    name: options._name,
+                    boundingShape: options._boundingShape,
+                    width: options._width,
+                    height: options._height,
+                    zinddex: options._zindex,
+                    movementRate: options._movementRate,
+                    position: options._position,
+                    direction: options._direction,
+                    theta: options._theta,
+                    state: options._state
+                };
+            }
+
             //Object properties.
             this._name = options.name || '';
             this._boundingShape = options.boundingShape;
@@ -48,14 +65,16 @@ hamonengine.entities = hamonengine.entities || {};
             //Transformation variables.
             this._theta = options.theta || 0.0;
 
-            //Determine if the object is solid or transparent.
-            this._isSolid = (options.isSolid === undefined) ? true : false;
-
-            //Determine if the object is moveable.  If it is not, the movement process is excluded.
-            this._isMoveable = (options.isMoveable === undefined) ? false : true;
-
-            //Determine if the object is visible, it is visible by default.
-            this._isVisible = (options.isVisible === undefined) ? true : false;
+            //Determines the state of the object whether it solid, moveable, and/or visible.
+            if (options.state !== undefined) {
+                this._state = options.state;
+            }
+            else {
+                this._state = 0;
+                this._state = this._state | (options.isSolid || OBJECT_STATE_FLAG.SOLID);
+                this._state = this._state | (options.isMoveable || OBJECT_STATE_FLAG.MOVEABLE);
+                this._state = this._state | (options.isVisible || OBJECT_STATE_FLAG.VISIBLE);
+            }
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.entities.object2d.constructor] Name: ${this.name}`);
@@ -139,25 +158,25 @@ hamonengine.entities = hamonengine.entities || {};
          * Returns true if the object is moveable.
          */
         get isMoveable() {
-            return this._isMoveable;
+            return (this._state & OBJECT_STATE_FLAG.MOVEABLE) === OBJECT_STATE_FLAG.MOVEABLE;
         }
         /**
          * Returns true if the object's state is solid.
          */
         get isSolid() {
-            return this._isSolid;
+            return (this._state & OBJECT_STATE_FLAG.SOLID) === OBJECT_STATE_FLAG.SOLID;
         }
         /**
          * Returns true if the object is visible.
          */
         get isVisible() {
-            return this._isVisible;
+            return (this._state & OBJECT_STATE_FLAG.VISIBLE) === OBJECT_STATE_FLAG.VISIBLE;
         }
         /**
          * Enables/Disables the visibility of the object.
          */
         set isVisible(v) {
-            this._isVisible = v;
+            this._state = v ? (this._state | OBJECT_STATE_FLAG.VISIBLE) : (this._state ^ OBJECT_STATE_FLAG.VISIBLE);
         }
         //--------------------------------------------------------
         // Methods
