@@ -239,11 +239,12 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Object} rotated polygon.
          */
         rotate(theta, offsetVector) {
+            //NMormalize
+            theta = theta || 0.0;
+            offsetVector = offsetVector || new hamonengine.geometry.vector2(0, 0);
+
             //Precalculate the sin & cos values of theta.
             const sinTheta = Math.sin(theta), cosTheta = Math.cos(theta);
-            
-            //Normalize the offset.
-            offsetVector = offsetVector || new hamonengine.geometry.vector2(0, 0);
 
             const newVertices = [];
             for (let i = 0 ; i < this.vertices.length; i++) {
