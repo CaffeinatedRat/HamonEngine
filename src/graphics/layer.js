@@ -556,6 +556,9 @@ hamonengine.graphics = hamonengine.graphics || {};
         drawRect(rect, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
             this.simpleDrawRect(rect, sourceX, sourceY, { lineWidth, color, fill, fillColor });
 
+            //Retain the wrapping coordinates for the 4 wrapping shape.
+            const wrappingPosition = new hamonengine.geometry.vector2();
+
             //Handle rect wrapping.
             if (this.wrapHorizontal) {
                 //DRAW RIGHT
@@ -563,6 +566,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 const xOffset = (sourceX + rect.x) - this.viewPort.x;
                 if (xOffset <= 0) {
                     this.simpleDrawRect(rect, this.viewPort.width + xOffset, sourceY, { lineWidth, color, fill, fillColor });
+                    wrappingPosition.x = this.viewPort.width + xOffset;
                 }
 
                 //DRAW LEFT
@@ -570,6 +574,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 if (sourceX + rect.width >= this.viewPort.width) {
                     const xOffset = this.viewPort.width - (sourceX + rect.x);
                     this.simpleDrawRect(rect, this.viewPort.x - xOffset, sourceY, { lineWidth, color, fill, fillColor });
+                    wrappingPosition.x = this.viewPort.x - xOffset;
                 }
             }
 
@@ -580,6 +585,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 const yOffset = (sourceY + rect.y) - this.viewPort.y;
                 if (yOffset <= 0) {
                     this.simpleDrawRect(rect, sourceX, this.viewPort.height + yOffset, { lineWidth, color, fill, fillColor });
+                    wrappingPosition.y = this.viewPort.height + yOffset;
                 }
 
                 //DRAW UP
@@ -587,7 +593,13 @@ hamonengine.graphics = hamonengine.graphics || {};
                 if (sourceY + rect.height >= this.viewPort.height) {
                     const yOffset = this.viewPort.height - (sourceY + rect.y);
                     this.simpleDrawRect(rect, sourceX, this.viewPort.y - yOffset, { lineWidth, color, fill, fillColor });
+                    wrappingPosition.y = this.viewPort.y - yOffset;
                 }
+            }
+
+            //Handle the corner shape if veritcal & horizontal wrapping are enabled. 
+            if (this.wrapVertical && this.wrapHorizontal && wrappingPosition.x && wrappingPosition.y) {
+                this.simpleDrawRect(rect, wrappingPosition.x, wrappingPosition.y, { lineWidth, color, fill, fillColor });
             }
         }
         /**
@@ -649,6 +661,9 @@ hamonengine.graphics = hamonengine.graphics || {};
         drawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
             this.simpleDrawPolygon(polygon, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
 
+            //Retain the wrapping coordinates for the 4 wrapping shape.
+            const wrappingPosition = new hamonengine.geometry.vector2();
+
             //Handle polygon wrapping.
             if (this.wrapHorizontal) {
                 //DRAW RIGHT
@@ -656,6 +671,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 const xOffset = (sourceX + polygon.min.x) - this.viewPort.x;
                 if (xOffset <= 0) {
                     this.simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
+                    wrappingPosition.x = this.viewPort.width + xOffset;
                 }
 
                 //DRAW LEFT
@@ -663,6 +679,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 if (sourceX + polygon.width >= this.viewPort.width) {
                     const xOffset = this.viewPort.width - (sourceX + polygon.min.x);
                     this.simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
+                    wrappingPosition.x = this.viewPort.x - xOffset;
                 }
             }
 
@@ -673,6 +690,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 const yOffset = (sourceY + polygon.min.y) - this.viewPort.y;
                 if (yOffset <= 0) {
                     this.simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, { lineWidth, color, drawNormals, fill, fillColor });
+                    wrappingPosition.y = this.viewPort.height + yOffset;
                 }
 
                 //DRAW UP
@@ -680,7 +698,13 @@ hamonengine.graphics = hamonengine.graphics || {};
                 if (sourceY + polygon.height >= this.viewPort.height) {
                     const yOffset = this.viewPort.height - (sourceY + polygon.min.y);
                     this.simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, { lineWidth, color, drawNormals, fill, fillColor });
+                    wrappingPosition.y = this.viewPort.y - yOffset;
                 }
+            }
+
+            //Handle the corner shape if veritcal & horizontal wrapping are enabled. 
+            if (this.wrapVertical && this.wrapHorizontal && wrappingPosition.x && wrappingPosition.y) {
+                this.simpleDrawPolygon(polygon, wrappingPosition.x, wrappingPosition.y, { lineWidth, color, drawNormals, fill, fillColor });
             }
         }
         /**
@@ -775,6 +799,22 @@ hamonengine.graphics = hamonengine.graphics || {};
                     this.context.stroke();
                 }
             }
+        }
+        /**
+         * A method that draws a shape (rect\polygon) object with wrapping based on the dimension parameters provided.
+         * @param {object} shape object to draw.
+         * @param {number} sourceX coordinate of where to draw the shape (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the shape (Optional and set to zero).
+         * @param {number} obj.lineWidth width of the shape's lines  (Optional and set to 1).
+         * @param {string} obj.color of the shape's lines.
+         * @param {boolean} obj.drawNormals determines if the normals should be drawn (Default is false).
+         * @param {boolean} obj.fill determines if the shape should be drawn filled (Default is false).
+         * @param {string} obj.fillColor determines the fill color of the shape (Default is 'white').
+         */
+         drawShape(shape, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
+            return shape instanceof hamonengine.geometry.rect 
+                ? this.drawRect(shape, sourceX, sourceY, { lineWidth , color, drawNormals, fill, fillColor})
+                    : this.drawPolygon(shape, sourceX, sourceY, { lineWidth , color, drawNormals, fill, fillColor});
         }
     }
 })();
