@@ -27,7 +27,7 @@
 
 hamonengine.geometry = hamonengine.geometry || {};
 
-(function() {
+(function () {
 
     const DIRTY_NORMAL = 0;
     const DIRTY_DIMS = 1;
@@ -39,7 +39,7 @@ hamonengine.geometry = hamonengine.geometry || {};
      * This class represents a 2d polygon.
      */
     hamonengine.geometry.polygon = class {
-        constructor(options={}) {
+        constructor(options = {}) {
 
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.geometry.polygon) {
@@ -130,7 +130,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Returns the minimum vertex in the polygon's set of vertices.
-         */        
+         */
         get minVertex() {
             if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
@@ -140,14 +140,14 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Returns the maximum vertex in the polygon's set of vertices.
-         */        
+         */
         get maxVertex() {
             if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
                 bitflag.toggle(this._dirty, DIRTY_DIMS, false);
             }
             return this._dimensions.maxVertex;
-        }        
+        }
         /**
          * Returns the width of the polygon
          */
@@ -202,7 +202,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 this.max.x - this.min.x,
                 this.max.y - this.min.y
             );
-        }     
+        }
         /**
          * Adds a vertex to the polygon.
          * @param {number} x
@@ -210,7 +210,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         addVertex(x, y) {
             //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
-            this._vertices.push(new hamonengine.geometry.vector2(x,y));
+            this._vertices.push(new hamonengine.geometry.vector2(x, y));
             this._dirty = DIRTY_ALL;
         }
         /**
@@ -239,7 +239,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Object} rotated polygon.
          */
         rotate(theta, offsetVector) {
-            //NMormalize
+            //Normalize
             theta = theta || 0.0;
             offsetVector = offsetVector || new hamonengine.geometry.vector2(0, 0);
 
@@ -247,7 +247,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             const sinTheta = Math.sin(theta), cosTheta = Math.cos(theta);
 
             const newVertices = [];
-            for (let i = 0 ; i < this.vertices.length; i++) {
+            for (let i = 0; i < this.vertices.length; i++) {
                 //Adjust/translate the vertex based on the offset.
                 const xOffset = this.vertices[i].x - offsetVector.x;
                 const yOffset = this.vertices[i].y - offsetVector.y;
@@ -258,16 +258,16 @@ hamonengine.geometry = hamonengine.geometry || {};
                     //x' = x * cos(θ) - y * sin(θ)
                     //y' = x * sin(θ) + y * cos(θ)
                     x = (xOffset * cosTheta) - (yOffset * sinTheta);
-                    y = (xOffset * sinTheta) + (yOffset * cosTheta);    
+                    y = (xOffset * sinTheta) + (yOffset * cosTheta);
                 }
                 else {
                     //2d Rotation Matrix (LHS CW)
                     //x' = x * cos(θ) + y * sin(θ)
                     //y' = -x * sin(θ) + y * cos(θ)
                     x = (xOffset * cosTheta) + (yOffset * sinTheta);
-                    y = -(xOffset * sinTheta) + (yOffset * cosTheta);    
+                    y = -(xOffset * sinTheta) + (yOffset * cosTheta);
                 }
-                
+
                 //Restore the vertex's position.
                 newVertices.push(new hamonengine.geometry.vector2(x + offsetVector.x, y + offsetVector.y));
             };
@@ -288,21 +288,59 @@ hamonengine.geometry = hamonengine.geometry || {};
         /**
          * Creates and returns a new instance of a scaled polygon.
          * @param {Object} scaleVector a scale vector (hamonengine.geometry.vector2) to apply to the polygon.
+         * @param {Object} offsetVector an offset vector (hamonengine.geometry.vector2) of where to scale.
          * @returns {Object} scaled polygon.
          */
-        scale(scaleVector) {
-            //Normalize the scaleVector.
+        scale(scaleVector, offsetVector) {
+            //Normalize.
             scaleVector = scaleVector || new hamonengine.geometry.vector2(0, 0);
+            offsetVector = offsetVector || new hamonengine.geometry.vector2(0, 0);
 
+            //If the x-axis (exclusively) or the y-axis is being flipped then reverse the order of vertices so the normals are generated correctly.
+            const xFlipped = scaleVector.x < 0;
+            const yFlipped = scaleVector.y < 0;
+            
             const newVertices = [];
-            for (let i = 0; i < this.vertices.length; i++) {
-                newVertices.push(this.vertices[i].multiplyVector(scaleVector));
-            };
+            if (!xFlipped && yFlipped || xFlipped & !yFlipped) {
+                for (let i = this.vertices.length - 1; i >= 0; i--) {
+                    newVertices.push(this.vertices[i].multiplyVector(scaleVector).add(offsetVector));
+                };
+            }
+            //Handle vertices normal for all other conditions.
+            else {
+                for (let i = 0; i < this.vertices.length; i++) {
+                    newVertices.push(this.vertices[i].multiplyVector(scaleVector).add(offsetVector));
+                };
+            }
 
             //Return a new instance of the polygon as to preserve the original.
             return new hamonengine.geometry.polygon({
                 vertices: newVertices
             });
+        }
+        /**
+         * Creates and returns a new instance of a scaled polygon around the center.
+         * @param {Object} scaleVector a scale vector (hamonengine.geometry.vector2) to apply to the polygon.
+         * @returns {Object} scaled polygon.
+         */
+         scaleAtCenter(scaleVector) {
+            return this.scale(scaleVector, this.center.subtract(this.center.multiplyVector(scaleVector)));
+        }
+        /**
+         * Creates and returns a new instance of a mirrored polygon.
+         * @param {boolean} state (optional) to mirror the object
+         * @returns {Object} mirrored polygon.
+         */
+        mirror(state) {
+            return state ? this.scaleAtCenter(new hamonengine.geometry.vector2(-1, 1)) : this;
+        }
+        /**
+         * Creates and returns a new instance of a flipped polygon.
+         * @param {boolean} state (optional) to flip the object
+         * @returns {Object} flipped polygon.
+         */
+        flip(state) {
+            return state ? this.scaleAtCenter(new hamonengine.geometry.vector2(1, -1)) : this;
         }
         /**
          * Determines if this shape collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
@@ -319,8 +357,8 @@ hamonengine.geometry = hamonengine.geometry || {};
                 return this.isCollisionPolygon(shape);
             }
 
-            return new hamonengine.geometry.vector2(0,0);
-        }     
+            return new hamonengine.geometry.vector2(0, 0);
+        }
         /**
          * Determines if this polygon collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
          * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
@@ -339,7 +377,7 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //Test the Other Polygon: Iterate through each normal, which will act as an axis to project upon.
             let axes = polygon.normals;
-            for(let i = 0; i < axes.length; i++) {
+            for (let i = 0; i < axes.length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
                 const thisProjection = this.project(axes[i]);
                 const otherProjection = polygon.project(axes[i]);
@@ -351,17 +389,17 @@ hamonengine.geometry = hamonengine.geometry || {};
                     //No collision has occurred so return an empty MTV.
                     return new hamonengine.geometry.vector2();
                 }
-               
+
                 //Check for containment.
                 let overlappingLength = overlapping.length;
-                if(thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
+                if (thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
                     const min = Math.abs(thisProjection.min - otherProjection.min);
                     const max = Math.abs(thisProjection.max - otherProjection.max);
                     overlappingLength += (min < max) ? min : max;
                 }
-                
+
                 //If we reach here then its possible that a collision may still occur.
-                if(isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength){
+                if (isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength) {
                     mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axes[i];
                     distance = otherProjection.getOrientation(thisProjection);
@@ -370,7 +408,7 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //Test This Polygon: Iterate through each normal, which will act as an axis to project upon.
             axes = this.normals;
-            for(let i = 0; i < axes.length; i++) {
+            for (let i = 0; i < axes.length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
                 const thisProjection = this.project(axes[i]);
                 const otherProjection = polygon.project(axes[i]);
@@ -382,17 +420,17 @@ hamonengine.geometry = hamonengine.geometry || {};
                     //No collision has occurred so return an empty MTV.
                     return new hamonengine.geometry.vector2();
                 }
-               
+
                 //Check for containment.
                 let overlappingLength = overlapping.length;
-                if(thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
+                if (thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
                     const min = Math.abs(thisProjection.min - otherProjection.min);
                     const max = Math.abs(thisProjection.max - otherProjection.max);
                     overlappingLength += (min < max) ? min : max;
                 }
-                
+
                 //If we reach here then its possible that a collision may still occur.
-                if(isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength){
+                if (isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength) {
                     mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axes[i];
                     distance = otherProjection.getOrientation(thisProjection);
@@ -454,7 +492,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                     }
                 }
             }
-            
+
             //Returns a 1d line that contains a min & max only.
             return new hamonengine.geometry.line(min, max);
         }
@@ -463,9 +501,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Object} vertices a collection to generate edges from.
          * @returns {Array} a collection of edges.
          */
-        static calcEdges(vertices=[]) {
+        static calcEdges(vertices = []) {
             const edges = [];
-            for(let i = 0; i < vertices.length; i++) {
+            for (let i = 0; i < vertices.length; i++) {
                 const destination = vertices[(i + 1) % vertices.length];
                 edges.push(destination.subtract(vertices[i]));
             }
@@ -477,7 +515,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Array} edges a collection to generate normals from.
          * @returns {Array} a collection of normals.
          */
-        static calcNormals(edges=[]) {
+        static calcNormals(edges = []) {
             return edges.map(edge => edge.normal(ROTATION_TYPE.CW));
         }
         /**
@@ -490,7 +528,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Array<Object>} vertices a collection to generate the center from.
          * @returns {Object} a complex object that returns the min, max & center vectors (hamonengine.geometry.vector2).
          */
-        static calcDimensions(vertices=[]) {
+        static calcDimensions(vertices = []) {
             let minVertex = null, maxVertex = null;
             let xMax = NaN, xMin = NaN;
             let yMax = NaN, yMin = NaN;
@@ -522,10 +560,10 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Array} vertices a collection to generate the shape type from.
          * @returns {number} a value that determines (SHAPE_TYPE) whether concave or convex.
          */
-        static calcShapeType(vertices=[]) {
+        static calcShapeType(vertices = []) {
             let signCounter = 0;
-            for(let i = 0; i < vertices.length; i++) {
-                
+            for (let i = 0; i < vertices.length; i++) {
+
                 //Get three vertices so we can generate two consective vectors in our polygon.
                 //NOTE: These vertices are being stored as vectors, as to provide easy access to the vector help methods.
                 const p1 = vertices[i];
