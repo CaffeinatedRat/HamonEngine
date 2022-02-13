@@ -38,7 +38,9 @@ hamonengine.entities = hamonengine.entities || {};
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.entities.spriteObject) {
                 options = {
-                    sprite: options._sprite
+                    sprite: options._sprite,
+                    directionBasis: options._directionBasis,
+                    boundingShape: options._boundingShape
                 };
             }
 
@@ -49,8 +51,13 @@ hamonengine.entities = hamonengine.entities || {};
             this._faceAxisOnMove = options.faceAxisOnMove !== undefined ? options.faceAxisOnMove : (OBJECT_FACE_DIRECTION.XAXIS | OBJECT_FACE_DIRECTION.YAXIS);
 
             //If the boundingShape is not defined, use the sprite to a preset rect.
-            this._hasBoundingShape = this._boundingShape;
-            this._boundingShape = this._boundingShape || new hamonengine.geometry.rect(0, 0, this.sprite.width, this.sprite.height);
+            this._hasBoundingShape = options.boundingShape;
+            this._boundingShape = options.boundingShape || new hamonengine.geometry.rect(0, 0, this.sprite.width, this.sprite.height);
+
+            //Determine if the direction basis used to determine which way the sprite faces when mirroring or rotating.
+            //By default the sprite will always point towards +x, where mirroring it will point towards -x when moving horizontally.
+            //By default the sprite will always point towards -y (y is inverted on the canvas with 0 at the top, and height at the bottom), where rotating it will point towards +y when moving vertically.
+            this._directionBasis = options.directionBasis || new hamonengine.geometry.vector2(-1, -1);
 
             if (hamonengine.debug) {
                 !this._hasBoundingShape && console.debug(`[hamonengine.entities.spriteObject.constructor] BoundingShape not found, using sprite dimensions.`);
@@ -103,17 +110,14 @@ hamonengine.entities = hamonengine.entities || {};
             if ((this.faceAxisOnMove & OBJECT_FACE_DIRECTION.XAXIS) === OBJECT_FACE_DIRECTION.XAXIS) {
                 if (this.direction.x !== 0) {
                     //Reset the rotation when moving left or right.
-                    this.sprite.mirror(this.direction.x > 0).rotate();
+                    this.sprite.mirror(this.direction.x === this._directionBasis.x).rotate();
                 }
             }
 
             //Rotate the sprite based on the direction so it looks like it is facing up or down.
             if ((this.faceAxisOnMove & OBJECT_FACE_DIRECTION.YAXIS) === OBJECT_FACE_DIRECTION.YAXIS) {
-                if (this.direction.y === -1) {
-                    this.sprite.rotate(Math.PI_2);
-                }
-                else if (this.direction.y === 1) {
-                    this.sprite.rotate(-Math.PI_2);
+                if (this.direction.y !== 0) {
+                    this.sprite.rotate(this.direction.y === this._directionBasis.y ? Math.PI_2 : -Math.PI_2);
                 }
             }
 
