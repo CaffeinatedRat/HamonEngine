@@ -193,6 +193,8 @@ hamonengine.entities = hamonengine.entities || {};
                 this.position.x += movementVector.x;
                 this.position.y += movementVector.y;
             }
+
+            return this;
         }
         /**
          * Calculates the movement of the object, without moving it, based on its direction vector.
