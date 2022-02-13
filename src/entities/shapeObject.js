@@ -114,6 +114,17 @@ hamonengine.entities = hamonengine.entities || {};
             return this;
         }
         /**
+         * Helper method for adding a new vertex to the shape.
+         * NOTE: Adding a vertex to a rect object will automatically promote it to a polygon.
+         * @param {number} x
+         * @param {number} y
+         */
+         addVertex(x, y) {
+            //Adding another vertext to a rect automatically promotes it to a polygon.
+            (this.isPolygon ? this._shape : this._shape = this._shape.toPolygon()).addVertex(x, y);
+            return this;
+        }
+        /**
          * Moves the object.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          * @param {Object} movementVector the movement vector to move the object. 
@@ -147,7 +158,7 @@ hamonengine.entities = hamonengine.entities || {};
          */
         render(layer, elapsedTimeInMilliseconds, { lineWidth = 3, color = 'blue', drawNormals = false } = {}) {
             if (this.shape) {
-                const transformedShape = this.shape.mirror(this._mirroredState).rotateAtCenter(this._theta);
+                const transformedShape = this.isPolygon ? this.shape.mirror(this._mirroredState).rotateAtCenter(this._theta) : this.shape;
                 layer.drawShape(transformedShape, this.position.x, this.position.y, { lineWidth, color, drawNormals });
             }
         }
