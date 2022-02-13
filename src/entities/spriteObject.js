@@ -102,9 +102,8 @@ hamonengine.entities = hamonengine.entities || {};
             //Mirror the sprite based on the direction.
             if ((this.faceAxisOnMove & OBJECT_FACE_DIRECTION.XAXIS) === OBJECT_FACE_DIRECTION.XAXIS) {
                 if (this.direction.x !== 0) {
-                    this.sprite.mirror(this.direction.x > 0);
                     //Reset the rotation when moving left or right.
-                    this.sprite.rotate();
+                    this.sprite.mirror(this.direction.x > 0).rotate();
                 }
             }
 
@@ -117,6 +116,15 @@ hamonengine.entities = hamonengine.entities || {};
                     this.sprite.rotate(-Math.PI_2);
                 }
             }
+
+            return this;
+        }
+        /**
+         * Resets the sprite to it's original orientation.
+         */
+        reset() {
+            //Reset the rotation when moving left or right.
+            return this.sprite.rotate().mirror(false);
         }
         /**
          * Draws the sprite object.
