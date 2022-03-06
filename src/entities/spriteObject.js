@@ -39,8 +39,7 @@ hamonengine.entities = hamonengine.entities || {};
             if (options instanceof hamonengine.entities.spriteObject) {
                 options = {
                     sprite: options._sprite,
-                    directionBasis: options._directionBasis,
-                    boundingShape: options._boundingShape
+                    directionBasis: options._directionBasis
                 };
             }
 
@@ -49,10 +48,6 @@ hamonengine.entities = hamonengine.entities || {};
             //Determines if the sprite rotates 0 or 180 (mirrors) when moving left or right.
             //Determines if the sprite rotates 90 or -90 when moving up and down.
             this._faceAxisOnMove = options.faceAxisOnMove !== undefined ? options.faceAxisOnMove : (OBJECT_FACE_DIRECTION.XAXIS | OBJECT_FACE_DIRECTION.YAXIS);
-
-            //If the boundingShape is not defined, use the sprite to a preset rect.
-            this._hasBoundingShape = options.boundingShape;
-            this._boundingShape = options.boundingShape || new hamonengine.geometry.rect(0, 0, this.sprite.width, this.sprite.height);
 
             //Determine if the direction basis used to determine which way the sprite faces when mirroring or rotating.
             //By default the sprite will always point towards +x, where mirroring it will point towards -x when moving horizontally.
@@ -77,11 +72,6 @@ hamonengine.entities = hamonengine.entities || {};
          */
         set sprite(v) {
             this._sprite = v;
-
-            //If a boundingSahpe was not provided then generate a new one based on the sprite.
-            if (!this._hasBoundingShape) {
-                this._boundingShape = new hamonengine.geometry.rect(0, 0, this.sprite.width, this.sprite.height);
-            }
         }
         /**
          * Gets the faceAxisOnMove.
