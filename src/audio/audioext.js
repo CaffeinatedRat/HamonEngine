@@ -295,7 +295,6 @@ hamonengine.audio = hamonengine.audio || {};
                         if (!this._mediaSource) {
                             this._mediaSource = this.context.createMediaElementSource(this.audio);
                             this._mediaSource.connect(this._gainNode).connect(this._panNode).connect(this.context.destination);
-                            console.log(this._mediaSource.connect(this._gainNode).connect(this._panNode).connect(this.context.destination));
                         }
                     }
                     else {

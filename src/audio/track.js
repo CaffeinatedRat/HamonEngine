@@ -199,13 +199,13 @@ hamonengine.audio = hamonengine.audio || {};
          */
         async play() {
             this._audioext.audioListenerDelegate = this;
-            this._audioext.play(this._trackBegin, this._trackEnd);
+            return this._audioext.play(this._trackBegin, this._trackEnd);
         }
         /**
          * Pauses playback.
          */
         pause() {
-            this._audioext.pause();
+            return this._audioext.pause();
         }
         /**
          * Stops and resets playback.
