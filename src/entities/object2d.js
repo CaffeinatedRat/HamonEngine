@@ -227,12 +227,40 @@ hamonengine.entities = hamonengine.entities || {};
             return this.boundingShape.isContained(targetObject.position, targetObject.boundingShape);
         }
         /**
-         * Draws the object at the specific location, width & height.
-         * @param {Object} layer to render the cell's objects to.
-         * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
+         * A helper method for moving the object to the left continuously.
          */
-        render(layer, elapsedTimeInMilliseconds) {
-
+        holdLeft () {
+            this.direction.x = -1;
+        }
+        /**
+         * A helper method for moving the object to the right continuously.
+         */
+        holdRight () {
+            this.direction.x = 1;
+        }
+        /**
+         * A helper method for moving the object to the up continuously.
+         */
+        holdUp () {
+            this.direction.y = -1;
+        }
+        /**
+         * A helper method for moving the object to the down continuously.
+         */
+        holdDown() {
+            this.direction.y = 1;
+        }
+        /**
+         * A helper method for stopping horizontal movement.
+         */
+        releaseHorizontal() {
+            this.direction.x = 0;
+        }
+        /**
+         * A helper method for stopping vertical movement.
+         */
+        releaseVertical() {
+            this.direction.y = 0;
         }
         /**
          * Outputs the objects as a string.
