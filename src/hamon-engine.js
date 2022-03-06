@@ -43,7 +43,7 @@ hamonengine.core = hamonengine.core || {};
     ];
 
     const canvas_default_name = 'canvas';
-    const VERSION = '0.1.2';
+    const VERSION = '0.2.0';
 
     hamonengine.core.engine = class {
         constructor(options = {}) {
@@ -56,7 +56,7 @@ hamonengine.core = hamonengine.core || {};
             this._showFPS = options.showFPS !== undefined ? options.showFPS : false;
             this._syncFrames = options.syncFrames !== undefined ? options.syncFrames : false;
             this._splashScreenWait = options.splashScreenWait !== undefined ? options.splashScreenWait : 500;
-            this._detectCanvas = options.detectCanvas !== undefined ? options.detectCanvas : false;
+            this._detectCanvas = options.detectCanvas !== undefined ? options.detectCanvas : true;
             this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
             this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
 
@@ -85,7 +85,7 @@ hamonengine.core = hamonengine.core || {};
                         canvas: value,
                         allowEventBinding: value.dataset.alloweventbinding,
                         enableImageSmoothing: value.dataset.enableimagesmoothing,
-                        clipToViewPort: value.dataset.alloweventbinding
+                        clipToViewPort: value.dataset.cliptoviewport
                     });
                 });
             }
