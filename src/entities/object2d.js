@@ -72,7 +72,7 @@ hamonengine.entities = hamonengine.entities || {};
             else {
                 this._state = 0;
                 this._state = this._state | (options.isSolid ? OBJECT_STATE_FLAG.SOLID : OBJECT_STATE_FLAG.NONE);
-                this._state = this._state | (options.isMoveable ? OBJECT_STATE_FLAG.MOVEABLE : OBJECT_STATE_FLAG.NONE);
+                this._state = this._state | (options.isMovable ? OBJECT_STATE_FLAG.MOVEABLE : OBJECT_STATE_FLAG.NONE);
                 this._state = this._state | (options.isVisible ? OBJECT_STATE_FLAG.VISIBLE : OBJECT_STATE_FLAG.NONE);
             }
 
@@ -84,7 +84,7 @@ hamonengine.entities = hamonengine.entities || {};
                 console.debug(`[hamonengine.entities.object2d.constructor] Starting Theta: ${this.theta}`);
                 console.debug(`[hamonengine.entities.object2d.constructor] Movement Rate: ${this._movementRate}`);
                 console.debug(`[hamonengine.entities.object2d.constructor] isSolid: ${this.isSolid}`);
-                console.debug(`[hamonengine.entities.object2d.constructor] isMoveable: ${this.isMoveable}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] isMovable: ${this.isMovable}`);
                 console.debug(`[hamonengine.entities.object2d.constructor] isVisible: ${this.isVisible}`);
             }
         }
@@ -157,7 +157,7 @@ hamonengine.entities = hamonengine.entities || {};
         /**
          * Returns true if the object is moveable.
          */
-        get isMoveable() {
+        get isMovable() {
             return (this._state & OBJECT_STATE_FLAG.MOVEABLE) === OBJECT_STATE_FLAG.MOVEABLE;
         }
         /**
@@ -187,7 +187,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {Object} movementVector the movement vector to move the object. 
          */
         move(elapsedTimeInMilliseconds, movementVector = null) {
-            if (this.isMoveable) {
+            if (this.isMovable) {
                 //Calculate the movement vector if one is not passed.
                 movementVector = movementVector || this.calcMove(elapsedTimeInMilliseconds);
                 this.position.x += movementVector.x;
