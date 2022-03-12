@@ -60,6 +60,9 @@ hamonengine.core = hamonengine.core || {};
             this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
             this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
 
+            //Determines if all key event behaviors are prevented by default and that only the application handles them.
+            this._preventAllDefaultKeys = options.preventAllDefaultKeys !== undefined ? options.preventAllDefaultKeys : false;
+
             //Add support for external elements.
             this._externalElements = options.externalElements || [];
 
@@ -167,7 +170,7 @@ hamonengine.core = hamonengine.core || {};
             return this._allowDocumentEventBinding;
         }
         /**
-         * Returns true if touch events are captured as mout events.
+         * Returns true if touch events are captured as mouse events.
          */
         get captureTouchAsMouseEvents() {
             return this._captureTouchAsMouseEvents;
@@ -177,6 +180,18 @@ hamonengine.core = hamonengine.core || {};
          */
         set captureTouchAsMouseEvents(v) {
             this._captureTouchAsMouseEvents = v;
+        }
+        /**
+         * Returns true if all key events prevent default behavior.
+         */
+         get preventAllDefaultKeys() {
+            return this._preventAllDefaultKeys;
+        }
+        /**
+         * Toggles prevent defualt behavior for all key events.
+         */
+        set preventAllDefaultKeys(v) {
+            this._preventAllDefaultKeys = v;
         }
         /**
          * Assigns the sync value for processing & drawing frames together.
@@ -313,7 +328,10 @@ hamonengine.core = hamonengine.core || {};
                 window.addEventListener('DOMContentLoaded', (event) => {
                     const touchEventMap = new Map();
                     const bindEvents = (elementToBind, eventContainer) => {
-                        const keyEvent = (type, e) => this.onKeyEvent(type, e.code, e, eventContainer);
+                        const keyEvent = (type, e) => {
+                            this.onKeyEvent(type, e.code, e, eventContainer);
+                            this.preventAllDefaultKeys && e && e.preventDefault();
+                        }
                         const mouseEvent = (type, e) => {
                             const v = new hamonengine.geometry.vector2(e.offsetX, e.offsetY);
                             this.onMouseEvent(type, v, e, eventContainer);
@@ -386,14 +404,14 @@ hamonengine.core = hamonengine.core || {};
         // Events
         //--------------------------------------------------------
         onKeyEvent(type, keyCode, e, caller) {
-            e && e.preventDefault();
+            //e && e.preventDefault();
             hamonengine.debug && console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
         onMouseEvent(type, v, e, caller) {
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
         }
         onTouchEvent(type, touches, e, caller) {
-            e && e.preventDefault();
+            //e && e.preventDefault();
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }
         /**

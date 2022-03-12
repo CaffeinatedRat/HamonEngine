@@ -28,6 +28,7 @@
 hamonengine.entities = hamonengine.entities || {};
 
 const OBJECT_STATE_FLAG = {
+    NONE: 0,
     SOLID: 1,
     MOVEABLE: 2,
     VISIBLE: 4
