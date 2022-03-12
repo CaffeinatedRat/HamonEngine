@@ -42,6 +42,14 @@ hamonengine.core = hamonengine.core || {};
         "RUNNING"
     ];
 
+    const PREVENT_DEFAULT_STATES = {
+        NONE: 0,
+        //Determines if all keys are blocked by default, where the application does not need to handle key event propagation.
+        BLOCK_ALL_KEYS: 1,
+        //Determines if the arrow keys are blocked by default, where the application does not need to handle key event propagation.
+        BLOCK_ARROWS_KEYS: 2
+    }
+
     const canvas_default_name = 'canvas';
     const VERSION = '0.2.0';
 
@@ -60,8 +68,11 @@ hamonengine.core = hamonengine.core || {};
             this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
             this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
 
-            //Determines if all key event behaviors are prevented by default and that only the application handles them.
-            this._preventAllDefaultKeys = options.preventAllDefaultKeys !== undefined ? options.preventAllDefaultKeys : false;
+            //Determines the prevent default & event propagation states.
+            const blockArrowKeys = options.blockArrowKeys !== undefined ? options.blockArrowKeys : true;
+            this._preventDefaultState = 0;
+            this._preventDefaultState = this._preventDefaultState | (options.blockAllKeys ? PREVENT_DEFAULT_STATES.BLOCK_ALL_KEYS : PREVENT_DEFAULT_STATES.NONE);
+            this._preventDefaultState = this._preventDefaultState | (blockArrowKeys ? PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS : PREVENT_DEFAULT_STATES.NONE);
 
             //Add support for external elements.
             this._externalElements = options.externalElements || [];
@@ -182,16 +193,28 @@ hamonengine.core = hamonengine.core || {};
             this._captureTouchAsMouseEvents = v;
         }
         /**
-         * Returns true if all key events prevent default behavior.
+         * Returns true if all key events are blocked by default.
          */
-         get preventAllDefaultKeys() {
-            return this._preventAllDefaultKeys;
+        get blockByDefaultAllKeys() {
+            return (this._preventDefaultState & PREVENT_DEFAULT_STATES.BLOCK_ALL_KEYS) === PREVENT_DEFAULT_STATES.BLOCK_ALL_KEYS;
         }
         /**
-         * Toggles prevent defualt behavior for all key events.
+         * Toggles all key blocking by default.
          */
-        set preventAllDefaultKeys(v) {
-            this._preventAllDefaultKeys = v;
+        set blockByDefaultAllKeys(v) {
+            this._preventDefaultState = v ? (this._preventDefaultState | PREVENT_DEFAULT_STATES.BLOCK_ALL_KEYS) : (this._preventDefaultState ^ PREVENT_DEFAULT_STATES.BLOCK_ALL_KEYS);
+        }
+        /**
+         * Returns true if only the arrow key events are blocked by default.
+         */
+        get blockByDefaultArrowKeys() {
+            return (this._preventDefaultState & PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS) === PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS;
+        }
+        /**
+         * Toggles arrow key blocking by default.
+         */
+        set blockByDefaultArrowKeys(v) {
+            this._preventDefaultState = v ? (this._preventDefaultState | PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS) : (this._preventDefaultState ^ PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS);
         }
         /**
          * Assigns the sync value for processing & drawing frames together.
@@ -215,7 +238,7 @@ hamonengine.core = hamonengine.core || {};
          * @return {Object} a promise to complete resource loading.
          */
         async load() {
-            hamonengine.debug &&console.debug("[hamonengine.core.engine.load]");
+            hamonengine.debug && console.debug("[hamonengine.core.engine.load]");
 
             //Perform a preload and wait if a splashscreen is present.
             const preloadPromise = new Promise(resolve => {
@@ -330,7 +353,15 @@ hamonengine.core = hamonengine.core || {};
                     const bindEvents = (elementToBind, eventContainer) => {
                         const keyEvent = (type, e) => {
                             this.onKeyEvent(type, e.code, e, eventContainer);
-                            this.preventAllDefaultKeys && e && e.preventDefault();
+                            //Handle default preventDefault logic
+                            if (e) {
+                                if (!this.blockByDefaultAllKeys) {
+                                    this.blockByDefaultArrowKeys && (e.code === "ArrowLeft" || e.code === "ArrowRight" || e.code === "ArrowUp" || e.code === "ArrowDown") && e.preventDefault();
+                                }
+                                else {
+                                    e.preventDefault();
+                                }
+                            }
                         }
                         const mouseEvent = (type, e) => {
                             const v = new hamonengine.geometry.vector2(e.offsetX, e.offsetY);
@@ -411,7 +442,7 @@ hamonengine.core = hamonengine.core || {};
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
         }
         onTouchEvent(type, touches, e, caller) {
-            //e && e.preventDefault();
+            e && e.preventDefault();
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }
         /**
