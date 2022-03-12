@@ -23,6 +23,9 @@ src/graphics/layer.js
 src/graphics/sprite.js
 src/graphics/animsprite.js
 src/graphics/spritesheet.js
+src/entities/type.js
 src/entities/object2d.js
+src/entities/spriteObject.js
+src/entities/shapeObject.js
 src/entities/cell.js
 src/hamon-engine.js
