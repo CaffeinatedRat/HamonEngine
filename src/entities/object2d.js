@@ -71,9 +71,9 @@ hamonengine.entities = hamonengine.entities || {};
             }
             else {
                 this._state = 0;
-                this._state = this._state | (options.isSolid || OBJECT_STATE_FLAG.SOLID);
-                this._state = this._state | (options.isMoveable || OBJECT_STATE_FLAG.MOVEABLE);
-                this._state = this._state | (options.isVisible || OBJECT_STATE_FLAG.VISIBLE);
+                this._state = this._state | (options.isSolid ? OBJECT_STATE_FLAG.SOLID : OBJECT_STATE_FLAG.NONE);
+                this._state = this._state | (options.isMoveable ? OBJECT_STATE_FLAG.MOVEABLE : OBJECT_STATE_FLAG.NONE);
+                this._state = this._state | (options.isVisible ? OBJECT_STATE_FLAG.VISIBLE : OBJECT_STATE_FLAG.NONE);
             }
 
             if (hamonengine.debug) {
@@ -207,7 +207,7 @@ hamonengine.entities = hamonengine.entities || {};
             );
         }
         /**
-         * Determines if the object has collided with noather.
+         * Determines if the object has collided with another.
          * @param {Object} object to calculate the collision with.
          * @return {number} a COLLISION_TYPES 
          */
