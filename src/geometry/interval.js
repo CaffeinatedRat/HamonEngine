@@ -29,9 +29,9 @@ hamonengine.geometry = hamonengine.geometry || {};
 
 (function() {
     /**
-     * This class represents a one-dimensional line or interval.
+     * This class represents a one-dimensional interval.
      */
-    hamonengine.geometry.line = class {
+    hamonengine.geometry.interval = class {
         constructor(min=0.0,max=0.0) {
             this.min=min;
             this.max=max;
@@ -40,19 +40,19 @@ hamonengine.geometry = hamonengine.geometry || {};
         // Properties
         //--------------------------------------------------------
         /**
-         * Returns the length of the line.
+         * Returns the length of the interval.
          */
         get length() {
             return Math.abs(this.max - this.min);
         }
         /**
-         * Returns true if the line is valid, where the min & max are actual values not NaN.
+         * Returns true if the interval is valid, where the min & max are actual values not NaN.
          */
         get isLine() {
             return !isNaN(this.min) && !isNaN(this.max);
         }
         /**
-         * Returns the middle point on the line.
+         * Returns the middle point on the interval.
          */
         get midPoint() {
             return (this.max - this.min) / 2;
@@ -61,97 +61,97 @@ hamonengine.geometry = hamonengine.geometry || {};
         // Methods
         //--------------------------------------------------------
         /**
-         * Clones the target line.
-         * @param {Object} line to be cloned.
+         * Clones the target interval.
+         * @param {Object} interval to be cloned.
          */
-        static clone(line) {
-            return new hamonengine.geometry.line(line.min, line.max);
+        static clone(interval) {
+            return new hamonengine.geometry.interval(interval.min, interval.max);
         }
         /**
-         * Clones this line.
+         * Clones this interval.
          */
         clone() {
-            return hamonengine.geometry.line.clone(this);
+            return hamonengine.geometry.interval.clone(this);
         }
         /**
-         * Outputs the line's coordinates as a string.
+         * Outputs the interval as a string.
          */
         toString() {
             return `{min: '${this.min}', max: '${this.max}'}`;
         }
         /**
-         * Returns an instance of the mirrored line across a single axis.
+         * Returns an instance of the mirrored interval across a single axis.
          */
         mirror() {
-            return new hamonengine.geometry.line(this.max, this.min);
+            return new hamonengine.geometry.interval(this.max, this.min);
         }
         /**
-         * Adds l to the current line and returns a new instance of the line.
-         * @param {Object} l line to add.
+         * Adds l to the current interval and returns a new instance of the interval.
+         * @param {Object} l interval to add.
          */
         add(l) {
-            return new hamonengine.geometry.line(this.min + l.min, this.max + l.max);
+            return new hamonengine.geometry.interval(this.min + l.min, this.max + l.max);
         }
         /**
-         * Substracts l from the current line and return a new instance of the line.
-         * @param {Object} l line to subtract.
+         * Substracts l from the current interval and return a new instance of the interval.
+         * @param {Object} l interval to subtract.
          */
         subtract(l) {
-            return new hamonengine.geometry.line(this.min - l.min, this.max - l.max);
+            return new hamonengine.geometry.interval(this.min - l.min, this.max - l.max);
         }
         /**
-         * Multiples the current line by a scalar value and returns a new instance of the line.
+         * Multiples the current interval by a scalar value and returns a new instance of the interval.
          * @param {Number} s scalar to multiply.
          */
         multiplyScalar(s) {
-            return new hamonengine.geometry.line(this.min * s, this.max * s);
+            return new hamonengine.geometry.interval(this.min * s, this.max * s);
         }
         /**
-         * Returns the line overlapping this line and line l.
+         * Returns the interval overlapping this interval and interval l.
          * @param {Object} l to overlap.
-         * @returns {Object} overlapping line.
+         * @returns {Object} overlapping interval.
          */
         overlap(l) {
-            //Determine if the point is on the line.
-            //Note that the line represents a single axis so the point will only be one dimensional.
-            const isPointOnLine = (point,line) => (point >= line.min && point <= line.max);
+            //Determine if the point is on the interval.
+            //Note that the interval represents a single axis so the point will only be one dimensional.
+            const isPointOnLine = (point,interval) => (point >= interval.min && point <= interval.max);
 
             let min = NaN;
-            //Determine if minimum point occurs on the line l
+            //Determine if minimum point occurs on the interval l
             if (isPointOnLine(this.min, l)) {
                 min = this.min;
             }
-            //Or determin if the minimum point occurs on the this line.
+            //Or determin if the minimum point occurs on the this interval.
             else if (isPointOnLine(l.min, this)) {
                 min = l.min;
             }
 
             let max = NaN;
-            //Determine if maximum point occurs on the line l
+            //Determine if maximum point occurs on the interval l
             if (isPointOnLine(this.max, l)) {
                 max = this.max;
             }
-            //Or determin if the maximum point occurs on the this line.
+            //Or determin if the maximum point occurs on the this interval.
             else if (isPointOnLine(l.max, this)) {
                 max = l.max;
             }
 
-            //Return the overlapping line.
-            return new hamonengine.geometry.line(min, max);
+            //Return the overlapping interval.
+            return new hamonengine.geometry.interval(min, max);
         }
         /**
-         * Returns true if the line l is contained within this line.
+         * Returns true if the interval l is contained within this interval.
          * @param {Object} l to test.
-         * @returns {Boolean} true if line l is contained within this line.
+         * @returns {Boolean} true if interval l is contained within this interval.
          */        
         contains(l) {
             return l.min >= this.min && l.max <= this.max;
         }
         /**
-         * Returns orientation/direction of the line l in relation to this line.
-         * If the line l is to the right of this line then +1 is returned.
-         * If the line l is to the left of this line then -1 is returned.
-         * If the line l overlaps this line then 0 is returned.
+         * Returns orientation/direction of the interval l in relation to this interval.
+         * If the interval l is to the right of this interval then +1 is returned.
+         * If the interval l is to the left of this interval then -1 is returned.
+         * If the interval l overlaps this interval then 0 is returned.
          * @param {Object} l 
          */
         getOrientation(l) {

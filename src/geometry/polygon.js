@@ -383,7 +383,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 const otherProjection = polygon.project(axes[i]);
 
                 //Determine if thisProjection & otherProjection are overlapping.
-                //An overlapping line is one that is valid or is a line.
+                //An overlapping interval is one that is valid or is a interval.
                 const overlapping = thisProjection.overlap(otherProjection);
                 if (!overlapping.isLine) {
                     //No collision has occurred so return an empty MTV.
@@ -414,7 +414,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 const otherProjection = polygon.project(axes[i]);
 
                 //Determine if thisProjection & otherProjection are overlapping.
-                //An overlapping line is one that is valid or is a line.
+                //An overlapping interval is one that is valid or is a interval.
                 const overlapping = thisProjection.overlap(otherProjection);
                 if (!overlapping.isLine) {
                     //No collision has occurred so return an empty MTV.
@@ -475,7 +475,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.vector2();
         }
         /**
-         * Projects the polygon onto the provided vector and returns a (hamonengine.geometry.line}.
+         * Projects the polygon onto the provided vector and returns a (hamonengine.geometry.interval}.
          * @param {object} vector (hamonengine.geometry.vector2) to project onto.
          */
         project(vector) {
@@ -493,8 +493,8 @@ hamonengine.geometry = hamonengine.geometry || {};
                 }
             }
 
-            //Returns a 1d line that contains a min & max only.
-            return new hamonengine.geometry.line(min, max);
+            //Returns an interval that contains a min & max only.
+            return new hamonengine.geometry.interval(min, max);
         }
         /**
          * Calculates a series of edges from a collection of vertices.

@@ -140,12 +140,12 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //A rect is an untransformed polygon with 4 set vertices.
             //Project this rect onto the normal of the x-axis, which would be the y-axis.
-            const this_YAxisProjection = new hamonengine.geometry.line(this.y, this.y + this.height);
+            const this_YAxisProjection = new hamonengine.geometry.interval(this.y, this.y + this.height);
             //Project otherRect onto the normal of the x-axis, which would be the y-axis.
-            const other_YAxisProjection = new hamonengine.geometry.line(otherRect.y, otherRect.y + otherRect.height);
+            const other_YAxisProjection = new hamonengine.geometry.interval(otherRect.y, otherRect.y + otherRect.height);
 
             //Determine if projection1 & projection2 are overlapping.
-            //An overlapping line is one that is valid or is a line.
+            //An overlapping interval is one that is valid or is a interval.
             const overlappingYAxis = this_YAxisProjection.overlap(other_YAxisProjection);
             if (!overlappingYAxis.isLine) {
                 //No collision has occurred so return an empty MTV.
@@ -171,13 +171,13 @@ hamonengine.geometry = hamonengine.geometry || {};
             // ---------------------------------------------
 
             //Project this rect onto the normal of the y-axis, which would be the x-axis.
-            const this_XAxisProjection = new hamonengine.geometry.line(this.x, this.x + this.width);
+            const this_XAxisProjection = new hamonengine.geometry.interval(this.x, this.x + this.width);
 
             //Project otherRect onto the normal of the y-axis, which would be the x-axis.
-            const other_XAxisProjection = new hamonengine.geometry.line(otherRect.x, otherRect.x + otherRect.width);
+            const other_XAxisProjection = new hamonengine.geometry.interval(otherRect.x, otherRect.x + otherRect.width);
 
             //Determine if projection1 & projection2 are overlapping.
-            //An overlapping line is one that is valid or is a line.
+            //An overlapping interval is one that is valid or is a interval.
             const overlappingXAxis = this_XAxisProjection.overlap(other_XAxisProjection);
             if (!overlappingXAxis.isLine) {
                 //No collision has occurred so return an empty MTV.
