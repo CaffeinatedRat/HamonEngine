@@ -52,6 +52,24 @@ hamonengine.geometry = hamonengine.geometry || {};
         get theta() {
             return (Math.atan2(this.y, this.x) + Math.PI2) % Math.PI2;
         }
+        /**
+         * Returns the middle point on the vector2.
+         */
+        get midPoint() {
+            return new hamonengine.geometry.vector2(this.x / 2, this.y / 2);
+        }
+        /**
+         * Returns the minimum coordinate.
+         */
+        get min() {
+            return this.x < this.y ? this.x : this.y;
+        }
+        /**
+         * Returns the maxium coordinate.
+         */
+         get max() {
+            return this.x > this.y ? this.x : this.y;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------

@@ -46,6 +46,26 @@ hamonengine.geometry = hamonengine.geometry || {};
         get length() {
             return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
         }
+        /**
+         * Returns the middle point on the vector3.
+         */
+         get midPoint() {
+            return new hamonengine.geometry.vector3(this.x / 2, this.y / 2, this.z / 2);
+        }
+        /**
+         * Returns the minimum coordinate.
+         */
+         get min() {
+            const min = this.x < this.y ? this.x : this.y;
+            return min < this.z ? min : this.z;
+        }
+        /**
+         * Returns the maxium coordinate.
+         */
+         get max() {
+            const max = this.x > this.y ? this.x : this.y;
+            return max > this.z ? max : this.z;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
