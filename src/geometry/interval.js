@@ -121,7 +121,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             if (isPointOnLine(this.min, l)) {
                 min = this.min;
             }
-            //Or determin if the minimum point occurs on the this interval.
+            //Or determine if the minimum point occurs on the this interval.
             else if (isPointOnLine(l.min, this)) {
                 min = l.min;
             }
@@ -131,7 +131,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             if (isPointOnLine(this.max, l)) {
                 max = this.max;
             }
-            //Or determin if the maximum point occurs on the this interval.
+            //Or determine if the maximum point occurs on the this interval.
             else if (isPointOnLine(l.max, this)) {
                 max = l.max;
             }
@@ -143,7 +143,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns true if the interval l is contained within this interval.
          * @param {Object} l to test.
          * @returns {Boolean} true if interval l is contained within this interval.
-         */        
+         */
         contains(l) {
             return l.min >= this.min && l.max <= this.max;
         }
