@@ -214,6 +214,14 @@ hamonengine.geometry = hamonengine.geometry || {};
             this._dirty = DIRTY_ALL;
         }
         /**
+         * Adds a line to the polygon.
+         * @param {object} line an instance of hamonengine.geometry.rect.
+         */
+        addLine(line) {
+            this._vertices.push(...line.toVertices());
+            this._dirty = DIRTY_ALL;
+        }
+        /**
          * Creates and returns a new instance of a translated polygon.
          * @param {Object} translateVector a translation vector (hamonengine.geometry.vector2) of where to move the polygon.
          * @returns {Object} translated polygon.

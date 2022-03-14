@@ -531,7 +531,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             if (!(vector instanceof hamonengine.geometry.vector2)
                 && !(vector instanceof hamonengine.geometry.vector3)) {
-                throw "Parameter polygon is not of type hamonengine.geometry.vector2 or of type hamonengine.geometry.vector3.";
+                throw "Parameter vector is not of type hamonengine.geometry.vector2 or of type hamonengine.geometry.vector3.";
             }
 
             this.context.lineWidth = lineWidth;
@@ -540,6 +540,27 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.beginPath();
             this.context.moveTo(sourceX, sourceY);
             this.context.lineTo(sourceX + vector.x, sourceY + vector.y);
+
+            this.context.stroke();
+        }
+        /**
+         * A method that draws the line object with no wrapping (hamonengine.geometry.line) based on the dimension parameters provided.
+         * @param {object} line object to draw.
+         * @param {number} obj.lineWidth width of the line  (Optional and set to 1).
+         * @param {string} obj.color of the line.
+         */
+         drawLine(line, { lineWidth = 1, color = 'white' } = {}) {
+
+            if (!(line instanceof hamonengine.geometry.line)) {
+                throw "Parameter line is not of type hamonengine.geometry.line.";
+            }
+
+            this.context.lineWidth = lineWidth;
+            this.context.strokeStyle = color;
+
+            this.context.beginPath();
+            this.context.moveTo(line.position.x, line.position.y);
+            this.context.lineTo(line.direction.x, line.direction.y);
 
             this.context.stroke();
         }
