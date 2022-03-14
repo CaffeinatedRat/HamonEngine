@@ -60,7 +60,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return min < this.z ? min : this.z;
         }
         /**
-         * Returns the maxium coordinate.
+         * Returns the maximum coordinate.
          */
          get max() {
             const max = this.x > this.y ? this.x : this.y;

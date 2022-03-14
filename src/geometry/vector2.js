@@ -65,7 +65,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return this.x < this.y ? this.x : this.y;
         }
         /**
-         * Returns the maxium coordinate.
+         * Returns the maximum coordinate.
          */
          get max() {
             return this.x > this.y ? this.x : this.y;
