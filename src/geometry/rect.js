@@ -102,7 +102,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             );
         }
         /**
-         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * Determines if this rect collides with the other shape.
          * NOTE: The shape must be of the type hamonengine.geometry.rect or hamonengine.geometry.polygon
          * @param {Object} shape to evaluated based on the coordinates.
          * @return {number} a COLLISION_TYPES
@@ -121,7 +121,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.vector2(0, 0);
         }
         /**
-         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * Determines if this rect collides with another rect.
          * NOTE: The shape must be of the type hamonengine.geometry.rect
          * @param {Object} otherRect to evaluated based on the coordinates.
          * @return {number} a COLLISION_TYPES
@@ -206,7 +206,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return mtvAxis.multiply(mnimumOverlappingLength);
         }
         /**
-         * Determines if the x and y coordinates are inside the bounding box of the object and its current position.
+         * Determines if this rect collides with the passed polygon.
          * NOTE: The shape must be of the type hamonengine.geometry.polygon
          * @param {Object} polygon to evaluated based on the coordinates.
          * @return {number} a COLLISION_TYPES
