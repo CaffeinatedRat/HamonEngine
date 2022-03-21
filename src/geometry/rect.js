@@ -213,7 +213,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         isCollisionPolygon(polygon) {
             //Allow the polygon object to handle the polygon collision logic.
-            return polygon.isCollision(this.toPolygon());
+            return polygon.isCollision(this);
         }
         /**
          * Determines if target point is contained of the current rect and returns a MTV (Minimum Translation Vector).
