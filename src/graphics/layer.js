@@ -546,10 +546,13 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * A method that draws the line object with no wrapping (hamonengine.geometry.line) based on the dimension parameters provided.
          * @param {object} line object to draw.
+         * @param {number} sourceX coordinate of where to offset the line segment (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to offset the line segment (Optional and set to zero).
          * @param {number} obj.lineWidth width of the line  (Optional and set to 1).
+         * @param {boolean} obj.drawNormals determines if the normal should be drawn (Default is false).
          * @param {string} obj.color of the line.
          */
-         drawLine(line, { lineWidth = 1, color = 'white' } = {}) {
+        drawLine(line, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = false, color = 'white' } = {}) {
 
             if (!(line instanceof hamonengine.geometry.line)) {
                 throw "Parameter line is not of type hamonengine.geometry.line.";
@@ -558,11 +561,56 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
 
+            //Get our position (vertex) to start drawing our line.
+            const x1 = sourceX + line.position.x;
+            const y1 = sourceY + line.position.y;
+
+            //Get our edge (direction) for drawing the line & normal.
+            const x2 = sourceX + line.direction.x;
+            const y2 = sourceY + line.direction.y;
+
             this.context.beginPath();
-            this.context.moveTo(line.position.x, line.position.y);
-            this.context.lineTo(line.direction.x, line.direction.y);
+            this.context.moveTo(x1, y1);
+            this.context.lineTo(x2, y2);
 
             this.context.stroke();
+
+            if (hamonengine.debug && drawNormals) {
+
+                this.context.strokeStyle = 'white';
+
+                //Find the coordinates to begin the normal.
+                //The normal will start at the middle of the edge.
+                let x = Math.bitRound((x1 + x2) / 2);
+                let y = Math.bitRound((y1 + y2) / 2);
+
+                if (this.invertYAxis) {
+                    y = this.viewPort.height - y;
+                }
+
+                if (this.invertXAxis) {
+                    x = this.viewPort.width - x;
+                }
+
+                //Position our normal.
+                this.context.beginPath();
+                this.context.moveTo(x, y);
+
+                //Get the normal to draw.
+                const normal = line.normal;
+                const normalSize = Math.bitRound(line.length / 2);
+
+                if (this.invertYAxis) {
+                    normal.y = -normal.y;
+                }
+
+                if (this.invertXAxis) {
+                    normal.x = -normal.x;
+                }
+
+                this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
+                this.context.stroke();
+            }
         }
         /**
          * A method that draws the rect object with wrapping (hamonengine.geometry.rect) based on the dimension parameters provided.
@@ -832,10 +880,18 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.fill determines if the shape should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the shape (Default is 'white').
          */
-         drawShape(shape, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
-            return shape instanceof hamonengine.geometry.rect 
-                ? this.drawRect(shape, sourceX, sourceY, { lineWidth , color, drawNormals, fill, fillColor})
-                    : this.drawPolygon(shape, sourceX, sourceY, { lineWidth , color, drawNormals, fill, fillColor});
+        drawShape(shape, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
+            if (shape instanceof hamonengine.geometry.rect) {
+                this.drawRect(shape, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
+            }
+
+            if (shape instanceof hamonengine.geometry.polygon) {
+                this.drawPolygon(shape, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
+            }
+
+            if (shape instanceof hamonengine.geometry.line) {
+                this.drawLine(shape, sourceX, sourceY, { lineWidth, drawNormals, color });
+            }
         }
     }
 })();
