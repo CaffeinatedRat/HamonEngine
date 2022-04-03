@@ -102,6 +102,18 @@ hamonengine.entities = hamonengine.entities || {};
         get isPolygon() {
             return this.shape instanceof hamonengine.geometry.polygon;
         }
+        /**
+         * Returns true if the shape is a rect.
+         */
+        get isRect() {
+            return this.shape instanceof hamonengine.geometry.rect;
+        }
+        /**
+         * Returns true if the shape is a line.
+         */
+         get isLine() {
+            return this.shape instanceof hamonengine.geometry.line;
+        }        
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
