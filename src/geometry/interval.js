@@ -108,32 +108,32 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Returns the interval overlapping this interval and interval l.
-         * @param {Object} l to overlap.
+         * @param {Object} i to overlap.
          * @returns {Object} overlapping interval.
          */
-        overlap(l) {
+        overlap(i) {
             //Determine if the point is on the interval.
             //Note that the interval represents a single axis so the point will only be one dimensional.
             const isPointOnLine = (point,interval) => (point >= interval.min && point <= interval.max);
 
             let min = NaN;
             //Determine if minimum point occurs on the interval l
-            if (isPointOnLine(this.min, l)) {
+            if (isPointOnLine(this.min, i)) {
                 min = this.min;
             }
             //Or determine if the minimum point occurs on the this interval.
-            else if (isPointOnLine(l.min, this)) {
-                min = l.min;
+            else if (isPointOnLine(i.min, this)) {
+                min = i.min;
             }
 
             let max = NaN;
             //Determine if maximum point occurs on the interval l
-            if (isPointOnLine(this.max, l)) {
+            if (isPointOnLine(this.max, i)) {
                 max = this.max;
             }
             //Or determine if the maximum point occurs on the this interval.
-            else if (isPointOnLine(l.max, this)) {
-                max = l.max;
+            else if (isPointOnLine(i.max, this)) {
+                max = i.max;
             }
 
             //Return the overlapping interval.
