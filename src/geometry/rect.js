@@ -160,7 +160,8 @@ hamonengine.geometry = hamonengine.geometry || {};
                 overlappingYAxisLength += (min < max) ? min : max;
             }
 
-            //If we reach here then a collision has occurred, but find the minimum collision distance.
+            //If we reach here then its possible that a collision has occurred but check all edges to verify.
+            //Keep record of the shortest overlapping length in the event a collision occurs.
             if (isNaN(mnimumOverlappingLength) || overlappingYAxisLength < mnimumOverlappingLength) {
                 mnimumOverlappingLength = overlappingYAxisLength;
                 mtvAxis = hamonengine.geometry.vector2.Y_AXIS_NORMAL;
@@ -192,7 +193,8 @@ hamonengine.geometry = hamonengine.geometry || {};
                 overlappingXAxisLength += (min < max) ? min : max;
             }
 
-            //If we reach here then a collision has occurred, but find the minimum collision distance.
+            //If we reach here then its possible that a collision has occurred but check all edges to verify.
+            //Keep record of the shortest overlapping length in the event a collision occurs.
             if (isNaN(mnimumOverlappingLength) || overlappingXAxisLength < mnimumOverlappingLength) {
                 mnimumOverlappingLength = overlappingXAxisLength;
                 mtvAxis = hamonengine.geometry.vector2.X_AXIS_NORMAL;
