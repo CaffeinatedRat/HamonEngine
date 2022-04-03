@@ -186,8 +186,8 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         toString() {
             let vertexString = '';
-            for (let i = 0; i < this._vertices.length; i++) {
-                vertexString += `${vertexString !== '' ? ',' : ''}${this._vertices[i].toString()}`;
+            for (let i = 0; i < this.vertices.length; i++) {
+                vertexString += `${vertexString !== '' ? ',' : ''}${this.vertices[i].toString()}`;
             };
             return `[${vertexString}]`;
         }
@@ -364,6 +364,9 @@ hamonengine.geometry = hamonengine.geometry || {};
             else if (shape instanceof hamonengine.geometry.polygon) {
                 return this.isCollisionPolygon(shape);
             }
+            else if (shape instanceof hamonengine.geometry.line) {
+                return this.isCollisionLine(shape);
+            }
 
             return new hamonengine.geometry.vector2(0, 0);
         }
@@ -381,7 +384,7 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             let mnimumOverlappingLength = NaN;
             let mtvAxis;
-            let distance;
+            //let distance;
 
             //Test the Other Polygon: Iterate through each normal, which will act as an axis to project upon.
             let axes = polygon.normals;
@@ -406,11 +409,12 @@ hamonengine.geometry = hamonengine.geometry || {};
                     overlappingLength += (min < max) ? min : max;
                 }
 
-                //If we reach here then its possible that a collision may still occur.
+                //If we reach here then its possible that a collision has occurred but check all edges to verify.
+                //Keep record of the shortest overlapping length in the event a collision occurs.
                 if (isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength) {
                     mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axes[i];
-                    distance = otherProjection.getOrientation(thisProjection);
+                    //distance = otherProjection.getOrientation(thisProjection);
                 }
             }
 
@@ -437,19 +441,18 @@ hamonengine.geometry = hamonengine.geometry || {};
                     overlappingLength += (min < max) ? min : max;
                 }
 
-                //If we reach here then its possible that a collision may still occur.
+                //If we reach here then its possible that a collision has occurred but check all edges to verify.
+                //Keep record of the shortest overlapping length in the event a collision occurs.
                 if (isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength) {
                     mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axes[i];
-                    distance = otherProjection.getOrientation(thisProjection);
+                    //distance = otherProjection.getOrientation(thisProjection);
                 }
             }
 
             //Determine when the value is too small and should be treated as zero.
             //This SAT algorithm can generate an infinitesimally small values when dealing with multiple polygon collisions.
             mnimumOverlappingLength = mnimumOverlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : mnimumOverlappingLength;
-
-            //console.log(distance);
 
             //Return an MTV.
             return mtvAxis.multiply(mnimumOverlappingLength);
@@ -464,6 +467,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Determines if this polygon collides with another rect using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
+         * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
          * NOTE: The shape must be of the type hamonengine.geometry.rect
          * @param {Object} rect to evaluated based on the coordinates.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
@@ -473,7 +477,18 @@ hamonengine.geometry = hamonengine.geometry || {};
             return rect.toPolygon().isCollisionPolygon(this);
         }
         /**
-         * Determines if this shape is contained with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
+         * Determines if this polygon collides with another line using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
+         * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
+         * NOTE: The shape must be of the type hamonengine.geometry.line
+         * @param {Object} line to evaluated based on the coordinates.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
+         */
+         isCollisionLine(line) {
+            //Allow the line segment to handle its own collision logic.
+            return line.isCollision(this);
+        }
+        /**
+         * [NOT IMPLEMENTED] Determines if this shape is contained with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
          * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
          * NOTE: The shape must be of the type hamonengine.geometry.polygon or hamonengine.geometry.rect
          * @param {object} shape polygon or rect to test against.
@@ -484,14 +499,14 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Projects the polygon onto the provided vector and returns a (hamonengine.geometry.interval}.
-         * @param {object} vector (hamonengine.geometry.vector2) to project onto.
+         * @param {object} unitVector (hamonengine.geometry.vector2) to project onto.
          */
-        project(vector) {
+        project(unitVector) {
             let min = 0, max = 0;
             if (this.vertices.length > 0) {
-                max = min = vector.dot(this.vertices[0]);
+                max = min = unitVector.dot(this.vertices[0]);
                 for (let i = 1; i < this.vertices.length; i++) {
-                    const projection = vector.dot(this.vertices[i]);
+                    const projection = unitVector.dot(this.vertices[i]);
                     if (projection < min) {
                         min = projection;
                     }
