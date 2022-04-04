@@ -552,7 +552,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.drawNormals determines if the normal should be drawn (Default is false).
          * @param {string} obj.color of the line.
          */
-        drawLine(line, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = false, color = 'white' } = {}) {
+        drawLine(line, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = true, color = 'white' } = {}) {
 
             if (!(line instanceof hamonengine.geometry.line)) {
                 throw "Parameter line is not of type hamonengine.geometry.line.";
@@ -561,13 +561,13 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
 
-            //Get our position (vertex) to start drawing our line.
-            const x1 = sourceX + line.position.x;
-            const y1 = sourceY + line.position.y;
+            //Get our first point.
+            const x1 = sourceX + line.x;
+            const y1 = sourceY + line.y;
 
-            //Get our edge (direction) for drawing the line & normal.
-            const x2 = sourceX + line.direction.x;
-            const y2 = sourceY + line.direction.y;
+            //Get our second point.
+            const x2 = sourceX + line.x2;
+            const y2 = sourceY + line.y2;
 
             this.context.beginPath();
             this.context.moveTo(x1, y1);
@@ -581,8 +581,10 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                 //Find the coordinates to begin the normal.
                 //The normal will start at the middle of the edge.
-                let x = Math.bitRound((x1 + x2) / 2);
-                let y = Math.bitRound((y1 + y2) / 2);
+                //NOTE: The bitRound is used to quickly round any decimal values into an integer.
+                let {x, y} = line.midPoint;
+                x = Math.bitRound(x) + x1;
+                y = Math.bitRound(y) + y1;
 
                 if (this.invertYAxis) {
                     y = this.viewPort.height - y;
