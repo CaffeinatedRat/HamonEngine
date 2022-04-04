@@ -51,6 +51,12 @@ hamonengine.geometry = hamonengine.geometry || {};
         get isLine() {
             return !isNaN(this.min) && !isNaN(this.max);
         }
+        /** 
+         * Returns true if the min & max values are equal and are actual values not NaN.
+         */
+        get isPoint() {
+            return !isNaN(this.min) && !isNaN(this.max) && this.min === this.max;
+        }
         /**
          * Returns the middle point on the interval.
          */
@@ -107,7 +113,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.interval(this.min * s, this.max * s);
         }
         /**
-         * Returns the interval overlapping this interval and interval l.
+         * Returns the interval overlapping this interval and interval i.
          * @param {Object} i to overlap.
          * @returns {Object} overlapping interval.
          */
@@ -140,12 +146,12 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.interval(min, max);
         }
         /**
-         * Returns true if the interval l is contained within this interval.
-         * @param {Object} l to test.
-         * @returns {Boolean} true if interval l is contained within this interval.
+         * Returns true if the interval i is contained within this interval.
+         * @param {Object} i to test.
+         * @returns {Boolean} true if interval i is contained within this interval.
          */
-        contains(l) {
-            return l.min >= this.min && l.max <= this.max;
+        contains(i) {
+            return i.min >= this.min && i.max <= this.max;
         }
         /**
          * Returns orientation/direction of the interval l in relation to this interval.
