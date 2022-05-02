@@ -105,7 +105,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Determines if this rect collides with the other shape.
          * NOTE: The shape must be of the type hamonengine.geometry.rect or hamonengine.geometry.polygon
          * @param {Object} shape to evaluated based on the coordinates.
-         * @return {number} a COLLISION_TYPES
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
         isCollision(shape) {
             if (shape instanceof hamonengine.geometry.rect) {
@@ -124,7 +124,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Determines if this rect collides with another rect.
          * NOTE: The shape must be of the type hamonengine.geometry.rect
          * @param {Object} otherRect to evaluated based on the coordinates.
-         * @return {number} a COLLISION_TYPES
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
         isCollisionRect(otherRect) {
             if (!(otherRect instanceof hamonengine.geometry.rect)) {
@@ -135,7 +135,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             let mtvAxis;
 
             // ---------------------------------------------
-            // Check the Y-Axis collision.
+            // Check the X-Axis (Y-Axis Normal) collision.
             // ---------------------------------------------
 
             //A rect is an untransformed polygon with 4 set vertices.
@@ -155,9 +155,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Check for containment.
             let overlappingYAxisLength = overlappingYAxis.length;
             if (this_YAxisProjection.contains(other_YAxisProjection) || other_YAxisProjection.contains(this_YAxisProjection)) {
-                const min = Math.abs(this_YAxisProjection.min - other_YAxisProjection.min);
-                const max = Math.abs(this_YAxisProjection.max - other_YAxisProjection.max);
-                overlappingYAxisLength += (min < max) ? min : max;
+                overlappingYAxisLength += this_YAxisProjection.getMinimumDistance(other_YAxisProjection);
             }
 
             //If we reach here then its possible that a collision has occurred but check all edges to verify.
@@ -168,7 +166,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             }
 
             // ---------------------------------------------
-            // Check the X-Axis collision.
+            // Check the Y-Axis (X-Axis Normal) collision.
             // ---------------------------------------------
 
             //Project this rect onto the normal of the y-axis, which would be the x-axis.
@@ -188,9 +186,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Check for containment.
             let overlappingXAxisLength = overlappingXAxis.length;
             if (this_XAxisProjection.contains(other_XAxisProjection) || other_XAxisProjection.contains(this_XAxisProjection)) {
-                const min = Math.abs(this_XAxisProjection.min - other_XAxisProjection.min);
-                const max = Math.abs(this_XAxisProjection.max - other_XAxisProjection.max);
-                overlappingXAxisLength += (min < max) ? min : max;
+                overlappingXAxisLength += this_XAxisProjection.getMinimumDistance(other_XAxisProjection);
             }
 
             //If we reach here then its possible that a collision has occurred but check all edges to verify.
@@ -211,7 +207,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Determines if this rect collides with the passed polygon.
          * NOTE: The shape must be of the type hamonengine.geometry.polygon
          * @param {Object} polygon to evaluated based on the coordinates.
-         * @return {number} a COLLISION_TYPES
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
         isCollisionPolygon(polygon) {
             //Allow the polygon object to handle the polygon collision logic.
@@ -275,6 +271,30 @@ hamonengine.geometry = hamonengine.geometry || {};
             }
 
             return outsideDirection;
+        }
+        /**
+         * Projects the rect onto the provided vector and returns a (hamonengine.geometry.interval}.
+         * @param {object} unitVector (hamonengine.geometry.vector2) to project onto.
+         */
+        project(unitVector) {
+            let min = 0, max = 0;
+            const calcProjections = (vector) => {
+                const dotProduct = unitVector.dot(vector);
+                if (dotProduct < min) {
+                    min = dotProduct;
+                }
+                else if (dotProduct > max) {
+                    max = dotProduct;
+                }
+            }
+
+            calcProjections(new hamonengine.geometry.vector2(this.x, this.y));
+            calcProjections(new hamonengine.geometry.vector2(this.x + this.width, this.y));
+            calcProjections(new hamonengine.geometry.vector2(this.x + this.width, this.y + this.height));
+            calcProjections(new hamonengine.geometry.vector2(this.x, this.y + this.height));
+
+            //Returns an interval that contains a min & max only.
+            return new hamonengine.geometry.interval(min, max);
         }
     }
 })();
