@@ -109,11 +109,11 @@ hamonengine.entities = hamonengine.entities || {};
             return this.shape instanceof hamonengine.geometry.rect;
         }
         /**
-         * Returns true if the shape is a line.
+         * Returns true if the shape is a lineSegment.
          */
          get isLine() {
-            return this.shape instanceof hamonengine.geometry.line;
-        }        
+            return this.shape instanceof hamonengine.geometry.lineSegment;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -164,14 +164,27 @@ hamonengine.entities = hamonengine.entities || {};
             return this;
         }
         /**
+         * Determines if this shape collides with the other shape.
+         * @param {Object} shapeObject to evaluated based on the coordinates.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
+         */
+        isCollision(shapeObject) {
+            if(this.isSolid && shapeObject.isSolid) {
+                shapeObject = (shapeObject instanceof hamonengine.entities.shapeObject) ? shapeObject.shape.translate(shapeObject.position) : shapeObject;
+                return this.shape.translate(this.position).isCollision(shapeObject);
+            }
+            return new hamonengine.geometry.vector2();
+        }
+        /**
          * Draws the sprite object.
          * @param {Object} layer to render the cell's objects to.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
         render(layer, elapsedTimeInMilliseconds, { lineWidth = 3, color = 'blue', drawNormals = false } = {}) {
             if (this.shape) {
-                const transformedShape = this.isPolygon ? this.shape.mirror(this._mirroredState).rotateAtCenter(this._theta) : this.shape;
-                layer.drawShape(transformedShape, this.position.x, this.position.y, { lineWidth, color, drawNormals });
+                let transformedShape = this.shape.translate(this.position);
+                transformedShape = this.isPolygon ? transformedShape.mirror(this._mirroredState).rotateAtCenter(this._theta) : transformedShape;
+                layer.drawShape(transformedShape, 0, 0, { lineWidth, color, drawNormals });
             }
         }
     }

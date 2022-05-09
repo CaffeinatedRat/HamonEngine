@@ -137,14 +137,16 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //Determine if the point p lines within the interval i.
                 let min = NaN, max = NaN;
                 if (i.contains(p)) {
+
+                    //TODO: Verify that the p.min & i.min orientations are correct.
                     //If the point is closer to the i.min then compute the sub-interval {min: i.min, max: p}
-                    if (p - i.min < i.max - p) {
+                    if (p.min - i.min < i.max - p.min) {
                         min = i.min;
-                        max = p;
+                        max = p.min;
                     }
                     //If the point is closer to the i.max then compute the sub-interval {min: p, max: i.max}
                     else {
-                        min = p;
+                        min = p.min;
                         max = i.max;
                     }
                 }

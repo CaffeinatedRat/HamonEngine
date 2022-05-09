@@ -112,10 +112,15 @@ hamonengine.geometry = hamonengine.geometry || {};
                 return this.isCollisionRect(shape);
             }
             else if (shape instanceof hamonengine.geometry.polygon) {
-                return this.isCollisionPolygon(shape);
+                //Allow the polygon object to handle the polygon collision logic.
+                return shape.isCollision(this);
             }
             else if (shape instanceof hamonengine.geometry.vector2) {
                 return this.isCollisionPoint(shape);
+            }
+            else if (shape instanceof hamonengine.geometry.lineSegment) {
+                //Allow the line segment to handle its own collision logic.
+                return shape.isCollision(this);
             }
 
             return new hamonengine.geometry.vector2(0, 0);
@@ -202,16 +207,6 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //Return an MTV.
             return mtvAxis.multiply(mnimumOverlappingLength);
-        }
-        /**
-         * Determines if this rect collides with the passed polygon.
-         * NOTE: The shape must be of the type hamonengine.geometry.polygon
-         * @param {Object} polygon to evaluated based on the coordinates.
-         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
-         */
-        isCollisionPolygon(polygon) {
-            //Allow the polygon object to handle the polygon collision logic.
-            return polygon.isCollision(this);
         }
         /**
          * Determines if target point is contained of the current rect and returns a MTV (Minimum Translation Vector).

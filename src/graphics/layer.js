@@ -544,30 +544,30 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.stroke();
         }
         /**
-         * A method that draws the line object with no wrapping (hamonengine.geometry.line) based on the dimension parameters provided.
-         * @param {object} line object to draw.
-         * @param {number} sourceX coordinate of where to offset the line segment (Optional and set to zero).
-         * @param {number} sourceY coordinate of where to offset the line segment (Optional and set to zero).
-         * @param {number} obj.lineWidth width of the line  (Optional and set to 1).
+         * A method that draws the lineSegment object with no wrapping (hamonengine.geometry.lineSegment) based on the dimension parameters provided.
+         * @param {object} lineSegment object to draw.
+         * @param {number} sourceX coordinate of where to offset the lineSegment (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to offset the lineSegment (Optional and set to zero).
+         * @param {number} obj.lineWidth width of the lineSegment  (Optional and set to 1).
          * @param {boolean} obj.drawNormals determines if the normal should be drawn (Default is false).
-         * @param {string} obj.color of the line.
+         * @param {string} obj.color of the lineSegment.
          */
-        drawLine(line, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = true, color = 'white' } = {}) {
+        drawLineSegment(lineSegment, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = true, color = 'white' } = {}) {
 
-            if (!(line instanceof hamonengine.geometry.line)) {
-                throw "Parameter line is not of type hamonengine.geometry.line.";
+            if (!(lineSegment instanceof hamonengine.geometry.lineSegment)) {
+                throw "Parameter lineSegment is not of type hamonengine.geometry.lineSegment.";
             }
 
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
 
             //Get our first point.
-            const x1 = sourceX + line.x;
-            const y1 = sourceY + line.y;
+            const x1 = sourceX + lineSegment.x;
+            const y1 = sourceY + lineSegment.y;
 
             //Get our second point.
-            const x2 = sourceX + line.x2;
-            const y2 = sourceY + line.y2;
+            const x2 = sourceX + lineSegment.x2;
+            const y2 = sourceY + lineSegment.y2;
 
             this.context.beginPath();
             this.context.moveTo(x1, y1);
@@ -582,7 +582,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Find the coordinates to begin the normal.
                 //The normal will start at the middle of the edge.
                 //NOTE: The bitRound is used to quickly round any decimal values into an integer.
-                let {x, y} = line.midPoint;
+                let {x, y} = lineSegment.midPoint;
                 x = Math.bitRound(x) + x1;
                 y = Math.bitRound(y) + y1;
 
@@ -599,8 +599,8 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this.context.moveTo(x, y);
 
                 //Get the normal to draw.
-                const normal = line.normal;
-                const normalSize = Math.bitRound(line.length / 2);
+                const normal = lineSegment.normal;
+                const normalSize = Math.bitRound(lineSegment.length / 2);
 
                 if (this.invertYAxis) {
                     normal.y = -normal.y;
@@ -891,8 +891,8 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this.drawPolygon(shape, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
             }
 
-            if (shape instanceof hamonengine.geometry.line) {
-                this.drawLine(shape, sourceX, sourceY, { lineWidth, drawNormals, color });
+            if (shape instanceof hamonengine.geometry.lineSegment) {
+                this.drawLineSegment(shape, sourceX, sourceY, { lineWidth, drawNormals, color });
             }
         }
     }

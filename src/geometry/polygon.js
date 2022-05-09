@@ -359,13 +359,15 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         isCollision(shape) {
             if (shape instanceof hamonengine.geometry.rect) {
-                return this.isCollisionRect(shape);
+                //Convert the rect into a polygon for proper collision detection.
+                return shape.toPolygon().isCollisionPolygon(this);
             }
             else if (shape instanceof hamonengine.geometry.polygon) {
                 return this.isCollisionPolygon(shape);
             }
-            else if (shape instanceof hamonengine.geometry.line) {
-                return this.isCollisionLine(shape);
+            else if (shape instanceof hamonengine.geometry.lineSegment) {
+                //Allow the line segment to handle its own collision logic.
+                return shape.isCollision(this);
             }
 
             return new hamonengine.geometry.vector2(0, 0);
@@ -404,9 +406,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //Check for containment.
                 let overlappingLength = overlapping.length;
                 if (thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
-                    const min = Math.abs(thisProjection.min - otherProjection.min);
-                    const max = Math.abs(thisProjection.max - otherProjection.max);
-                    overlappingLength += (min < max) ? min : max;
+                    overlappingLength += thisProjection.getMinimumDistance(otherProjection);
                 }
 
                 //If we reach here then its possible that a collision has occurred but check all edges to verify.
@@ -436,9 +436,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //Check for containment.
                 let overlappingLength = overlapping.length;
                 if (thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
-                    const min = Math.abs(thisProjection.min - otherProjection.min);
-                    const max = Math.abs(thisProjection.max - otherProjection.max);
-                    overlappingLength += (min < max) ? min : max;
+                    overlappingLength += thisProjection.getMinimumDistance(otherProjection);
                 }
 
                 //If we reach here then its possible that a collision has occurred but check all edges to verify.
@@ -464,28 +462,6 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             return mtv;
             */
-        }
-        /**
-         * Determines if this polygon collides with another rect using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
-         * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
-         * NOTE: The shape must be of the type hamonengine.geometry.rect
-         * @param {Object} rect to evaluated based on the coordinates.
-         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
-         */
-        isCollisionRect(rect) {
-            //Convert the rect into a polygon for proper collision detection.
-            return rect.toPolygon().isCollisionPolygon(this);
-        }
-        /**
-         * Determines if this polygon collides with another line using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
-         * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
-         * NOTE: The shape must be of the type hamonengine.geometry.line
-         * @param {Object} line to evaluated based on the coordinates.
-         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
-         */
-         isCollisionLine(line) {
-            //Allow the line segment to handle its own collision logic.
-            return line.isCollision(this);
         }
         /**
          * [NOT IMPLEMENTED] Determines if this shape is contained with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
