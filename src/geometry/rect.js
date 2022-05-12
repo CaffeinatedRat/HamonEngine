@@ -272,7 +272,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {object} unitVector (hamonengine.geometry.vector2) to project onto.
          */
         project(unitVector) {
-            let min = 0, max = 0;
+            let min = max = unitVector.dot(new hamonengine.geometry.vector2(this.x, this.y));
             const calcProjections = (vector) => {
                 const dotProduct = unitVector.dot(vector);
                 if (dotProduct < min) {
@@ -283,7 +283,6 @@ hamonengine.geometry = hamonengine.geometry || {};
                 }
             }
 
-            calcProjections(new hamonengine.geometry.vector2(this.x, this.y));
             calcProjections(new hamonengine.geometry.vector2(this.x + this.width, this.y));
             calcProjections(new hamonengine.geometry.vector2(this.x + this.width, this.y + this.height));
             calcProjections(new hamonengine.geometry.vector2(this.x, this.y + this.height));
