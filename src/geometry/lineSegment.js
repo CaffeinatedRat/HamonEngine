@@ -166,14 +166,13 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         isCollisionRect(rect) {
             if (!(rect instanceof hamonengine.geometry.rect)) {
-                console.warn(`[hamonengine.geometry.lineSegment.isCollision] The rect parameter is not of type hamonengine.geometry.rect!`);
+                console.warn(`[hamonengine.geometry.lineSegment.isCollisionRect] The rect parameter is not of type hamonengine.geometry.rect!`);
             }
 
             let mnimumOverlappingLength = NaN;
             let mtvAxis;
 
             const checkCollision = (thisProjection, otherProjection, normal) => {
-
                 //Determine if projection1 & projection2 are overlapping.
                 //An overlapping interval is one that is valid or is a interval.
                 const overlappingAxis = thisProjection.overlap(otherProjection);
@@ -202,30 +201,23 @@ hamonengine.geometry = hamonengine.geometry || {};
             // ---------------------------------------------
             // Check the rect X-Axis (Y-Axis Normal) collision.
             // ---------------------------------------------
-            if (!checkCollision(this.project(hamonengine.geometry.vector2.Y_AXIS_NORMAL), new hamonengine.geometry.interval(rect.y, rect.y + rect.height), hamonengine.geometry.vector2.Y_AXIS_NORMAL)) {
+            const Y_AXIS_PROJECTION = new hamonengine.geometry.interval(rect.y, rect.y + rect.height);
+            if (!checkCollision(this.project(hamonengine.geometry.vector2.Y_AXIS_NORMAL), Y_AXIS_PROJECTION, hamonengine.geometry.vector2.Y_AXIS_NORMAL)) {
                 return new hamonengine.geometry.vector2();
             }
 
             // ---------------------------------------------
             // Check the rect Y-Axis (X-Axis Normal) collision.
             // ---------------------------------------------
-            if (!checkCollision(this.project(hamonengine.geometry.vector2.X_AXIS_NORMAL), new hamonengine.geometry.interval(rect.x, rect.x + rect.width), hamonengine.geometry.vector2.X_AXIS_NORMAL)) {
-                return new hamonengine.geometry.vector2();
-            }
-
-            const lineSegmentProjection = rect.project(this.normal);
-
-            // ---------------------------------------------
-            // Check the lineSegment X-Axis (Y-Axis Normal) collision.
-            // ---------------------------------------------
-            if (!checkCollision(lineSegmentProjection, new hamonengine.geometry.interval(rect.y, rect.y + rect.height), lineSegmentProjection)) {
+            const X_AXIS_PROJECTION = new hamonengine.geometry.interval(rect.x, rect.x + rect.width);
+            if (!checkCollision(this.project(hamonengine.geometry.vector2.X_AXIS_NORMAL), X_AXIS_PROJECTION, hamonengine.geometry.vector2.X_AXIS_NORMAL)) {
                 return new hamonengine.geometry.vector2();
             }
 
             // ---------------------------------------------
-            // Check the lineSegment Y-Axis (X-Axis Normal) collision.
+            // Check the lineSegment for collision with the rect.
             // ---------------------------------------------
-            if (!checkCollision(lineSegmentProjection, new hamonengine.geometry.interval(rect.x, rect.x + rect.width), lineSegmentProjection)) {
+            if (!checkCollision(rect.project(this.normal), this.project(this.normal), this.normal)) {
                 return new hamonengine.geometry.vector2();
             }
 
@@ -277,18 +269,12 @@ hamonengine.geometry = hamonengine.geometry || {};
                 return true;
             };
 
-
             // ---------------------------------------------
             // Check the other lineSegment's (l) axis/normal for collision.
             // ---------------------------------------------
 
             //Project this lineSegment and the target lineSegment onto other lineSegment's axis normal.
-            const otherNormal = lineSegment.normal;
-            let thisInterval = this.project(otherNormal);
-            let otherInterval = lineSegment.project(otherNormal);
-
-
-            if (!checkCollision(thisInterval, otherInterval, otherNormal)) {
+            if (!checkCollision(this.project(otherNormal), lineSegment.project(otherNormal), lineSegment.normal)) {
                 return new hamonengine.geometry.vector2();
             }
 
@@ -297,11 +283,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             // ---------------------------------------------
 
             //Project this lineSegment and the target lineSegment onto this lineSegment's axis normal.
-            const thisNormal = this.normal;
-            thisInterval = this.project(thisNormal);
-            otherInterval = lineSegment.project(thisNormal);
-
-            if (!checkCollision(thisInterval, otherInterval, thisNormal)) {
+            if (!checkCollision(this.project(thisNormal), lineSegment.project(thisNormal), this.normal)) {
                 return new hamonengine.geometry.vector2();
             }
 
