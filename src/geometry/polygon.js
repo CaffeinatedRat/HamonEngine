@@ -355,19 +355,20 @@ hamonengine.geometry = hamonengine.geometry || {};
          * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
          * NOTE: The shape must be of the type hamonengine.geometry.polygon or hamonengine.geometry.rect
          * @param {object} shape polygon or rect to test against.
+         * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollision(shape) {
+        isCollision(shape, direction=new hamonengine.geometry.vector2()) {
             if (shape instanceof hamonengine.geometry.rect) {
                 //Convert the rect into a polygon for proper collision detection.
-                return shape.toPolygon().isCollisionPolygon(this);
+                return shape.toPolygon().isCollisionPolygon(this,direction);
             }
             else if (shape instanceof hamonengine.geometry.polygon) {
-                return this.isCollisionPolygon(shape);
+                return this.isCollisionPolygon(shape,direction);
             }
             else if (shape instanceof hamonengine.geometry.lineSegment) {
                 //Allow the line segment to handle its own collision logic.
-                return shape.isCollision(this);
+                return shape.isCollision(this,direction);
             }
 
             return new hamonengine.geometry.vector2(0, 0);
@@ -377,16 +378,16 @@ hamonengine.geometry = hamonengine.geometry || {};
          * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
          * NOTE: The shape must be of the type hamonengine.geometry.polygon
          * @param {object} polygon to test against.
+         * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollisionPolygon(polygon) {
+        isCollisionPolygon(polygon, direction=new hamonengine.geometry.vector2()) {
             if (!(polygon instanceof hamonengine.geometry.polygon)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
             }
 
             let mnimumOverlappingLength = NaN;
             let mtvAxis;
-            //let distance;
 
             //Test the Other Polygon: Iterate through each normal, which will act as an axis to project upon.
             let axes = polygon.normals;
@@ -414,7 +415,6 @@ hamonengine.geometry = hamonengine.geometry || {};
                 if (isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength) {
                     mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axes[i];
-                    //distance = otherProjection.getOrientation(thisProjection);
                 }
             }
 
@@ -444,7 +444,6 @@ hamonengine.geometry = hamonengine.geometry || {};
                 if (isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength) {
                     mnimumOverlappingLength = overlappingLength;
                     mtvAxis = axes[i];
-                    //distance = otherProjection.getOrientation(thisProjection);
                 }
             }
 
@@ -453,15 +452,13 @@ hamonengine.geometry = hamonengine.geometry || {};
             mnimumOverlappingLength = mnimumOverlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : mnimumOverlappingLength;
 
             //Return an MTV.
-            return mtvAxis.multiply(mnimumOverlappingLength);
-            /*
+            //return mtvAxis.multiply(mnimumOverlappingLength);
             let mtv = mtvAxis.multiply(mnimumOverlappingLength);
-            if (mtv.dot(distance) >= 0) {
+            if (mtv.dot(direction) >= 0) {
                 mtv = mtv.invert();
             }
-
+            
             return mtv;
-            */
         }
         /**
          * [NOT IMPLEMENTED] Determines if this shape is contained with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).

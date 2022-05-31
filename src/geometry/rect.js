@@ -105,22 +105,23 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Determines if this rect collides with the other shape.
          * NOTE: The shape must be of the type hamonengine.geometry.rect or hamonengine.geometry.polygon
          * @param {Object} shape to evaluated based on the coordinates.
+         * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollision(shape) {
+        isCollision(shape, direction=new hamonengine.geometry.vector2()) {
             if (shape instanceof hamonengine.geometry.rect) {
-                return this.isCollisionRect(shape);
+                return this.isCollisionRect(shape,direction);
             }
             else if (shape instanceof hamonengine.geometry.polygon) {
                 //Allow the polygon object to handle the polygon collision logic.
-                return shape.isCollision(this);
+                return shape.isCollision(this,direction);
             }
             else if (shape instanceof hamonengine.geometry.vector2) {
                 return this.isCollisionPoint(shape);
             }
             else if (shape instanceof hamonengine.geometry.lineSegment) {
                 //Allow the line segment to handle its own collision logic.
-                return shape.isCollision(this);
+                return shape.isCollision(this,direction);
             }
 
             return new hamonengine.geometry.vector2(0, 0);
@@ -129,9 +130,10 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Determines if this rect collides with another rect.
          * NOTE: The shape must be of the type hamonengine.geometry.rect
          * @param {Object} otherRect to evaluated based on the coordinates.
+         * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollisionRect(otherRect) {
+        isCollisionRect(otherRect, direction=new hamonengine.geometry.vector2()) {
             if (!(otherRect instanceof hamonengine.geometry.rect)) {
                 console.warn(`[hamonengine.geometry.rect.isCollision] The otherRect parameter is not of type hamonengine.geometry.rect!`);
             }
@@ -206,7 +208,13 @@ hamonengine.geometry = hamonengine.geometry || {};
             mnimumOverlappingLength = mnimumOverlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : mnimumOverlappingLength;
 
             //Return an MTV.
-            return mtvAxis.multiply(mnimumOverlappingLength);
+            //return mtvAxis.multiply(mnimumOverlappingLength);
+            let mtv = mtvAxis.multiply(mnimumOverlappingLength);
+            if (mtv.dot(direction) >= 0) {
+                mtv = mtv.invert();
+            }
+
+            return mtv;
         }
         /**
          * Determines if target point is contained of the current rect and returns a MTV (Minimum Translation Vector).

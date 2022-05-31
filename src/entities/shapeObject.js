@@ -170,8 +170,14 @@ hamonengine.entities = hamonengine.entities || {};
          */
         isCollision(shapeObject) {
             if(this.isSolid && shapeObject.isSolid) {
-                shapeObject = (shapeObject instanceof hamonengine.entities.shapeObject) ? shapeObject.shape.translate(shapeObject.position) : shapeObject;
-                return this.shape.translate(this.position).isCollision(shapeObject);
+
+                let direction = new hamonengine.geometry.vector2();
+                if (shapeObject instanceof hamonengine.entities.shapeObject) {
+                    direction = shapeObject.position.subtract(this.position);
+                    shapeObject = shapeObject.shape.translate(shapeObject.position);
+                }
+
+                return this.shape.translate(this.position).isCollision(shapeObject, direction);
             }
             return new hamonengine.geometry.vector2();
         }
