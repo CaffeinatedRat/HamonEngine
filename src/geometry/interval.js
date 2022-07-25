@@ -47,6 +47,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Returns true if the interval is valid, where the min & max are actual values not NaN.
+         * NOTE: DO NOT USE THIS TO DETERMINE IF THE INTERVAL IS A POINT.  Use isPoint instead.
          */
         get isLine() {
             return !isNaN(this.min) && !isNaN(this.max);
@@ -61,9 +62,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the middle point on the interval.
          */
         get midPoint() {
-            return (this.max - this.min) / 2;
+            return this.isPoint ? this.min : ((this.max - this.min) / 2);
         }
-        
+
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -120,11 +121,13 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         overlap(i) {
 
+            // ---- Point & Point Logic ---- //
             //If both intervals are a point then compute the sub-interval based on if they are equal (overlap) or are indepedent.
             if (this.isPoint && i.isPoint) {
                 return this.min === i.min ? new hamonengine.geometry.interval(0, 0) : new hamonengine.geometry.interval(NaN, NaN);
             }
 
+            // ---- Point & Interval Logic ---- //
             //If any interval is a point then compute a sub-inteval based on the shortest length.
             if (this.isPoint || i.isPoint) {
                 //Determine which is the interval i and the point p.
@@ -137,7 +140,6 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //Determine if the point p lines within the interval i.
                 let min = NaN, max = NaN;
                 if (i.contains(p)) {
-
                     //TODO: Verify that the p.min & i.min orientations are correct.
                     //If the point is closer to the i.min then compute the sub-interval {min: i.min, max: p}
                     if (p.min - i.min < i.max - p.min) {
@@ -154,15 +156,18 @@ hamonengine.geometry = hamonengine.geometry || {};
                 return new hamonengine.geometry.interval(min, max);
             }
 
+            // ---- Interval & Interval Logic ---- //
+            //Calculate the shortest interval for overlapping lines.
+            //Determine if both intervals overlap and take only the overlapping sub-interval.
+            //If neither interval overlaps then an interval of [NaN, NaN] is returned.
             let min = NaN, max = NaN;
-            //Calculate the minimum interval for overlapping lines.
             if (!this.isPoint && !i.isPoint) {
 
                 //Determine if the point is on the interval.
                 //Note that the interval represents a single axis so the point will only be one dimensional.
                 const isPointOnLine = (point, interval) => (point >= interval.min && point <= interval.max);
 
-                //Determine if minimum point occurs on the interval l
+                //Determine if minimum point occurs on the interval i
                 if (isPointOnLine(this.min, i)) {
                     min = this.min;
                 }
@@ -171,7 +176,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                     min = i.min;
                 }
 
-                //Determine if maximum point occurs on the interval l
+                //Determine if maximum point occurs on the interval i
                 if (isPointOnLine(this.max, i)) {
                     max = this.max;
                 }
@@ -233,6 +238,21 @@ hamonengine.geometry = hamonengine.geometry || {};
             const min = Math.abs(this.min - i.min);
             const max = Math.abs(this.max - i.max);
             return { min: (min < max) ? min : max, max: (min > max) ? min : max };
+        }
+        /**
+         * Experimental: Gets the distance between the point and the line based on the direction specified.
+         * @param {*} i 
+         * @param {*} direction 
+         * @returns 
+         */
+        getPointDistance(i, direction) {
+            let p = this;
+            if (!this.isPoint) {
+                p = i;
+                i = this;
+            }
+
+            return direction > 0 ? i.max - p.max : p.max - i.min;
         }
     }
 })();

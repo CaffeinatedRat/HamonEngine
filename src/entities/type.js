@@ -35,6 +35,7 @@ const OBJECT_STATE_FLAG = {
 };
 
 const OBJECT_FACE_DIRECTION = {
+    NONE: 0,
     XAXIS: 1,
     YAXIS: 2
 };

@@ -132,18 +132,15 @@ hamonengine.geometry = hamonengine.geometry || {};
          * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
          * NOTE: The shape must be of the type hamonengine.geometry.polygon, hamonengine.geometry.rect, hamonengine.geometry.lineSegment
          * @param {Object} shape to evaluated based on the coordinates.
+         * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollision(shape) {
-            if (shape instanceof hamonengine.geometry.lineSegment) {
-                return this.isCollisionLine(shape);
-            }
-            else if (shape instanceof hamonengine.geometry.rect) {
-                return this.isCollisionRect(shape);
+        isCollision(shape, direction = new hamonengine.geometry.vector2()) {
+            if (shape instanceof hamonengine.geometry.rect) {
+                return this.isCollisionRect(shape, direction);
             }
             else if (shape instanceof hamonengine.geometry.polygon) {
-                //return this.isCollisionPolygon(shape);
-                return new hamonengine.geometry.vector2(0, 0);
+                return this.isCollisionPolygon(shape, direction);
             }
 
             return new hamonengine.geometry.vector2(0, 0);
@@ -152,27 +149,15 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Determines if this lineSegment collides with the passed polygon.
          * NOTE: The shape must be of the type hamonengine.geometry.polygon
          * @param {Object} polygon to evaluated based on the coordinates.
+         * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollisionPolygon(polygon) {
-            //Allow the polygon object to handle the polygon collision logic.
-            return polygon.isCollision(this.toPolygon());
-        }
-        /**
-         * Determines if this rect collides with this lineSegment.
-         * NOTE: The shape must be of the type hamonengine.geometry.rect
-         * @param {Object} rect to evaluated based on the coordinates.
-         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
-         */
-        isCollisionRect(rect) {
-            if (!(rect instanceof hamonengine.geometry.rect)) {
-                console.warn(`[hamonengine.geometry.lineSegment.isCollisionRect] The rect parameter is not of type hamonengine.geometry.rect!`);
+        isCollisionPolygon(polygon, direction = new hamonengine.geometry.vector2()) {
+            if (!(polygon instanceof hamonengine.geometry.polygon)) {
+                console.warn(`[hamonengine.geometry.lineSegment.isCollisionPolygon] The polygon parameter is not of type hamonengine.geometry.polygon!`);
             }
 
-            let mnimumOverlappingLength = NaN;
-            let mtvAxis;
-
-            const checkCollision = (thisProjection, otherProjection, normal) => {
+            const checkCollision = (thisProjection, otherProjection) => {
                 //Determine if projection1 & projection2 are overlapping.
                 //An overlapping interval is one that is valid or is a interval.
                 const overlappingAxis = thisProjection.overlap(otherProjection);
@@ -181,17 +166,66 @@ hamonengine.geometry = hamonengine.geometry || {};
                     return false;
                 }
 
-                //Check for containment.
-                let overlappingLength = overlappingAxis.length;
-                if (thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
-                    overlappingLength += thisProjection.getMinimumDistance(otherProjection);
-                }
+                //Possible collision has occurred, keep checking other edges.
+                return true;
+            };
 
-                //If we reach here then its possible that a collision has occurred but check all edges to verify.
-                //Keep record of the shortest overlapping length in the event a collision occurs.
-                if (isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength) {
-                    mnimumOverlappingLength = overlappingLength;
-                    mtvAxis = normal;
+            // ---------------------------------------------
+            // Check the polygon collision with the lineSegment.
+            // ---------------------------------------------
+            //Test the Other Polygon: Iterate through each normal, which will act as an axis to project upon.
+            let axes = polygon.normals;
+            for (let i = 0; i < axes.length; i++) {
+                //Project this polygon and the target polygon onto this axis normal.
+                if (!checkCollision(this.project(axes[i]), polygon.project(axes[i]), axes[i])) {
+                    return new hamonengine.geometry.vector2();
+                }
+            }
+
+            // ---------------------------------------------
+            // Check the lineSegment for collision with the polygon.
+            // ---------------------------------------------
+            const thisNormal = this.normal;
+            const shapeProject = polygon.project(thisNormal);
+            const lineProject = this.project(thisNormal);
+            //Project this lineSegment and the target polygon onto this axis normal.
+            if (!checkCollision(shapeProject, lineProject)) {
+                return new hamonengine.geometry.vector2();
+            }
+
+            //For a lineSegment, the MTV's magnitude needs to be the length of the distance from the shape's furthest projected point (l.min or l.max) behind the lineSegment (p).
+            //When projected onto thisNormal, the lineSegment will form a point (p) while the shape will form a line (l).
+            //If the point (p) is contained within the line then we find the point on the line (l.min or l.max) behind the point (p) determined by the direction of the normal.
+            let distance = shapeProject.getPointDistance(lineProject, thisNormal);
+
+            //Determine when the value is too small and should be treated as zero.
+            //This SAT algorithm can generate an infinitesimally small values when dealing with multiple rect collisions.
+            distance = distance < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : distance;
+
+            //Always return the lineSegment's normal.
+            //This slightly simplifies collision detection and is how a lineSegment should behave.
+            //Everything behind a lineSegment should be pushed out of it via its normal.
+            return thisNormal.multiply(distance);
+        }
+        /**
+         * Determines if this rect collides with this lineSegment.
+         * NOTE: The shape must be of the type hamonengine.geometry.rect
+         * @param {Object} rect to evaluated based on the coordinates.
+         * @param {object} direction optional paramter used to help determine the direction of the MTV.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
+         */
+        isCollisionRect(rect, direction = new hamonengine.geometry.vector2()) {
+            if (!(rect instanceof hamonengine.geometry.rect)) {
+                console.warn(`[hamonengine.geometry.lineSegment.isCollisionRect] The rect parameter is not of type hamonengine.geometry.rect!`);
+            }
+
+            const checkCollision = (thisProjection, otherProjection) => {
+                //Determine if projection1 & projection2 are overlapping.
+                //An overlapping interval is one that is valid or is a interval.
+                const overlappingAxis = thisProjection.overlap(otherProjection);
+                if (!overlappingAxis.isLine) {
+                    //No collision has occurred so return an empty MTV.
+                    return false;
                 }
 
                 //Possible collision has occurred, keep checking other edges.
@@ -202,7 +236,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             // Check the rect X-Axis (Y-Axis Normal) collision.
             // ---------------------------------------------
             const Y_AXIS_PROJECTION = new hamonengine.geometry.interval(rect.y, rect.y + rect.height);
-            if (!checkCollision(this.project(hamonengine.geometry.vector2.Y_AXIS_NORMAL), Y_AXIS_PROJECTION, hamonengine.geometry.vector2.Y_AXIS_NORMAL)) {
+            if (!checkCollision(this.project(hamonengine.geometry.vector2.Y_AXIS_NORMAL), Y_AXIS_PROJECTION)) {
                 return new hamonengine.geometry.vector2();
             }
 
@@ -210,89 +244,33 @@ hamonengine.geometry = hamonengine.geometry || {};
             // Check the rect Y-Axis (X-Axis Normal) collision.
             // ---------------------------------------------
             const X_AXIS_PROJECTION = new hamonengine.geometry.interval(rect.x, rect.x + rect.width);
-            if (!checkCollision(this.project(hamonengine.geometry.vector2.X_AXIS_NORMAL), X_AXIS_PROJECTION, hamonengine.geometry.vector2.X_AXIS_NORMAL)) {
+            if (!checkCollision(this.project(hamonengine.geometry.vector2.X_AXIS_NORMAL), X_AXIS_PROJECTION)) {
                 return new hamonengine.geometry.vector2();
             }
 
             // ---------------------------------------------
             // Check the lineSegment for collision with the rect.
             // ---------------------------------------------
-            if (!checkCollision(rect.project(this.normal), this.project(this.normal), this.normal)) {
+            const thisNormal = this.normal;
+            const shapeProject = rect.project(thisNormal);
+            const lineProject = this.project(thisNormal);
+            if (!checkCollision(shapeProject, lineProject)) {
                 return new hamonengine.geometry.vector2();
             }
+
+            //For a lineSegment, the MTV's magnitude needs to be the length of the distance from the shape's furthest projected point (l.min or l.max) behind the lineSegment (p).
+            //When projected onto thisNormal, the lineSegment will form a point (p) while the shape will form a line (l).
+            //If the point (p) is contained within the line then we find the point on the line (l.min or l.max) behind the point (p) determined by the direction of the normal.
+            let distance = shapeProject.getPointDistance(lineProject, thisNormal);
 
             //Determine when the value is too small and should be treated as zero.
             //This SAT algorithm can generate an infinitesimally small values when dealing with multiple rect collisions.
-            mnimumOverlappingLength = mnimumOverlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : mnimumOverlappingLength;
+            distance = distance < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : distance;
 
-            //Return an MTV.
-            return mtvAxis.multiply(mnimumOverlappingLength);
-        }
-        /**
-         * Determines if this lineSegment collides with the passed lineSegment.
-         * NOTE: The shape must be of the type hamonengine.geometry.lineSegment
-         * @param {Object} lineSegment to evaluated based on the coordinates.
-         * @return {number} a COLLISION_TYPES
-         */
-        isCollisionLine(lineSegment) {
-            if (!(lineSegment instanceof hamonengine.geometry.lineSegment)) {
-                throw "Parameter lineSegment is not of type hamonengine.geometry.lineSegment.";
-            }
-
-            let mnimumOverlappingLength = NaN;
-            let mtvAxis;
-
-            const checkCollision = (thisProjection, otherProjection, normal) => {
-
-                //Determine if projection1 & projection2 are overlapping.
-                //An overlapping interval is one that is valid or is a interval.
-                const overlappingAxis = thisProjection.overlap(otherProjection);
-                if (!overlappingAxis.isLine) {
-                    //No collision has occurred so return an empty MTV.
-                    return false;
-                }
-
-                //Check for containment.
-                let overlappingLength = overlappingAxis.length;
-                if (thisProjection.contains(otherProjection) || otherProjection.contains(thisProjection)) {
-                    overlappingLength += thisProjection.getMinimumDistance(otherProjection);
-                }
-
-                //If we reach here then its possible that a collision has occurred but check all edges to verify.
-                //Keep record of the shortest overlapping length in the event a collision occurs.
-                if (isNaN(mnimumOverlappingLength) || overlappingLength < mnimumOverlappingLength) {
-                    mnimumOverlappingLength = overlappingLength;
-                    mtvAxis = normal;
-                }
-
-                //Possible collision has occurred, keep checking other edges.
-                return true;
-            };
-
-            // ---------------------------------------------
-            // Check the other lineSegment's (l) axis/normal for collision.
-            // ---------------------------------------------
-
-            //Project this lineSegment and the target lineSegment onto other lineSegment's axis normal.
-            if (!checkCollision(this.project(otherNormal), lineSegment.project(otherNormal), lineSegment.normal)) {
-                return new hamonengine.geometry.vector2();
-            }
-
-            // ---------------------------------------------
-            // Check this lineSegment for collision.
-            // ---------------------------------------------
-
-            //Project this lineSegment and the target lineSegment onto this lineSegment's axis normal.
-            if (!checkCollision(this.project(thisNormal), lineSegment.project(thisNormal), this.normal)) {
-                return new hamonengine.geometry.vector2();
-            }
-
-            //Determine when the value is too small and should be treated as zero.
-            //This SAT algorithm can generate an infinitesimally small values when dealing with multiple rect collisions.
-            mnimumOverlappingLength = mnimumOverlappingLength < hamonengine.geometry.settings.collisionDetection.floor ? 0.0 : mnimumOverlappingLength;
-
-            //Return an MTV.
-            return mtvAxis.multiply(mnimumOverlappingLength);
+            //Always return the lineSegment's normal.
+            //This slightly simplifies collision detection and is how a lineSegment should behave.
+            //Everything behind a lineSegment should be pushed out of it via its normal.
+            return thisNormal.multiply(distance);
         }
         /**
          * Projects the lineSegment onto the provided vector and returns a (hamonengine.geometry.interval}.

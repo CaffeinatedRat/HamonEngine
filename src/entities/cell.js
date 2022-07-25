@@ -103,7 +103,7 @@ hamonengine.entities = hamonengine.entities || {};
                 const collisionsEdges = new Set();
                 for (let i = 0; i < this.objects.length; i++) {
                     const object = this.objects[i];
-                    if (object.isMoveable) {
+                    if (object.isMovable) {
                         object.move(elapsedTimeInMilliseconds);
                         
                         //Determine if the object is outside of the cell and correct it if necessary.
@@ -147,10 +147,10 @@ hamonengine.entities = hamonengine.entities || {};
                             if (!collisionsEdges.has(edgeName)) {
 
                                 //Determine if this object has collided with its sibling.
-                                /*
-                                if (object.isObjectCollision(siblingObject) !== COLLISION_TYPES.NONE) {
-                                    console.debug(`${object.name} collides with: ${siblingObject.name}`);
-                                }*/
+                                console.log(object.isCollision(siblingObject));
+                                //if (object.isCollision(siblingObject) !== COLLISION_TYPES.NONE) {
+                                    //console.debug(`${object.name} collides with: ${siblingObject.name}`);
+                                //}
 
                                 collisionsEdges.add(edgeName);
                                 //Since the edgeName is a directed edge, we need to create the inverse to create an undirected edge.
