@@ -186,7 +186,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {Object} layer to render the cell's objects to.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
-        render(layer, elapsedTimeInMilliseconds, { lineWidth = 3, color = 'blue', drawNormals = false } = {}) {
+        render(layer, elapsedTimeInMilliseconds, { lineWidth = 2, color = 'blue', drawNormals = false } = {}) {
             if (this.shape) {
                 let transformedShape = this.shape.translate(this.position);
                 transformedShape = this.isPolygon ? transformedShape.mirror(this._mirroredState).rotateAtCenter(this._theta) : transformedShape;
