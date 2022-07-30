@@ -30,7 +30,11 @@ hamonengine.geometry = hamonengine.geometry || {};
 (function () {
 
     /**
-     * This class represents a lineSegment.
+     * This class represents a lineSegment, which is similar to a vector2 but has the following differences:
+     * 1) The initial point is not restricted to the origin (0,0).
+     * 2) The class contains additional methods similar to the other shape classes (rect, polygon).
+     * 3) The class contains a projection and collision routines.
+     * 4) Line segments are boundary shapes where collision detection forces any other shape in the direction of the segment's normal.
      */
     hamonengine.geometry.lineSegment = class {
         constructor(x = 0, y = 0, x2 = 0, y2 = 0) {
