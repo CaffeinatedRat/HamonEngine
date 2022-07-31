@@ -45,7 +45,7 @@ hamonengine.entities = hamonengine.entities || {};
 
             //Z-index sorter, using RHS, the z-axis is positive toward the camera.
             // Painter's Algorithm: We want to draw items ascending, with the lowest z-axis coordinate first.
-            this._zIndexSorter = new hamonengine.math.sort({
+            this._zIndexSorter = new hamonengine.util.sort({
                 compareFunc: (a,b) => a === b ? 0 : (a.zIndex < b.zIndex ? -1 : 1)
             });
         }
