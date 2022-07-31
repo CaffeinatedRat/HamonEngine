@@ -34,7 +34,7 @@ hamonengine.entities = hamonengine.entities || {};
 
             //Cells are stationary
             this._movementRate = 0;
-            this._direction = new hamonengine.geometry.vector2();
+            this._direction = new hamonengine.math.vector2();
             this._theta = 0;
 
             //Maintain a collection of child cells.
@@ -110,7 +110,7 @@ hamonengine.entities = hamonengine.entities || {};
                         if (this.isSolid) {
 
                             //Get the adjusted coordinates.
-                            const adjustedPosition = hamonengine.geometry.vector2.clone(object.position);
+                            const adjustedPosition = hamonengine.math.vector2.clone(object.position);
                             const collisionVector = this.isContained(object);
                             if (collisionVector.x < 0) {
                                 adjustedPosition.x = this.boundingShape.x - object.boundingShape.x;

@@ -364,7 +364,7 @@ hamonengine.core = hamonengine.core || {};
                             }
                         }
                         const mouseEvent = (type, e) => {
-                            const v = new hamonengine.geometry.vector2(e.offsetX, e.offsetY);
+                            const v = new hamonengine.math.vector2(e.offsetX, e.offsetY);
                             this.onMouseEvent(type, v, e, eventContainer);
                         }
                         const touchEvent = (type, e) => {
@@ -377,7 +377,7 @@ hamonengine.core = hamonengine.core || {};
                             if (position) {
                                 const touches = [];
                                 for (let i = 0; i < e.touches.length; i++) {
-                                    touches.push(new hamonengine.geometry.vector2(e.touches[i].clientX - position.x, e.touches[i].clientY - position.y));
+                                    touches.push(new hamonengine.math.vector2(e.touches[i].clientX - position.x, e.touches[i].clientY - position.y));
                                 }
                                 //Mimic the click event for touch.
                                 const isClick = (type === 'end' && lasttouchevent === 'start');
@@ -394,7 +394,7 @@ hamonengine.core = hamonengine.core || {};
                                     type = (type === 'start') ? 'down' : type;
                                     type = (type === 'end') ? 'up' : type;
                                     //Capture only changedTouches as the touches collection will contain no coordinates.
-                                    const v = new hamonengine.geometry.vector2(e.changedTouches[0].clientX - position.x, e.changedTouches[0].clientY - position.y)
+                                    const v = new hamonengine.math.vector2(e.changedTouches[0].clientX - position.x, e.changedTouches[0].clientY - position.y)
 
                                     //Triger the mouse events.
                                     this.onMouseEvent(type, v, e, eventContainer);

@@ -25,14 +25,14 @@
 //波紋
 'use strict';
 
-hamonengine.math = hamonengine.math || {};
+hamonengine.util = hamonengine.util || {};
 
 (function() {
-    hamonengine.math.sort = class {
+    hamonengine.util.sort = class {
         constructor(options={}) {
             //Default to the ascending comparison function if one is not supplied.
             if (!options.compareFunc)
-                this._compareFunc = hamonengine.math.sort.sort.ascending;
+                this._compareFunc = hamonengine.util.sort.sort.ascending;
             else
                 this._compareFunc = options.compareFunc;
         }
@@ -40,7 +40,7 @@ hamonengine.math = hamonengine.math || {};
         // Methods
         //--------------------------------------------------------
         quickSort(arr) {
-            hamonengine.math.sort.iquicksort(this._compareFunc, arr, 0, arr.length - 1);
+            hamonengine.util.sort.iquicksort(this._compareFunc, arr, 0, arr.length - 1);
         }
         /**
          * An ascending comparison function that uses the comparison operators.
@@ -88,12 +88,12 @@ hamonengine.math = hamonengine.math || {};
             /* recursion */
             if (left < j)
             {
-                hamonengine.math.sort.iquicksort(compareFunction, arr, left, j);
+                hamonengine.util.sort.iquicksort(compareFunction, arr, left, j);
             }
 
             if (i < right)
             {
-                hamonengine.math.sort.iquicksort(compareFunction, arr, i, right);
+                hamonengine.util.sort.iquicksort(compareFunction, arr, i, right);
             }
         }
     }

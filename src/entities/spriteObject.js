@@ -52,7 +52,7 @@ hamonengine.entities = hamonengine.entities || {};
             //Determine if the direction basis used to determine which way the sprite faces when mirroring or rotating.
             //By default the sprite will always point towards +x, where mirroring it will point towards -x when moving horizontally.
             //By default the sprite will always point towards -y (y is inverted on the canvas with 0 at the top, and height at the bottom), where rotating it will point towards +y when moving vertically.
-            this._directionBasis = options.directionBasis || new hamonengine.geometry.vector2(-1, -1);
+            this._directionBasis = options.directionBasis || new hamonengine.math.vector2(-1, -1);
 
             if (hamonengine.debug) {
                 !this._hasBoundingShape && console.debug(`[hamonengine.entities.spriteObject.constructor] BoundingShape not found, using sprite dimensions.`);

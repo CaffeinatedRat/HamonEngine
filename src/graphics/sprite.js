@@ -69,7 +69,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Transformation variables.
             this._theta = options.theta || 0.0;
-            this._scaleVector = new hamonengine.geometry.vector2(1.0, 1.0);
+            this._scaleVector = new hamonengine.math.vector2(1.0, 1.0);
 
             this._spriteOrientation = SPRITE_ORIENTATION.NORMAL;
             this._showDiagnosisLines = false;
@@ -432,7 +432,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             const widthScaled = width * this._scaleVector.x;
             const heightScaled = height * this._scaleVector.y;
 
-            const wrappingDirection = new hamonengine.geometry.vector2();
+            const wrappingDirection = new hamonengine.math.vector2();
             let v1x, v1y, v2x, v2y;
 
             //Horizontal wrapping.

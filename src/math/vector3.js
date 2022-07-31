@@ -25,13 +25,13 @@
 //波紋
 'use strict';
 
-hamonengine.geometry = hamonengine.geometry || {};
+hamonengine.math = hamonengine.math || {};
 
 (function() {
     /**
      * This class represents a three-dimensional vector.
      */
-    hamonengine.geometry.vector3 = class {
+    hamonengine.math.vector3 = class {
         constructor(x=0.0,y=0.0,z=0.0) {
             this.x = x;
             this.y = y;
@@ -50,7 +50,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the middle point on the vector3.
          */
          get midPoint() {
-            return new hamonengine.geometry.vector3(this.x / 2, this.y / 2, this.z / 2);
+            return new hamonengine.math.vector3(this.x / 2, this.y / 2, this.z / 2);
         }
         /**
          * Returns the minimum coordinate.
@@ -74,13 +74,13 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Object} vector to be cloned.
          */
         static clone(vector) {
-            return new hamonengine.geometry.vector3(vector.x, vector.y, vector.z);
+            return new hamonengine.math.vector3(vector.x, vector.y, vector.z);
         }
         /**
          * Clones this vector3.
          */
         clone() {
-            return hamonengine.geometry.vector3.clone(this);
+            return hamonengine.math.vector3.clone(this);
         }
         /**
          * Outputs the vector's coordinates as a string.
@@ -93,41 +93,41 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         normalize() {
             const l = this.length; 
-            return (l > 0) ? new  hamonengine.geometry.vector3(this.x / l, this.y / l, this.z / l) : new hamonengine.geometry.vector3();
+            return (l > 0) ? new  hamonengine.math.vector3(this.x / l, this.y / l, this.z / l) : new hamonengine.math.vector3();
         }
         /**
          * Returns an inverted vector3.
          */
         invert() {
-            return new hamonengine.geometry.vector2(-this.x, -this.y, -this.z);
+            return new hamonengine.math.vector2(-this.x, -this.y, -this.z);
         }
         /**
          * Adds v to the current vector and returns a new instance of the vector.
          * @param {Object} v vector3 to add.
          */
         add(v) {
-            return new hamonengine.geometry.vector3(this.x + v.x, this.y + v.y, this.z + v.z);
+            return new hamonengine.math.vector3(this.x + v.x, this.y + v.y, this.z + v.z);
         }
         /**
          * Substracts v from the current vector and return a new instance of the vector.
          * @param {Object} v vector3 to subtract.
          */
         subtract(v) {
-            return new hamonengine.geometry.vector3(this.x - v.x, this.y - v.y, this.z - v.z);
+            return new hamonengine.math.vector3(this.x - v.x, this.y - v.y, this.z - v.z);
         }
         /**
          * Multiples the current vector by a scalar value and returns a new instance of the vector.
          * @param {Number} s scalar to multiply.
          */
         multiplyScalar(s) {
-            return new hamonengine.geometry.vector3(this.x * s, this.y * s, this.z * s);
+            return new hamonengine.math.vector3(this.x * s, this.y * s, this.z * s);
         }
         /**
          * Multiples the current vector by vector v and returns a new instance of the vector.
          * @param {Object} v vector3 to multiply.
          */
         multiplyVector(v) {
-            return new hamonengine.geometry.vector3(this.x * v.x, this.y * v.y, this.z * v.z);
+            return new hamonengine.math.vector3(this.x * v.x, this.y * v.y, this.z * v.z);
         }
         /**
          * Performs a dot product operation on the current vector and vector v and returns a scalar value.
@@ -143,7 +143,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Object} v vector3
          */
         cross(v) {
-            return new hamonengine.geometry.vector3((this.y * v.z - this.z * v.y), (v.x * this.z - this.x * v.z), (this.x * v.y - this.y * v.x));
+            return new hamonengine.math.vector3((this.y * v.z - this.z * v.y), (v.x * this.z - this.x * v.z), (this.x * v.y - this.y * v.x));
         }
         /**
          * Determines if this vector is equal to the passed vector.
@@ -155,8 +155,8 @@ hamonengine.geometry = hamonengine.geometry || {};
     }
 
     //Constants
-    hamonengine.geometry.vector3.X_AXIS_NORMAL = new hamonengine.geometry.vector3(1,0,0);
-    hamonengine.geometry.vector3.Y_AXIS_NORMAL = new hamonengine.geometry.vector3(0,1,0);
-    hamonengine.geometry.vector3.Z_AXIS_NORMAL = new hamonengine.geometry.vector3(0,0,1);
+    hamonengine.math.vector3.X_AXIS_NORMAL = new hamonengine.math.vector3(1,0,0);
+    hamonengine.math.vector3.Y_AXIS_NORMAL = new hamonengine.math.vector3(0,1,0);
+    hamonengine.math.vector3.Z_AXIS_NORMAL = new hamonengine.math.vector3(0,0,1);
     
 })();

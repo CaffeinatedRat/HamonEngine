@@ -34,7 +34,7 @@ hamonengine.geometry = hamonengine.geometry || {};
      * 1) The initial point is not restricted to the origin (0,0).
      * 2) The class contains additional methods similar to the other shape classes (rect, polygon).
      * 3) The class contains a projection and collision routines.
-     * 4) Line segments are boundary shapes where collision detection forces any other shape in the direction of the segment's normal.
+     * 4) Line segments are boundary shapes where collision detection forces any other shape in the direction of the segment normal.
      */
     hamonengine.geometry.lineSegment = class {
         constructor(x = 0, y = 0, x2 = 0, y2 = 0) {
@@ -44,7 +44,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             this.y2 = y2;
 
             //Precache the direction vector.
-            this._direction = new hamonengine.geometry.vector2(x2 - x, y2 - y);
+            this._direction = new hamonengine.math.vector2(x2 - x, y2 - y);
         }
         //--------------------------------------------------------
         // Properties
@@ -97,12 +97,12 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Returns an array of vertices representing the lineSegment.
-         * @return {object} an array of hamonengine.geometry.vector2
+         * @return {object} an array of hamonengine.math.vector2
          */
         toVertices() {
             return [
-                new hamonengine.geometry.vector2(this.x, this.y),
-                new hamonengine.geometry.vector2(this.x2, this.y2)
+                new hamonengine.math.vector2(this.x, this.y),
+                new hamonengine.math.vector2(this.x2, this.y2)
             ];
         }
         /**
@@ -121,7 +121,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         translate(translateVector) {
             //Normalize the translateVector.
-            translateVector = translateVector || new hamonengine.geometry.vector2(0, 0);
+            translateVector = translateVector || new hamonengine.math.vector2(0, 0);
 
             //Return a new instance of the lineSegment as to preserve the original.
             return new hamonengine.geometry.lineSegment(
@@ -139,7 +139,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollision(shape, direction = new hamonengine.geometry.vector2()) {
+        isCollision(shape, direction = new hamonengine.math.vector2()) {
             if (shape instanceof hamonengine.geometry.rect) {
                 return this.isCollisionRect(shape, direction);
             }
@@ -147,7 +147,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 return this.isCollisionPolygon(shape, direction);
             }
 
-            return new hamonengine.geometry.vector2(0, 0);
+            return new hamonengine.math.vector2(0, 0);
         }
         /**
          * Determines if this lineSegment collides with the passed polygon.
@@ -156,7 +156,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollisionPolygon(polygon, direction = new hamonengine.geometry.vector2()) {
+        isCollisionPolygon(polygon, direction = new hamonengine.math.vector2()) {
             if (!(polygon instanceof hamonengine.geometry.polygon)) {
                 console.warn(`[hamonengine.geometry.lineSegment.isCollisionPolygon] The polygon parameter is not of type hamonengine.geometry.polygon!`);
             }
@@ -182,7 +182,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             for (let i = 0; i < axes.length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
                 if (!checkCollision(this.project(axes[i]), polygon.project(axes[i]), axes[i])) {
-                    return new hamonengine.geometry.vector2();
+                    return new hamonengine.math.vector2();
                 }
             }
 
@@ -194,7 +194,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             const lineProject = this.project(thisNormal);
             //Project this lineSegment and the target polygon onto this axis normal.
             if (!checkCollision(shapeProject, lineProject)) {
-                return new hamonengine.geometry.vector2();
+                return new hamonengine.math.vector2();
             }
 
             //For a lineSegment, the MTV's magnitude needs to be the length of the distance from the shape's furthest projected point (l.min or l.max) behind the lineSegment (p).
@@ -218,7 +218,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollisionRect(rect, direction = new hamonengine.geometry.vector2()) {
+        isCollisionRect(rect, direction = new hamonengine.math.vector2()) {
             if (!(rect instanceof hamonengine.geometry.rect)) {
                 console.warn(`[hamonengine.geometry.lineSegment.isCollisionRect] The rect parameter is not of type hamonengine.geometry.rect!`);
             }
@@ -240,16 +240,16 @@ hamonengine.geometry = hamonengine.geometry || {};
             // Check the rect X-Axis (Y-Axis Normal) collision.
             // ---------------------------------------------
             const Y_AXIS_PROJECTION = new hamonengine.geometry.interval(rect.y, rect.y + rect.height);
-            if (!checkCollision(this.project(hamonengine.geometry.vector2.Y_AXIS_NORMAL), Y_AXIS_PROJECTION)) {
-                return new hamonengine.geometry.vector2();
+            if (!checkCollision(this.project(hamonengine.math.vector2.Y_AXIS_NORMAL), Y_AXIS_PROJECTION)) {
+                return new hamonengine.math.vector2();
             }
 
             // ---------------------------------------------
             // Check the rect Y-Axis (X-Axis Normal) collision.
             // ---------------------------------------------
             const X_AXIS_PROJECTION = new hamonengine.geometry.interval(rect.x, rect.x + rect.width);
-            if (!checkCollision(this.project(hamonengine.geometry.vector2.X_AXIS_NORMAL), X_AXIS_PROJECTION)) {
-                return new hamonengine.geometry.vector2();
+            if (!checkCollision(this.project(hamonengine.math.vector2.X_AXIS_NORMAL), X_AXIS_PROJECTION)) {
+                return new hamonengine.math.vector2();
             }
 
             // ---------------------------------------------
@@ -259,7 +259,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             const shapeProject = rect.project(thisNormal);
             const lineProject = this.project(thisNormal);
             if (!checkCollision(shapeProject, lineProject)) {
-                return new hamonengine.geometry.vector2();
+                return new hamonengine.math.vector2();
             }
 
             //For a lineSegment, the MTV's magnitude needs to be the length of the distance from the shape's furthest projected point (l.min or l.max) behind the lineSegment (p).
@@ -278,7 +278,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Projects the lineSegment onto the provided vector and returns a (hamonengine.geometry.interval}.
-         * @param {object} unitVector (hamonengine.geometry.vector2) to project onto.
+         * @param {object} unitVector (hamonengine.math.vector2) to project onto.
          */
         project(unitVector) {
             let min = 0, max = 0;

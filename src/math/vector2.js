@@ -25,14 +25,14 @@
 //波紋
 'use strict';
 
-hamonengine.geometry = hamonengine.geometry || {};
+hamonengine.math = hamonengine.math || {};
 
 (function () {
 
     /**
      * This class represents a two-dimensional vector.
      */
-    hamonengine.geometry.vector2 = class {
+    hamonengine.math.vector2 = class {
         constructor(x = 0.0, y = 0.0) {
             this.x = x;
             this.y = y;
@@ -56,7 +56,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the middle point on the vector2.
          */
         get midPoint() {
-            return new hamonengine.geometry.vector2(this.x / 2, this.y / 2);
+            return new hamonengine.math.vector2(this.x / 2, this.y / 2);
         }
         /**
          * Returns the minimum coordinate.
@@ -78,13 +78,13 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Object} vector to be cloned.
          */
         static clone(vector) {
-            return new hamonengine.geometry.vector2(vector.x, vector.y);
+            return new hamonengine.math.vector2(vector.x, vector.y);
         }
         /**
          * Clones this vector2.
          */
         clone() {
-            return hamonengine.geometry.vector2.clone(this);
+            return hamonengine.math.vector2.clone(this);
         }
         /**
          * Outputs the vector's coordinates as a string.
@@ -97,7 +97,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         normalize() {
             const l = this.length;
-            return (l > 0) ? new hamonengine.geometry.vector2(this.x / l, this.y / l) : new hamonengine.geometry.vector2();
+            return (l > 0) ? new hamonengine.math.vector2(this.x / l, this.y / l) : new hamonengine.math.vector2();
         }
         /**
          * Creates a new instance of a unit vector normal from this vector.
@@ -110,69 +110,69 @@ hamonengine.geometry = hamonengine.geometry || {};
                     //Where θ = PI/2
                     //x' = x * cos(θ) - y * sin(θ) = x*0 - y*1 = -y
                     //y' = x * sin(θ) + y * cos(θ) = x*1 - y*0 = x
-                    return new hamonengine.geometry.vector2(-this.y / l, this.x / l);
+                    return new hamonengine.math.vector2(-this.y / l, this.x / l);
                 }
                 else {
                     //Where θ = -PI/2
                     //x' = x * cos(θ) - y * sin(θ) = x*0 - y*-1 = y
                     //y' = x * sin(θ) + y * cos(θ) = x*-1 - y*0 = -x
-                    return new hamonengine.geometry.vector2(this.y / l, -this.x / l);
+                    return new hamonengine.math.vector2(this.y / l, -this.x / l);
                 }
             }
-            return new hamonengine.geometry.vector2();
+            return new hamonengine.math.vector2();
         }
         /**
          * Returns an instance of the mirrored vector across the x-axis.
          */
         mirror() {
-            return new hamonengine.geometry.vector2(-this.x, this.y);
+            return new hamonengine.math.vector2(-this.x, this.y);
         }
         /**
          * Returns an instance of the flipped vector across the y-axis
          */
         flip() {
-            return new hamonengine.geometry.vector2(this.x, -this.y);
+            return new hamonengine.math.vector2(this.x, -this.y);
         }
         /**
          * Returns an inverted vector2.
          */
         invert() {
-            return new hamonengine.geometry.vector2(-this.x, -this.y);
+            return new hamonengine.math.vector2(-this.x, -this.y);
         }
         /**
          * Adds v to the current vector and returns a new instance of the vector.
          * @param {Object} v vector2 to add.
          */
         add(v) {
-            return new hamonengine.geometry.vector2(this.x + v.x, this.y + v.y);
+            return new hamonengine.math.vector2(this.x + v.x, this.y + v.y);
         }
         /**
          * Substracts v from the current vector and return a new instance of the vector.
          * @param {Object} v vector2 to subtract.
          */
         subtract(v) {
-            return new hamonengine.geometry.vector2(this.x - v.x, this.y - v.y);
+            return new hamonengine.math.vector2(this.x - v.x, this.y - v.y);
         }
         /**
          * Multiples the current vector by a scalar value or a passed vector returns a new instance of the vector.
          * @param {any} vos a vector or scalar value.
          */
         multiply(vos) {
-            return (vos instanceof hamonengine.geometry.vector2) ? this.multiplyVector(vos) : this.multiplyScalar(vos);
+            return (vos instanceof hamonengine.math.vector2) ? this.multiplyVector(vos) : this.multiplyScalar(vos);
         }
         /**
          * Multiples the current vector by a scalar value and returns a new instance of the vector.
          * @param {Number} s scalar to multiply.
          */
         multiplyScalar(s) {
-            return new hamonengine.geometry.vector2(this.x * s, this.y * s);
+            return new hamonengine.math.vector2(this.x * s, this.y * s);
         }
         /**
          * Multiples the current vector by vector v and returns a new instance of the vector.
          * @param {Object} v vector2 to multiply.
          */
         multiplyVector(v) {
-            return new hamonengine.geometry.vector2(this.x * v.x, this.y * v.y);
+            return new hamonengine.math.vector2(this.x * v.x, this.y * v.y);
         }
         /**
          * Performs a dot product operation on the current vector and vector v and returns a scalar value.
@@ -188,7 +188,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Object} v vector2
          */
         cross(v) {
-            return new hamonengine.geometry.vector3(0, 0, (this.x * v.y) - (this.y * v.x));
+            return new hamonengine.math.vector3(0, 0, (this.x * v.y) - (this.y * v.x));
         }
         /**
          * Determines if this vector is equal to the passed vector.
@@ -200,7 +200,7 @@ hamonengine.geometry = hamonengine.geometry || {};
     }
 
     //Constants
-    hamonengine.geometry.vector2.X_AXIS_NORMAL = new hamonengine.geometry.vector2(1, 0);
-    hamonengine.geometry.vector2.Y_AXIS_NORMAL = new hamonengine.geometry.vector2(0, 1);
+    hamonengine.math.vector2.X_AXIS_NORMAL = new hamonengine.math.vector2(1, 0);
+    hamonengine.math.vector2.Y_AXIS_NORMAL = new hamonengine.math.vector2(0, 1);
 
 })();

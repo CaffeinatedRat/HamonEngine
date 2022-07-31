@@ -181,7 +181,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         get position() {
             const boundRect = this.canvas.getBoundingClientRect() || { left: 0, top: 0 };
-            return new hamonengine.geometry.vector2(boundRect.left, boundRect.top);
+            return new hamonengine.math.vector2(boundRect.left, boundRect.top);
         }
         /**
          * Gets the viewport.
@@ -520,7 +520,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
         }
         /**
-         * A method that draws the vector2 or vector3 object with no wrapping (hamonengine.geometry.vector2 or hamonengine.geometry.vector3) based on the dimension parameters provided.
+         * A method that draws the vector2 or vector3 object with no wrapping (hamonengine.math.vector2 or hamonengine.math.vector3) based on the dimension parameters provided.
          * @param {object} vector object to draw.
          * @param {number} sourceX coordinate of where to draw the vector (Optional and set to zero).
          * @param {number} sourceY coordinate of where to draw the vector (Optional and set to zero).
@@ -529,9 +529,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         drawVector(vector, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white' } = {}) {
 
-            if (!(vector instanceof hamonengine.geometry.vector2)
-                && !(vector instanceof hamonengine.geometry.vector3)) {
-                throw "Parameter vector is not of type hamonengine.geometry.vector2 or of type hamonengine.geometry.vector3.";
+            if (!(vector instanceof hamonengine.math.vector2)
+                && !(vector instanceof hamonengine.math.vector3)) {
+                throw "Parameter vector is not of type hamonengine.math.vector2 or of type hamonengine.math.vector3.";
             }
 
             this.context.lineWidth = lineWidth;
@@ -628,7 +628,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.simpleDrawRect(rect, sourceX, sourceY, { lineWidth, color, fill, fillColor });
 
             //Retain the wrapping coordinates for the 4 wrapping shape.
-            const wrappingPosition = new hamonengine.geometry.vector2();
+            const wrappingPosition = new hamonengine.math.vector2();
 
             //Handle rect wrapping.
             if (this.wrapHorizontal) {
@@ -733,7 +733,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.simpleDrawPolygon(polygon, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
 
             //Retain the wrapping coordinates for the 4 wrapping shape.
-            const wrappingPosition = new hamonengine.geometry.vector2();
+            const wrappingPosition = new hamonengine.math.vector2();
 
             //Handle polygon wrapping.
             if (this.wrapHorizontal) {

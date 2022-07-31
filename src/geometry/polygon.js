@@ -210,7 +210,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         addVertex(x, y) {
             //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
-            this._vertices.push(new hamonengine.geometry.vector2(x, y));
+            this._vertices.push(new hamonengine.math.vector2(x, y));
             this._dirty = DIRTY_ALL;
         }
         /**
@@ -223,12 +223,12 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Creates and returns a new instance of a translated polygon.
-         * @param {Object} translateVector a translation vector (hamonengine.geometry.vector2) of where to move the polygon.
+         * @param {Object} translateVector a translation vector (hamonengine.math.vector2) of where to move the polygon.
          * @returns {Object} translated polygon.
          */
         translate(translateVector) {
             //Normalize the translateVector.
-            translateVector = translateVector || new hamonengine.geometry.vector2(0, 0);
+            translateVector = translateVector || new hamonengine.math.vector2(0, 0);
 
             const newVertices = [];
             for (let i = 0; i < this.vertices.length; i++) {
@@ -243,13 +243,13 @@ hamonengine.geometry = hamonengine.geometry || {};
         /**
          * Creates and returns a new instance of a rotated polygon.
          * @param {number} theta angle to rotate in radians.
-         * @param {Object} offsetVector an offset vector (hamonengine.geometry.vector2) of where to rotate.
+         * @param {Object} offsetVector an offset vector (hamonengine.math.vector2) of where to rotate.
          * @returns {Object} rotated polygon.
          */
         rotate(theta, offsetVector) {
             //Normalize
             theta = theta || 0.0;
-            offsetVector = offsetVector || new hamonengine.geometry.vector2(0, 0);
+            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
 
             //Precalculate the sin & cos values of theta.
             const sinTheta = Math.sin(theta), cosTheta = Math.cos(theta);
@@ -277,7 +277,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 }
 
                 //Restore the vertex's position.
-                newVertices.push(new hamonengine.geometry.vector2(x + offsetVector.x, y + offsetVector.y));
+                newVertices.push(new hamonengine.math.vector2(x + offsetVector.x, y + offsetVector.y));
             };
 
             //Return a new instance of the polygon as to preserve the original.
@@ -295,14 +295,14 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Creates and returns a new instance of a scaled polygon.
-         * @param {Object} scaleVector a scale vector (hamonengine.geometry.vector2) to apply to the polygon.
-         * @param {Object} offsetVector an offset vector (hamonengine.geometry.vector2) of where to scale.
+         * @param {Object} scaleVector a scale vector (hamonengine.math.vector2) to apply to the polygon.
+         * @param {Object} offsetVector an offset vector (hamonengine.math.vector2) of where to scale.
          * @returns {Object} scaled polygon.
          */
         scale(scaleVector, offsetVector) {
             //Normalize.
-            scaleVector = scaleVector || new hamonengine.geometry.vector2(0, 0);
-            offsetVector = offsetVector || new hamonengine.geometry.vector2(0, 0);
+            scaleVector = scaleVector || new hamonengine.math.vector2(0, 0);
+            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
 
             //If the x-axis (exclusively) or the y-axis is being flipped then reverse the order of vertices so the normals are generated correctly.
             const xFlipped = scaleVector.x < 0;
@@ -328,7 +328,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Creates and returns a new instance of a scaled polygon around the center.
-         * @param {Object} scaleVector a scale vector (hamonengine.geometry.vector2) to apply to the polygon.
+         * @param {Object} scaleVector a scale vector (hamonengine.math.vector2) to apply to the polygon.
          * @returns {Object} scaled polygon.
          */
          scaleAtCenter(scaleVector) {
@@ -340,7 +340,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Object} mirrored polygon.
          */
         mirror(state) {
-            return state ? this.scaleAtCenter(new hamonengine.geometry.vector2(-1, 1)) : this;
+            return state ? this.scaleAtCenter(new hamonengine.math.vector2(-1, 1)) : this;
         }
         /**
          * Creates and returns a new instance of a flipped polygon.
@@ -348,7 +348,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Object} flipped polygon.
          */
         flip(state) {
-            return state ? this.scaleAtCenter(new hamonengine.geometry.vector2(1, -1)) : this;
+            return state ? this.scaleAtCenter(new hamonengine.math.vector2(1, -1)) : this;
         }
         /**
          * Determines if this shape collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
@@ -358,7 +358,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollision(shape, direction=new hamonengine.geometry.vector2()) {
+        isCollision(shape, direction=new hamonengine.math.vector2()) {
             if (shape instanceof hamonengine.geometry.rect) {
                 //Convert the rect into a polygon for proper collision detection.
                 return shape.toPolygon().isCollisionPolygon(this,direction);
@@ -371,7 +371,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 return shape.isCollision(this,direction);
             }
 
-            return new hamonengine.geometry.vector2(0, 0);
+            return new hamonengine.math.vector2(0, 0);
         }
         /**
          * Determines if this polygon collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
@@ -381,7 +381,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollisionPolygon(polygon, direction=new hamonengine.geometry.vector2()) {
+        isCollisionPolygon(polygon, direction=new hamonengine.math.vector2()) {
             if (!(polygon instanceof hamonengine.geometry.polygon)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
             }
@@ -401,7 +401,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 const overlapping = thisProjection.overlap(otherProjection);
                 if (!overlapping.isLine) {
                     //No collision has occurred so return an empty MTV.
-                    return new hamonengine.geometry.vector2();
+                    return new hamonengine.math.vector2();
                 }
 
                 //Check for containment.
@@ -430,7 +430,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 const overlapping = thisProjection.overlap(otherProjection);
                 if (!overlapping.isLine) {
                     //No collision has occurred so return an empty MTV.
-                    return new hamonengine.geometry.vector2();
+                    return new hamonengine.math.vector2();
                 }
 
                 //Check for containment.
@@ -468,11 +468,11 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
         isContained(shape) {
-            return new hamonengine.geometry.vector2();
+            return new hamonengine.math.vector2();
         }
         /**
          * Projects the polygon onto the provided vector and returns a (hamonengine.geometry.interval}.
-         * @param {object} unitVector (hamonengine.geometry.vector2) to project onto.
+         * @param {object} unitVector (hamonengine.math.vector2) to project onto.
          */
         project(unitVector) {
             let min = 0, max = 0;
@@ -522,7 +522,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * The minimum vertex of the polygon.
          * The maximum vertex of the polygon.
          * @param {Array<Object>} vertices a collection to generate the center from.
-         * @returns {Object} a complex object that returns the min, max & center vectors (hamonengine.geometry.vector2).
+         * @returns {Object} a complex object that returns the min, max & center vectors (hamonengine.math.vector2).
          */
         static calcDimensions(vertices = []) {
             let minVertex = null, maxVertex = null;
@@ -544,9 +544,9 @@ hamonengine.geometry = hamonengine.geometry || {};
             };
 
             return {
-                max: new hamonengine.geometry.vector2(xMax, yMax),
-                min: new hamonengine.geometry.vector2(xMin, yMin),
-                center: new hamonengine.geometry.vector2(xMin + (xMax - xMin) / 2, yMin + (yMax - yMin) / 2),
+                max: new hamonengine.math.vector2(xMax, yMax),
+                min: new hamonengine.math.vector2(xMin, yMin),
+                center: new hamonengine.math.vector2(xMin + (xMax - xMin) / 2, yMin + (yMax - yMin) / 2),
                 minVertex,
                 maxVertex
             };
@@ -571,7 +571,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 const v2 = p3.subtract(p2);
 
                 //Calculate the cross-product between our two vectors.
-                //NOTE: Since these are 2d vectors, the results will be stored in the z-coordinate in a vector3 (hamonengine.geometry.vector3).
+                //NOTE: Since these are 2d vectors, the results will be stored in the z-coordinate in a vector3 (hamonengine.math.vector3).
                 signCounter += v2.cross(v1).z > 0 ? 1 : -1;
             }
 

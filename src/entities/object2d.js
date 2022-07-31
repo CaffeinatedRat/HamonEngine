@@ -59,8 +59,8 @@ hamonengine.entities = hamonengine.entities || {};
 
             //Movement variables
             this._movementRate = options.movementRate || 0;
-            this._position = options.position || new hamonengine.geometry.vector2();
-            this._direction = options.direction || new hamonengine.geometry.vector2();
+            this._position = options.position || new hamonengine.math.vector2();
+            this._direction = options.direction || new hamonengine.math.vector2();
 
             //Transformation variables.
             this._theta = options.theta || 0.0;
@@ -201,7 +201,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
         calcMove(elapsedTimeInMilliseconds) {
-            return new hamonengine.geometry.vector2(
+            return new hamonengine.math.vector2(
                 this._movementRate * this.direction.x * elapsedTimeInMilliseconds,
                 this._movementRate * this.direction.y * elapsedTimeInMilliseconds
             );
@@ -221,7 +221,7 @@ hamonengine.entities = hamonengine.entities || {};
          * For example if the targetObject extends beyond the left side of this object then the x-cooridnate will be -1.
          * If the targetObject extends beyond the bottom side of this object then the y-cooridnate will be +1.
          * @param {*} targetObject to evaluate
-         * @return {Object} a (hamonengine.geometry.vector2) that provides a direction of where the shape is outside.
+         * @return {Object} a (hamonengine.math.vector2) that provides a direction of where the shape is outside.
          */
         isContained(targetObject) {
             return this.boundingShape.isContained(targetObject.position, targetObject.boundingShape);

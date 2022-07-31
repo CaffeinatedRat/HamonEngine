@@ -77,21 +77,21 @@ hamonengine.geometry = hamonengine.geometry || {};
         toPolygon() {
             return new hamonengine.geometry.polygon({
                 vertices: [
-                    new hamonengine.geometry.vector2(this.x, this.y),
-                    new hamonengine.geometry.vector2(this.x + this.width, this.y),
-                    new hamonengine.geometry.vector2(this.x + this.width, this.y + this.height),
-                    new hamonengine.geometry.vector2(this.x, this.y + this.height)
+                    new hamonengine.math.vector2(this.x, this.y),
+                    new hamonengine.math.vector2(this.x + this.width, this.y),
+                    new hamonengine.math.vector2(this.x + this.width, this.y + this.height),
+                    new hamonengine.math.vector2(this.x, this.y + this.height)
                 ]
             });
         }
         /**
          * Creates and returns a new instance of a translated rect.
-         * @param {Object} translateVector a translation vector (hamonengine.geometry.vector2) of where to move the rect.
+         * @param {Object} translateVector a translation vector (hamonengine.math.vector2) of where to move the rect.
          * @returns {Object} translated rect.
          */
         translate(translateVector) {
             //Normalize the translateVector.
-            translateVector = translateVector || new hamonengine.geometry.vector2(0, 0);
+            translateVector = translateVector || new hamonengine.math.vector2(0, 0);
 
             //Return a new instance of the rect as to preserve the original.
             return new hamonengine.geometry.rect(
@@ -108,7 +108,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollision(shape, direction=new hamonengine.geometry.vector2()) {
+        isCollision(shape, direction=new hamonengine.math.vector2()) {
             if (shape instanceof hamonengine.geometry.rect) {
                 return this.isCollisionRect(shape,direction);
             }
@@ -116,7 +116,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 //Allow the polygon object to handle the polygon collision logic.
                 return shape.isCollision(this,direction);
             }
-            else if (shape instanceof hamonengine.geometry.vector2) {
+            else if (shape instanceof hamonengine.math.vector2) {
                 return this.isCollisionPoint(shape);
             }
             else if (shape instanceof hamonengine.geometry.lineSegment) {
@@ -124,7 +124,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 return shape.isCollision(this,direction);
             }
 
-            return new hamonengine.geometry.vector2(0, 0);
+            return new hamonengine.math.vector2(0, 0);
         }
         /**
          * Determines if this rect collides with another rect.
@@ -133,7 +133,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollisionRect(otherRect, direction=new hamonengine.geometry.vector2()) {
+        isCollisionRect(otherRect, direction=new hamonengine.math.vector2()) {
             if (!(otherRect instanceof hamonengine.geometry.rect)) {
                 console.warn(`[hamonengine.geometry.rect.isCollision] The otherRect parameter is not of type hamonengine.geometry.rect!`);
             }
@@ -156,7 +156,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             const overlappingYAxis = this_YAxisProjection.overlap(other_YAxisProjection);
             if (!overlappingYAxis.isLine) {
                 //No collision has occurred so return an empty MTV.
-                return new hamonengine.geometry.vector2();
+                return new hamonengine.math.vector2();
             }
 
             //Check for containment.
@@ -169,7 +169,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Keep record of the shortest overlapping length in the event a collision occurs.
             if (isNaN(mnimumOverlappingLength) || overlappingYAxisLength < mnimumOverlappingLength) {
                 mnimumOverlappingLength = overlappingYAxisLength;
-                mtvAxis = hamonengine.geometry.vector2.Y_AXIS_NORMAL;
+                mtvAxis = hamonengine.math.vector2.Y_AXIS_NORMAL;
             }
 
             // ---------------------------------------------
@@ -187,7 +187,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             const overlappingXAxis = this_XAxisProjection.overlap(other_XAxisProjection);
             if (!overlappingXAxis.isLine) {
                 //No collision has occurred so return an empty MTV.
-                return new hamonengine.geometry.vector2();
+                return new hamonengine.math.vector2();
             }
 
             //Check for containment.
@@ -200,7 +200,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Keep record of the shortest overlapping length in the event a collision occurs.
             if (isNaN(mnimumOverlappingLength) || overlappingXAxisLength < mnimumOverlappingLength) {
                 mnimumOverlappingLength = overlappingXAxisLength;
-                mtvAxis = hamonengine.geometry.vector2.X_AXIS_NORMAL;
+                mtvAxis = hamonengine.math.vector2.X_AXIS_NORMAL;
             }
 
             //Determine when the value is too small and should be treated as zero.
@@ -223,7 +223,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         isCollisionPoint(point) {
 
-            const outsideDirection = new hamonengine.geometry.vector2();
+            const outsideDirection = new hamonengine.math.vector2();
 
             if ((point.x >= this.x && point.x <= this.right) && (point.y >= this.y && point.y <= this.bottom)) {
                 const minX = point.x - this.x;
@@ -251,7 +251,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 console.warn(`[hamonengine.geometry.rect.isContained] The rect parameter is not of type hamonengine.geometry.rect!`);
             }
 
-            const outsideDirection = new hamonengine.geometry.vector2();
+            const outsideDirection = new hamonengine.math.vector2();
 
             const xOffset = position.x + rect.x;
             const yOffset = position.y + rect.y;
@@ -277,10 +277,10 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Projects the rect onto the provided vector and returns a (hamonengine.geometry.interval}.
-         * @param {object} unitVector (hamonengine.geometry.vector2) to project onto.
+         * @param {object} unitVector (hamonengine.math.vector2) to project onto.
          */
         project(unitVector) {
-            let min = max = unitVector.dot(new hamonengine.geometry.vector2(this.x, this.y));
+            let min = max = unitVector.dot(new hamonengine.math.vector2(this.x, this.y));
             const calcProjections = (vector) => {
                 const dotProduct = unitVector.dot(vector);
                 if (dotProduct < min) {
@@ -291,9 +291,9 @@ hamonengine.geometry = hamonengine.geometry || {};
                 }
             }
 
-            calcProjections(new hamonengine.geometry.vector2(this.x + this.width, this.y));
-            calcProjections(new hamonengine.geometry.vector2(this.x + this.width, this.y + this.height));
-            calcProjections(new hamonengine.geometry.vector2(this.x, this.y + this.height));
+            calcProjections(new hamonengine.math.vector2(this.x + this.width, this.y));
+            calcProjections(new hamonengine.math.vector2(this.x + this.width, this.y + this.height));
+            calcProjections(new hamonengine.math.vector2(this.x, this.y + this.height));
 
             //Returns an interval that contains a min & max only.
             return new hamonengine.geometry.interval(min, max);

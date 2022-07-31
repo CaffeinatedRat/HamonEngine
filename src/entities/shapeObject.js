@@ -55,7 +55,7 @@ hamonengine.entities = hamonengine.entities || {};
             //Determine if the direction basis used to determine which way the shape faces when mirroring or rotating.
             //By default the shape will always point towards +x, where mirroring it will point towards -x when moving horizontally.
             //By default the shape will always point towards -y (y is inverted on the canvas with 0 at the top, and height at the bottom), where rotating it will point towards +y when moving vertically.
-            this._directionBasis = options.directionBasis || new hamonengine.geometry.vector2(-1, -1);
+            this._directionBasis = options.directionBasis || new hamonengine.math.vector2(-1, -1);
 
             this._mirroredState = false;
             this._theta = 0;
@@ -171,7 +171,7 @@ hamonengine.entities = hamonengine.entities || {};
         isCollision(shapeObject) {
             if(this.isSolid && shapeObject.isSolid) {
 
-                let direction = new hamonengine.geometry.vector2();
+                let direction = new hamonengine.math.vector2();
                 if (shapeObject instanceof hamonengine.entities.shapeObject) {
                     direction = shapeObject.position.subtract(this.position);
                     shapeObject = shapeObject.shape.translate(shapeObject.position);
@@ -179,7 +179,7 @@ hamonengine.entities = hamonengine.entities || {};
 
                 return this.shape.translate(this.position).isCollision(shapeObject, direction);
             }
-            return new hamonengine.geometry.vector2();
+            return new hamonengine.math.vector2();
         }
         /**
          * Draws the sprite object.
