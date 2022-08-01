@@ -93,7 +93,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Outputs the lineSegment as a string.
          */
         toString() {
-            return `({x1: ${this.x}, y1: ${this.y}}), ({x2: ${this.x2}, y2: ${this.y2}})`;
+            return `({x1: ${this.x}, y1: ${this.y}}, {x2: ${this.x2}, y2: ${this.y2}})`;
         }
         /**
          * Returns an array of vertices representing the lineSegment.
@@ -116,7 +116,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Creates and returns a new instance of a translated lineSegment.
-         * @param {Object} translateVector a translation vector (hamonengine.geometry.lineSegment) of where to move the lineSegment.
+         * @param {Object} translateVector a translation vector (hamonengine.math.vector2) of where to move the lineSegment.
          * @returns {Object} translated lineSegment.
          */
         translate(translateVector) {
@@ -134,7 +134,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         /**
          * Determines if this lineSegment collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
          * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
-         * NOTE: The shape must be of the type hamonengine.geometry.polygon, hamonengine.geometry.rect, hamonengine.geometry.lineSegment
+         * NOTE: The shape must be of the type hamonengine.geometry.polygon, hamonengine.geometry.rect
          * @param {Object} shape to evaluated based on the coordinates.
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
