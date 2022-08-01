@@ -582,7 +582,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Find the coordinates to begin the normal.
                 //The normal will start at the middle of the edge.
                 //NOTE: The bitRound is used to quickly round any decimal values into an integer.
-                let {x, y} = lineSegment.midPoint;
+                let { x, y } = lineSegment.midPoint;
                 x = Math.bitRound(x) + x1;
                 y = Math.bitRound(y) + y1;
 
@@ -612,6 +612,25 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                 this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
                 this.context.stroke();
+            }
+        }
+        /**
+         * A method that draws the polyChain object with no wrapping (hamonengine.geometry.polyChain) based on the dimension parameters provided.
+         * @param {object} polyChain object to draw.
+         * @param {number} sourceX coordinate of where to offset the polyChain (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to offset the polyChain (Optional and set to zero).
+         * @param {number} obj.lineWidth width of the polyChain  (Optional and set to 1).
+         * @param {boolean} obj.drawNormals determines if the normal should be drawn (Default is false).
+         * @param {string} obj.color of the polyChain.
+         */
+        drawPolyChain(polyChain, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = true, color = 'white' } = {}) {
+
+            if (!(polyChain instanceof hamonengine.geometry.polyChain)) {
+                throw "Parameter polyChain is not of type hamonengine.geometry.polyChain.";
+            }
+
+            for(let i = 0; i < polyChain.lines.length; i++) {
+                this.drawLineSegment(polyChain.lines[i], sourceX, sourceY, { lineWidth, drawNormals, color });
             }
         }
         /**
@@ -893,6 +912,10 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             if (shape instanceof hamonengine.geometry.lineSegment) {
                 this.drawLineSegment(shape, sourceX, sourceY, { lineWidth, drawNormals, color });
+            }
+
+            if (shape instanceof hamonengine.geometry.polyChain) {
+                this.drawPolyChain(shape, sourceX, sourceY, { lineWidth, drawNormals, color });
             }
         }
     }

@@ -215,11 +215,26 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Adds a line to the polygon.
-         * @param {object} line an instance of hamonengine.geometry.rect.
+         * @param {object} line an instance of hamonengine.geometry.lineSegment.
          */
         addLine(line) {
             this._vertices.push(...line.toVertices());
             this._dirty = DIRTY_ALL;
+        }
+        /**
+         * Returns a polygon where the vertices are reversed.
+         * @returns 
+         */
+        reverse() {
+            const newVertices = [];
+            for (let i = this.vertices.length - 1; i >= 0; i--) {
+                newVertices.push(this.vertices[i]);
+            };
+
+            //Return a new instance of the polygon as to preserve the original.
+            return new hamonengine.geometry.polygon({
+                vertices: newVertices
+            });
         }
         /**
          * Creates and returns a new instance of a translated polygon.
@@ -353,7 +368,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         /**
          * Determines if this shape collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
          * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
-         * NOTE: The shape must be of the type hamonengine.geometry.polygon or hamonengine.geometry.rect
+         * NOTE: The shape must be of the type hamonengine.geometry.polygon, hamonengine.geometry.rect, hamonengine.geometry.lineSegment and hamonengine.geometry.polyChain.
          * @param {object} shape polygon or rect to test against.
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
@@ -366,7 +381,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             else if (shape instanceof hamonengine.geometry.polygon) {
                 return this.isCollisionPolygon(shape,direction);
             }
-            else if (shape instanceof hamonengine.geometry.lineSegment) {
+            else if (shape instanceof hamonengine.geometry.lineSegment || shape instanceof hamonengine.geometry.polyChain) {
                 //Allow the line segment to handle its own collision logic.
                 return shape.isCollision(this,direction);
             }

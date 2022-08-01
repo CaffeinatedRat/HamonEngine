@@ -103,7 +103,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         }
         /**
          * Determines if this rect collides with the other shape.
-         * NOTE: The shape must be of the type hamonengine.geometry.rect or hamonengine.geometry.polygon
+         NOTE: The shape must be of the type hamonengine.geometry.polygon, hamonengine.geometry.rect, hamonengine.geometry.lineSegment and hamonengine.geometry.polyChain.
          * @param {Object} shape to evaluated based on the coordinates.
          * @param {object} direction optional paramter used to help determine the direction of the MTV.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
@@ -119,7 +119,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             else if (shape instanceof hamonengine.math.vector2) {
                 return this.isCollisionPoint(shape);
             }
-            else if (shape instanceof hamonengine.geometry.lineSegment) {
+            else if (shape instanceof hamonengine.geometry.lineSegment || shape instanceof hamonengine.geometry.polyChain) {
                 //Allow the line segment to handle its own collision logic.
                 return shape.isCollision(this,direction);
             }
@@ -222,7 +222,6 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
         isCollisionPoint(point) {
-
             const outsideDirection = new hamonengine.math.vector2();
 
             if ((point.x >= this.x && point.x <= this.right) && (point.y >= this.y && point.y <= this.bottom)) {
@@ -246,7 +245,6 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
         isContained(position, rect) {
-
             if (!(rect instanceof hamonengine.geometry.rect)) {
                 console.warn(`[hamonengine.geometry.rect.isContained] The rect parameter is not of type hamonengine.geometry.rect!`);
             }
