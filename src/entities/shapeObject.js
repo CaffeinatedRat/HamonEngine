@@ -169,10 +169,10 @@ hamonengine.entities = hamonengine.entities || {};
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
         isCollision(shapeObject) {
-            if(this.isSolid && shapeObject.isSolid) {
+            if(this.isSolid) {
 
                 let direction = new hamonengine.math.vector2();
-                if (shapeObject instanceof hamonengine.entities.shapeObject) {
+                if (shapeObject instanceof hamonengine.entities.shapeObject && shapeObject.isSolid) {
                     direction = shapeObject.position.subtract(this.position);
                     shapeObject = shapeObject.shape.translate(shapeObject.position);
                 }
