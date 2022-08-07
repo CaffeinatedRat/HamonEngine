@@ -28,13 +28,6 @@
 hamonengine.geometry = hamonengine.geometry || {};
 
 (function () {
-
-    const DIRTY_NORMAL = 0;
-    const DIRTY_DIMS = 1;
-    const DIRTY_EDGE = 2;
-    const DIRTY_SHAPE = 3;
-    const DIRTY_ALL = 15;
-
     /**
      * This class represents a 2d polygon.
      */
@@ -60,7 +53,7 @@ hamonengine.geometry = hamonengine.geometry || {};
                 maxVertex: null,
             };
 
-            this._dirty = DIRTY_ALL;
+            this._dirty = DIRTY_FLAG.ALL;
             this._shapeType = SHAPE_TYPE.UNKNOWN;
         }
         //--------------------------------------------------------
@@ -76,9 +69,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the edges of this polygon.
          */
         get edges() {
-            if (bitflag.isSet(this._dirty, DIRTY_EDGE)) {
+            if (bitflag.isSet(this._dirty, DIRTY_FLAG.EDGE)) {
                 this._edges = hamonengine.geometry.polygon.calcEdges(this.vertices);
-                bitflag.toggle(this._dirty, DIRTY_EDGE, false);
+                this._dirty = bitflag.toggle(this._dirty, DIRTY_FLAG.EDGE, false);
             }
 
             return this._edges;
@@ -87,9 +80,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the normals of this polygon.
          */
         get normals() {
-            if (bitflag.isSet(this._dirty, DIRTY_NORMAL)) {
+            if (bitflag.isSet(this._dirty, DIRTY_FLAG.NORMAL)) {
                 this._normals = hamonengine.geometry.polygon.calcNormals(this.edges);
-                bitflag.toggle(this._dirty, DIRTY_NORMAL, false);
+                this._dirty = bitflag.toggle(this._dirty, DIRTY_FLAG.NORMAL, false);
             }
 
             return this._normals;
@@ -98,9 +91,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns a center vector, which is the center of the polygon.
          */
         get center() {
-            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_FLAG.DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
+                this._dirty = bitflag.toggle(this._dirty, DIRTY_FLAG.DIMS, false);
             }
             return this._dimensions.center;
         }
@@ -110,9 +103,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * For example: For a polygon of (0,0), (70,-10), (50,50), (0,50) the maximum value will be (70, 50) which is not a vertex in the polygon.
          */
         get max() {
-            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_FLAG.DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
+                this._dirty = bitflag.toggle(this._dirty, DIRTY_FLAG.DIMS, false);
             }
             return this._dimensions.max;
         }
@@ -122,9 +115,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * For example: For a polygon of (0,0), (70,-10), (50,50), (0,50) the minimum value will be (0, -10) which is not a vertex in the polygon.
          */
         get min() {
-            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_FLAG.DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
+                this._dirty = bitflag.toggle(this._dirty, DIRTY_FLAG.DIMS, false);
             }
             return this._dimensions.min;
         }
@@ -132,9 +125,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the minimum vertex in the polygon's set of vertices.
          */
         get minVertex() {
-            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_FLAG.DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
+                this._dirty = bitflag.toggle(this._dirty, DIRTY_FLAG.DIMS, false);
             }
             return this._dimensions.minVertex;
         }
@@ -142,9 +135,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the maximum vertex in the polygon's set of vertices.
          */
         get maxVertex() {
-            if (bitflag.isSet(this._dirty, DIRTY_DIMS)) {
+            if (bitflag.isSet(this._dirty, DIRTY_FLAG.DIMS)) {
                 this._dimensions = hamonengine.geometry.polygon.calcDimensions(this.vertices);
-                bitflag.toggle(this._dirty, DIRTY_DIMS, false);
+                this._dirty = bitflag.toggle(this._dirty, DIRTY_FLAG.DIMS, false);
             }
             return this._dimensions.maxVertex;
         }
@@ -164,9 +157,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the type of the shape, CONCAVE or CONVEX.
          */
         get shapeType() {
-            if (bitflag.isSet(this._dirty, DIRTY_SHAPE)) {
+            if (bitflag.isSet(this._dirty, DIRTY_FLAG.SHAPE)) {
                 this._shapeType = hamonengine.geometry.polygon.calcShapeType(this.vertices);
-                bitflag.toggle(this._dirty, DIRTY_SHAPE, false);
+                this._dirty = bitflag.toggle(this._dirty, DIRTY_FLAG.SHAPE, false);
             }
 
             return this._shapeType;
@@ -211,7 +204,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         addVertex(x, y) {
             //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
             this._vertices.push(new hamonengine.math.vector2(x, y));
-            this._dirty = DIRTY_ALL;
+            this._dirty = DIRTY_FLAG.ALL;
         }
         /**
          * Adds a line to the polygon.
@@ -219,7 +212,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         addLine(line) {
             this._vertices.push(...line.toVertices());
-            this._dirty = DIRTY_ALL;
+            this._dirty = DIRTY_FLAG.ALL;
         }
         /**
          * Returns a polygon where the vertices are reversed.
@@ -346,7 +339,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Object} scaleVector a scale vector (hamonengine.math.vector2) to apply to the polygon.
          * @returns {Object} scaled polygon.
          */
-         scaleAtCenter(scaleVector) {
+        scaleAtCenter(scaleVector) {
             return this.scale(scaleVector, this.center.subtract(this.center.multiplyVector(scaleVector)));
         }
         /**

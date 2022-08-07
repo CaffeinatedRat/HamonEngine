@@ -41,3 +41,11 @@ const TEXT_DRAW_TYPE = {
     STROKE: 0,
     FILL: 1
 }
+
+const DIRTY_FLAG = {
+    NORMAL: 0,
+    DIMS: 1,
+    EDGE: 2,
+    SHAPE: 3,
+    ALL: 15
+}
