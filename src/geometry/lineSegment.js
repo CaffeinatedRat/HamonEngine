@@ -37,11 +37,12 @@ hamonengine.geometry = hamonengine.geometry || {};
      * 4) Line segments are boundary shapes where collision detection forces any other shape in the direction of the segment normal.
      */
     hamonengine.geometry.lineSegment = class {
-        constructor(x = 0, y = 0, x2 = 0, y2 = 0) {
-            this.x = x;
-            this.y = y;
-            this.x2 = x2;
-            this.y2 = y2;
+        constructor(x = 0, y = 0, x2 = 0, y2 = 0, options = {}) {
+            
+            //Use any supplied coords as the highest priority so that a shared array can be used if needed.
+            this._coords = options.coords || [x, y, x2, y2];
+            this._offset = options.offset || 0;
+            this._normalOrientation = options.normalOrientation !== undefined ? options.normalOrientation : ROTATION_TYPE.CW;
 
             //Precache the direction vector.
             this._direction = new hamonengine.math.vector2(x2 - x, y2 - y);
@@ -49,6 +50,54 @@ hamonengine.geometry = hamonengine.geometry || {};
         //--------------------------------------------------------
         // Properties
         //--------------------------------------------------------
+        /**
+         * Returns initial x coordinate
+         */
+        get x() {
+            return this._coords[this._offset + 0];
+        }
+        /**
+         * Assigns initial x coordinate
+         */
+        set x(v) {
+            this._coords[this._offset + 0] = v;
+        }
+        /**
+         * Returns initial y coordinate
+         */
+        get y() {
+            return this._coords[this._offset + 1];
+        }
+        /**
+         * Assigns initial y coordinate
+         */
+        set y(v) {
+            this._coords[this._offset + 1] = v;
+        }
+        /**
+         * Returns final x coordinate
+         */
+        get x2() {
+            return this._coords[this._offset + 2];
+        }
+        /**
+         * Assigns final x coordinate
+         */
+        set x2(v) {
+            this._coords[this._offset + 2] = v;
+        }
+        /**
+         * Returns final y coordinate
+         */
+        get y2() {
+            return this._coords[this._offset + 3];
+        }
+        /**
+         * Assigns final y coordinate
+         */
+        set y2(v) {
+            this._coords[this._offset + 3] = v;
+        }
         /**
          * Returns the length of the lineSegment.
          */
@@ -71,13 +120,25 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns the normal of the lineSegment.
          */
         get normal() {
-            return this._direction.normal(ROTATION_TYPE.CW);
+            return this._direction.normal(this.normalOrientation);
         }
         /**
          * Returns a collection of normals to provide consistency with the other shapes.
          */
         get normals() {
             return [this.normal];
+        }
+        /**
+         * Returns the normal orientation (ROTATION_TYPE) used to determine how the normal is created.
+         */
+        get normalOrientation() {
+            return this._normalOrientation;
+        }
+        /**
+         * Assigns the normal orientation (ROTATION_TYPE) used to determine how the normal is created.
+         */
+        set normalOrientation(v) {
+            this._normalOrientation = v;
         }
         //--------------------------------------------------------
         // Methods
@@ -87,7 +148,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Object} cloned lineSegment.
          */
         clone() {
-            return new hamonengine.geometry.lineSegment(this.x, this.y, this.x2, this.y2);
+            return new hamonengine.geometry.lineSegment(this.x, this.y, this.x2, this.y2, {coords: this._coords, offset: this._offset});
         }
         /**
          * Outputs the lineSegment as a string.

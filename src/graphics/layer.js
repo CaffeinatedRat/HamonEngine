@@ -558,33 +558,36 @@ hamonengine.graphics = hamonengine.graphics || {};
                 throw "Parameter lineSegment is not of type hamonengine.geometry.lineSegment.";
             }
 
+            this.simpleDrawCoords(lineSegment._coords, lineSegment._offset, sourceX, sourceY, { lineWidth, color, normals: (drawNormals ? lineSegment.normals : []) });
+        }
+        /**
+         * A method that draws a series of points with no wrapping based on the dimension parameters provided.
+         * @param {object} points array of points to draw.
+         * @param {number} sourceX coordinate of where to offset the points (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to offset the points (Optional and set to zero).
+         * @param {number} obj.lineWidth width of the points  (Optional and set to 1).
+         * @param {string} obj.color of the points.
+         * @param {object} obj.normals associated with the coordinates.
+         */
+        simpleDrawCoords(coordinates, offset = 0, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', normals = [] } = {}) {
+
+            //Bail if we don't have asymmetrical coordinates, a coordinate pair (coordinates[i + 0] = x, coordinates[i + 1] = y).
+            //Bail if the offset extends beyond the size of the coordinate pair (coordinates[offset + i + 0] = x, coordinates[offset + i + 1] = y).
+            if ((coordinates.length % 2 != 0) || (offset + 1 > coordinates.length)) {
+                return;
+            }
+
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
-
-            //Get our first point.
-            const x1 = sourceX + lineSegment.x;
-            const y1 = sourceY + lineSegment.y;
-
-            //Get our second point.
-            const x2 = sourceX + lineSegment.x2;
-            const y2 = sourceY + lineSegment.y2;
-
             this.context.beginPath();
-            this.context.moveTo(x1, y1);
-            this.context.lineTo(x2, y2);
 
-            this.context.stroke();
+            let lastPoint;
+            const edges = [];
+            for (let i = offset; i < coordinates.length; i += 2) {
 
-            if (hamonengine.debug && drawNormals) {
-
-                this.context.strokeStyle = 'white';
-
-                //Find the coordinates to begin the normal.
-                //The normal will start at the middle of the edge.
-                //NOTE: The bitRound is used to quickly round any decimal values into an integer.
-                let { x, y } = lineSegment.midPoint;
-                x = Math.bitRound(x) + x1;
-                y = Math.bitRound(y) + y1;
+                //Get the x,y coords.
+                let x = Math.bitRound(sourceX + coordinates[i]);
+                let y = Math.bitRound(sourceY + coordinates[i + 1]);
 
                 if (this.invertYAxis) {
                     y = this.viewPort.height - y;
@@ -594,24 +597,62 @@ hamonengine.graphics = hamonengine.graphics || {};
                     x = this.viewPort.width - x;
                 }
 
-                //Position our normal.
-                this.context.beginPath();
-                this.context.moveTo(x, y);
-
-                //Get the normal to draw.
-                const normal = lineSegment.normal;
-                const normalSize = Math.bitRound(lineSegment.length / 2);
-
-                if (this.invertYAxis) {
-                    normal.y = -normal.y;
+                if (i === offset) {
+                    this.context.moveTo(x, y);
+                    lastPoint = new hamonengine.math.vector2(x, y);
                 }
+                else {
+                    this.context.lineTo(x, y);
 
-                if (this.invertXAxis) {
-                    normal.x = -normal.x;
+                    //Calculate the edges.
+                    const v1 = new hamonengine.math.vector2(x, y);
+                    edges.push(v1.subtract(lastPoint));
+                    lastPoint = v1;
                 }
+            }
 
-                this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
-                this.context.stroke();
+            this.context.stroke();
+
+            //Only draw the normals if:
+            //1) debug mode is on.
+            //2) The number of normals is equal to the number off coordinate pairs or greater.
+            if (hamonengine.debug && (normals.length >= coordinates.length / 4)) {
+
+                this.context.strokeStyle = 'white';
+
+                for (let index = offset, edgeIndex = 0; index < coordinates.length && edgeIndex < edges.length && edgeIndex < normals.length; index += 2, edgeIndex++) {
+
+                    //Find the coordinates to begin the normal.
+                    //The normal will start at the middle of the edge.
+                    let x = Math.bitRound(sourceX + coordinates[index] + edges[edgeIndex].x / 2);
+                    let y = Math.bitRound(sourceY + coordinates[index + 1] + edges[edgeIndex].y / 2);
+
+                    if (this.invertYAxis) {
+                        y = this.viewPort.height - y;
+                    }
+
+                    if (this.invertXAxis) {
+                        x = this.viewPort.width - x;
+                    }
+
+                    this.context.beginPath();
+                    this.context.moveTo(x, y);
+
+                    //Find the normal for the current edge and draw a line to it.
+                    const normal = normals[edgeIndex];
+                    const normalSize = Math.bitRound(edges[edgeIndex].length / 2);
+
+                    if (this.invertYAxis) {
+                        normal.y = -normal.y;
+                    }
+
+                    if (this.invertXAxis) {
+                        normal.x = -normal.x;
+                    }
+
+                    this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
+                    this.context.stroke();
+                }
             }
         }
         /**
@@ -629,7 +670,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 throw "Parameter polyChain is not of type hamonengine.geometry.polyChain.";
             }
 
-            for(let i = 0; i < polyChain.lines.length; i++) {
+            for (let i = 0; i < polyChain.lines.length; i++) {
                 this.drawLineSegment(polyChain.lines[i], sourceX, sourceY, { lineWidth, drawNormals, color });
             }
         }
@@ -842,9 +883,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Complete the shape and draw the polygon.
             this.context.closePath();
-            if (fill) {
-                this.context.fill();
-            }
+            fill && this.context.fill();
             this.context.stroke();
 
             if (hamonengine.debug && drawNormals) {
