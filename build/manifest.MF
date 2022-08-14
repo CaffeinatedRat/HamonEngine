@@ -16,6 +16,7 @@ src/global.js
 ./src/audio/track.js
 ./src/geometry/interval.js
 ./src/geometry/lineSegment.js
+./src/geometry/polyChain.js
 ./src/geometry/polygon.js
 ./src/geometry/rect.js
 ./src/geometry/type.js
