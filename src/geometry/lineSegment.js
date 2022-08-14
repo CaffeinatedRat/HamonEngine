@@ -38,14 +38,14 @@ hamonengine.geometry = hamonengine.geometry || {};
      */
     hamonengine.geometry.lineSegment = class {
         constructor(x = 0, y = 0, x2 = 0, y2 = 0, options = {}) {
-            
+
             //Use any supplied coords as the highest priority so that a shared array can be used if needed.
             this._coords = options.coords || [x, y, x2, y2];
             this._offset = options.offset || 0;
             this._normalOrientation = options.normalOrientation !== undefined ? options.normalOrientation : ROTATION_TYPE.CW;
 
             //Precache the direction vector.
-            this._direction = new hamonengine.math.vector2(x2 - x, y2 - y);
+            this._direction = new hamonengine.math.vector2(this.x2 - this.x, this.y2 - this.y);
         }
         //--------------------------------------------------------
         // Properties
@@ -148,7 +148,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Object} cloned lineSegment.
          */
         clone() {
-            return new hamonengine.geometry.lineSegment(this.x, this.y, this.x2, this.y2, {coords: this._coords, offset: this._offset});
+            return new hamonengine.geometry.lineSegment(this.x, this.y, this.x2, this.y2, { coords: [...this._coords], offset: this._offset });
         }
         /**
          * Outputs the lineSegment as a string.
@@ -174,6 +174,31 @@ hamonengine.geometry = hamonengine.geometry || {};
             return new hamonengine.geometry.polygon({
                 vertices: this.toVertices()
             });
+        }
+        /**
+         * Returns true if this line shares all points with line l.
+         * NOTE: Checks for exact match (this.p === l.p AND this.p2 === 1.p2) OR reverse match (this.p === l.p2 AND this.p2 === l.p).
+         * @param {object} l to compare against.
+         */
+        equals(l) {
+            return (this.x === l.x && this.y === l.y) && (this.x2 === l.x2 && this.y2 === l.y2)
+                || (this.x === l.x2 && this.y === l.y2) && (this.x2 === l.x && this.y2 === l.y);
+        }
+        /**
+         * Returns true if this line shares an endpoint with line l
+         * NOTE: Checks specifically for this.p2 === l.p OR this.p === l.p2.
+         * @param {object} l to compare against.
+         */
+        sharesEndPoint(l) {
+            return (this.x2 === l.x && this.y2 === l.y) || (this.x === l.x2 && this.y === l.y2);
+        }
+        /**
+         * Returns true if this line shares any points with line l
+         * NOTE: Checks for 1 match (this.p === l.p OR this.p === 1.p2) OR (this.p2 === l.p AND this.p2 === l.p2).
+         * @param {object} l to compare against.
+         */
+        sharesPoints(l) {
+            return (this.x === l.x && this.y === l.y) || (this.x2 === l.x2 && this.y2 === l.y2) || this.sharesEndPoint(l);
         }
         /**
          * Creates and returns a new instance of a translated lineSegment.
@@ -354,6 +379,25 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //Returns an interval that contains a min & max only.
             return new hamonengine.geometry.interval(min, max);
+        }
+        /**
+         * A method that moves this line's coordinates to the new coords reference.
+         * Allow this object to handle its move operation to keep it decoupled.
+         * @param {*} coords new array reference to use.
+         * @param {object} offsetLine is a (hamonengine.geometry.lineSegment) used to calculate the next offset.
+         */
+        move(coords, offsetLine) {
+
+            //Calculate the offset based off the offsetLine (previous line's) offset since they share endpoints.
+            const offset = offsetLine ? (offsetLine._offset + (offsetLine.sharesEndPoint(this) ? 2 : 4)) : 0;
+            coords[offset + 0] = this.x;
+            coords[offset + 1] = this.y;
+            coords[offset + 2] = this.x2;
+            coords[offset + 3] = this.y2;
+
+            //Update the coords reference and offset.
+            this._coords = coords;
+            this._offset = offset;
         }
     }
 })();

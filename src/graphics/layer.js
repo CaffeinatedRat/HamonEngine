@@ -558,18 +558,37 @@ hamonengine.graphics = hamonengine.graphics || {};
                 throw "Parameter lineSegment is not of type hamonengine.geometry.lineSegment.";
             }
 
-            this.simpleDrawCoords(lineSegment._coords, lineSegment._offset, sourceX, sourceY, { lineWidth, color, normals: (drawNormals ? lineSegment.normals : []) });
+            this.simpleDrawCoords(lineSegment._coords, 4, lineSegment._offset, sourceX, sourceY, { lineWidth, color, normals: (drawNormals ? lineSegment.normals : []) });
         }
         /**
-         * A method that draws a series of points with no wrapping based on the dimension parameters provided.
-         * @param {object} points array of points to draw.
+         * A method that draws the polyChain object with no wrapping (hamonengine.geometry.polyChain) based on the dimension parameters provided.
+         * @param {object} polyChain object to draw.
+         * @param {number} sourceX coordinate of where to offset the polyChain (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to offset the polyChain (Optional and set to zero).
+         * @param {number} obj.lineWidth width of the polyChain  (Optional and set to 1).
+         * @param {boolean} obj.drawNormals determines if the normal should be drawn (Default is false).
+         * @param {string} obj.color of the polyChain.
+         */
+        drawPolyChain(polyChain, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = true, color = 'white' } = {}) {
+
+            if (!(polyChain instanceof hamonengine.geometry.polyChain)) {
+                throw "Parameter polyChain is not of type hamonengine.geometry.polyChain.";
+            }
+
+            this.simpleDrawCoords(polyChain._coords, polyChain._coords.length, 0, sourceX, sourceY, { lineWidth, color, normals: (drawNormals ? polyChain.normals : []) });
+        }
+        /**
+         * A method that draws a series of coordinates of a non-closed shape with no wrapping based on the dimension parameters provided.
+         * @param {object} coordinates array of coordinates to draw.
+         * @param {object} length of coordinates to draw from the coordinate array.
+         * @param {object} offset of where to start in the coordinate array.
          * @param {number} sourceX coordinate of where to offset the points (Optional and set to zero).
          * @param {number} sourceY coordinate of where to offset the points (Optional and set to zero).
          * @param {number} obj.lineWidth width of the points  (Optional and set to 1).
          * @param {string} obj.color of the points.
          * @param {object} obj.normals associated with the coordinates.
          */
-        simpleDrawCoords(coordinates, offset = 0, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', normals = [] } = {}) {
+        simpleDrawCoords(coordinates, length = 0, offset = 0, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', normals = [] } = {}) {
 
             //Bail if we don't have asymmetrical coordinates, a coordinate pair (coordinates[i + 0] = x, coordinates[i + 1] = y).
             //Bail if the offset extends beyond the size of the coordinate pair (coordinates[offset + i + 0] = x, coordinates[offset + i + 1] = y).
@@ -583,7 +602,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             let lastPoint;
             const edges = [];
-            for (let i = offset; i < coordinates.length; i += 2) {
+            for (let i = offset; i < coordinates.length && i < length; i += 2) {
 
                 //Get the x,y coords.
                 let x = Math.bitRound(sourceX + coordinates[i]);
@@ -616,7 +635,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Only draw the normals if:
             //1) debug mode is on.
             //2) The number of normals is equal to the number off coordinate pairs or greater.
-            if (hamonengine.debug && (normals.length >= coordinates.length / 4)) {
+            if (hamonengine.debug && normals.length > 0) {
 
                 this.context.strokeStyle = 'white';
 
@@ -653,25 +672,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                     this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
                     this.context.stroke();
                 }
-            }
-        }
-        /**
-         * A method that draws the polyChain object with no wrapping (hamonengine.geometry.polyChain) based on the dimension parameters provided.
-         * @param {object} polyChain object to draw.
-         * @param {number} sourceX coordinate of where to offset the polyChain (Optional and set to zero).
-         * @param {number} sourceY coordinate of where to offset the polyChain (Optional and set to zero).
-         * @param {number} obj.lineWidth width of the polyChain  (Optional and set to 1).
-         * @param {boolean} obj.drawNormals determines if the normal should be drawn (Default is false).
-         * @param {string} obj.color of the polyChain.
-         */
-        drawPolyChain(polyChain, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = true, color = 'white' } = {}) {
-
-            if (!(polyChain instanceof hamonengine.geometry.polyChain)) {
-                throw "Parameter polyChain is not of type hamonengine.geometry.polyChain.";
-            }
-
-            for (let i = 0; i < polyChain.lines.length; i++) {
-                this.drawLineSegment(polyChain.lines[i], sourceX, sourceY, { lineWidth, drawNormals, color });
             }
         }
         /**

@@ -37,7 +37,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.geometry.polygon) {
                 options = {
-                    vertices: options.vertices
+                    vertices: [...options.vertices]
                 }
             }
 

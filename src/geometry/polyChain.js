@@ -28,13 +28,6 @@
 hamonengine.geometry = hamonengine.geometry || {};
 
 (function () {
-
-    const DIRTY_NORMAL = 0;
-    const DIRTY_DIMS = 1;
-    const DIRTY_EDGE = 2;
-    const DIRTY_SHAPE = 3;
-    const DIRTY_ALL = 15;
-
     /**
      * This class represents a Polygonal Chain that contains a collection of lineSegments (lines).
      * NOTE: A polygon should be used instead of a polyChain if it is a closed object and performance is perferred when rendering.
@@ -49,16 +42,28 @@ hamonengine.geometry = hamonengine.geometry || {};
                 }
             }
 
-            //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
-            this._lines = options.lines || [];
+            this._lines = [];
+            this._coords = [];
             this._normals = options.normals || [];
-            this._dirty = DIRTY_ALL;
+            this._dirty = DIRTY_FLAG.ALL;
+
+            //Specialized logic to create one shared array for all coordinates for all lines to reduce duplicates.
+            if (options.lines && options.lines.length > 0) {
+                for (let i = 0; i < options.lines.length; i++) {
+                    //Move the coordinates for each line into the shared coordinate array.
+                    const previousLine = (options.lines.length > 0 ? options.lines[i - 1] : null);
+                    options.lines[i].move(this._coords, previousLine);
+
+                    //Maintain a reference for this line.
+                    this._lines.push(options.lines[i]);
+                }
+            }
         }
         //--------------------------------------------------------
         // Properties
         //--------------------------------------------------------
         /**
-         * Returns a collection of lines that form this polyChain.
+         * Returns a collection of line references.
          */
         get lines() {
             return this._lines;
@@ -67,10 +72,9 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns a collection of normals to provide consistency with the other shapes.
          */
         get normals() {
-
-            if (bitflag.isSet(this._dirty, DIRTY_NORMAL)) {
+            if (bitflag.isSet(this._dirty, DIRTY_FLAG.NORMAL)) {
                 this._normals = this.lines.map(line => line.normal);
-                bitflag.toggle(this._dirty, DIRTY_NORMAL, false);
+                bitflag.toggle(this._dirty, DIRTY_FLAG.NORMAL, false);
             }
 
             return this._normals;
@@ -83,7 +87,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @returns {Object} cloned polyChain.
          */
         clone() {
-            return new hamonengine.geometry.polyChain({lines: this.lines});
+            return new hamonengine.geometry.polyChain({ lines: this.lines });
         }
         /**
          * Outputs the polyChain as a string.
@@ -95,16 +99,16 @@ hamonengine.geometry = hamonengine.geometry || {};
          * Returns an array of vertices representing the polyChain.
          * @return {object} an array of hamonengine.math.vector2
          */
-         toVertices() {
-            //Remove redundant vertices
+        toVertices() {
             const vertices = [];
-            for(let i = 0; i < this.lines.length; i++) {
-                vertices.push(new hamonengine.math.vector2(this.lines[i].x, this.lines[i].y));
+            for (let i = 0; i + 1 < this._coords.length; i += 2) {
+                //Look ahead and exclude any duplicate vertices.
+                const nextOffset = (i + 2) % this._coords.length;
+                if ((this._coords[i] !== this._coords[nextOffset]) || (this._coords[i + 1] !== this._coords[nextOffset + 1])) {
+                    vertices.push(new hamonengine.math.vector2(this._coords[i], this._coords[i + 1]));
+                }
             }
 
-            //Add the final vertex.
-            const lastLine = (this.lines.length > 0)  ? this.lines[this.lines.length - 1] : this.lines[0];
-            vertices.push(new hamonengine.math.vector2(lastLine.x2, lastLine.y2));
             return vertices;
         }
         /**
@@ -112,36 +116,47 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @return {object} an instance of hamonengine.geometry.polygon.
          */
         toPolygon() {
-            return new hamonengine.geometry.polygon({
-                vertices: this.toVertices()
-            });
+            return new hamonengine.geometry.polygon({ vertices: this.toVertices() });
         }
         /**
          * Adds a vertex to the polyChain.
          * @param {number} x
          * @param {number} y
          */
-         addVertex(x, y) {
-            const {x2, y2} = (this.lines.length > 0) ? this.lines[this.lines.length-1] : {x2: 0, y2: 0};
-            this.lines.push(new hamonengine.geometry.lineSegment(x2, y2, x, y));
-            this._dirty = DIRTY_ALL;
+        addVertex(x, y) {
+            //Find the offset and only update the coordinates if the point (vertex) being added is not a duplicate.
+            const offset = this._coords.length >= 2 ? (this._coords.length - 2) : 0;
+            if (this._coords[offset] !== x || this._coords[offset + 1] !== y) {
+                this._coords.push(x);
+                this._coords.push(y);
+                this._dirty = DIRTY_FLAG.ALL;
+
+                //Only add lines when we have more than one point in our polyChain.
+                this._coords.length > 2 && this.lines.push(new hamonengine.geometry.lineSegment(0, 0, 0, 0, { coords: this._coords, offset }));
+            }
         }
         /**
          * Adds a line to the polyChain.
-         * If a line does not complete the chain then a new one will be created to bridge the gap between the last line and this new line.
-         * @param {object} line an instance of hamonengine.geometry.rect.
+         * If the line being added does not complete the polyChain a new one will be added, where the newline must share the endpoints with the previous line in the chain.
+         * @param {object} line an instance of hamonengine.geometry.lineSegment.
          */
         addLine(line) {
-            if (this.lines.length > 0) {
-                //If the last line in our chain does not have the same x2 & y2 as x1 & y1 in our new line then complete the chain.
-                const lastLine = this.lines[this.lines.length - 1];
-                if (lastLine.x2 !== line.x && lastLine.y2 !== line.y) {
-                    this.lines.push(new hamonengine.geometry.lineSegment(lastLine.x2, lastLine.y2, line.x, line.y));
-                }
+            //Determine if this current lineSegment shares and endpoint with the previous one.
+            let previousLine = (this.lines.length > 0 ? this.lines[this.lines.length - 1] : null);
+            
+            //If the new lineSegment does note share the same endpoints as the previousLine then create a bridgingLine.
+            if (previousLine && !previousLine.sharesEndPoint(line)) {
+                const bridgingLine = new hamonengine.geometry.lineSegment(previousLine.x2, previousLine.y2, line.x, line.y);
+                bridgingLine.move(this._coords, previousLine);
+                this.lines.push(bridgingLine);
+                previousLine = bridgingLine;
             }
 
+            line.move(this._coords, previousLine);
+
+            //Maintain a reference for this line.
             this.lines.push(line);
-            this._dirty = DIRTY_ALL;
+            this._dirty = DIRTY_FLAG.ALL;
         }
         /**
          * Creates and returns a new instance of a translated polyChain.
@@ -170,7 +185,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             let correctionMTV = new hamonengine.math.vector2();
             for (let i = 0; i < this.lines.length; i++) {
                 //Determine if this shape has collided with another.
-                let mtv = shape.isCollision(this.lines[i],direction);
+                let mtv = shape.isCollision(this.lines[i], direction);
                 if (mtv.length > 0) {
                     //Adjust the position of the moving object.
                     correctionMTV = correctionMTV.add(mtv);
