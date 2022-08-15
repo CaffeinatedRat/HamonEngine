@@ -600,9 +600,12 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.strokeStyle = color;
             this.context.beginPath();
 
+            //Normalize the length.
+            length = offset + length > coordinates.length ? coordinates.length : offset + length;
+
             let lastPoint;
             const edges = [];
-            for (let i = offset; i < coordinates.length && i < length; i += 2) {
+            for (let i = offset; i < length; i += 2) {
 
                 //Get the x,y coords.
                 let x = Math.bitRound(sourceX + coordinates[i]);
@@ -639,7 +642,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                 this.context.strokeStyle = 'white';
 
-                for (let index = offset, edgeIndex = 0; index < coordinates.length && edgeIndex < edges.length && edgeIndex < normals.length; index += 2, edgeIndex++) {
+                for (let index = offset, edgeIndex = 0; index < length && edgeIndex < edges.length && edgeIndex < normals.length; index += 2, edgeIndex++) {
 
                     //Find the coordinates to begin the normal.
                     //The normal will start at the middle of the edge.
