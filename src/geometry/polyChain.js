@@ -79,6 +79,12 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             return this._normals;
         }
+        /**
+         * Returns the center of the lineSegment.
+         */
+        // get center() {
+        //     return this._direction.midPoint;
+        // }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -173,6 +179,63 @@ hamonengine.geometry = hamonengine.geometry || {};
             });
         }
         /**
+         * Creates and returns a new instance of a rotated lineSegment.
+         * @param {number} theta angle to rotate in radians.
+         * @param {Object} offsetVector an offset vector (hamonengine.math.vector2) of where to rotate.
+         * @returns {Object} rotated lineSegment.
+         */
+         rotate(theta, offsetVector) {
+            //Normalize
+            theta = theta || 0.0;
+            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+
+            //Precalculate the sin & cos values of theta.
+            const sinTheta = Math.sin(theta), cosTheta = Math.cos(theta);
+
+            //TODO: Performance evaluation
+            //Return a new instance of the polyChain as to preserve the original.
+            return new hamonengine.geometry.polyChain({
+                lines: this.lines.map(line => line.rotate(theta, offsetVector, {sinTheta, cosTheta}))
+            });
+        }
+        /**
+         * Creates and returns a new instance of a rotated lineSegment around the center.
+         * @param {number} theta angle to rotate in radians.
+         * @returns {Object} rotated lineSegment.
+         */
+        // rotateAtCenter(theta) {
+        //     return this.rotate(theta, this.center);
+        // }
+        /**
+         * Creates and returns a new instance of a scaled lineSegment.
+         * @param {Object} scaleVector a scale vector (hamonengine.math.vector2) to apply to the lineSegment.
+         * @param {Object} offsetVector an offset vector (hamonengine.math.vector2) of where to scale.
+         * @returns {Object} scaled lineSegment.
+         */
+        scale(scaleVector, offsetVector) {
+            //Normalize.
+            scaleVector = scaleVector || new hamonengine.math.vector2(0, 0);
+            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+
+            //If the x-axis (exclusively) or the y-axis is being flipped then reverse the order of vertices so the normals are generated correctly.
+            const xFlipped = scaleVector.x < 0;
+            const yFlipped = scaleVector.y < 0;
+
+            //TODO: Performance evaluation
+            //Return a new instance of the polyChain as to preserve the original.
+            return new hamonengine.geometry.polyChain({
+                lines: this.lines.map(line => line.scale(scaleVector, offsetVector, {xFlipped, yFlipped}))
+            });
+        }
+        /**
+         * Creates and returns a new instance of a scaled polygon around the center.
+         * @param {Object} scaleVector a scale vector (hamonengine.math.vector2) to apply to the polygon.
+         * @returns {Object} scaled polygon.
+         */
+        // scaleAtCenter(scaleVector) {
+        //     return this.scale(scaleVector, this.center.subtract(this.center.multiplyVector(scaleVector)));
+        // }
+        /**
          * Determines if this polyChain collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
          * This vector is not a unit vector, it includes the direction and magnitude of the overlapping length.
          * NOTE: The shape must be of the type hamonengine.geometry.polygon, hamonengine.geometry.rect.
@@ -194,5 +257,42 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             return correctionMTV;
         }
+        /**
+         * Calculates the dimensions of the polyChain and returns the max, min & center vectors.
+         * The local maximum that contains the maximum x & y coordinates of the polyChain.
+         * The local minimum that contains the minimum x & y coordinates of the polyChain.
+         * The center vector that contains the center coordinates of the polyChain.
+         * The minimum vertex of the polyChain.
+         * The maximum vertex of the polyChain.
+         * @param {Array<Object>} vertices a collection to generate the center from.
+         * @returns {Object} a complex object that returns the min, max & center vectors (hamonengine.math.vector2).
+         */
+        //  static calcDimensions(vertices = []) {
+        //     let minVertex = null, maxVertex = null;
+        //     let xMax = NaN, xMin = NaN;
+        //     let yMax = NaN, yMin = NaN;
+        //     for (let i = 0; i < this._coords.length - 2; i+=2) {
+        //         xMax = xMax > vertices[i].x ? xMax : vertices[i].x;
+        //         xMin = xMin < vertices[i].x ? xMin : vertices[i].x;
+        //         yMax = yMax > vertices[i+1].y ? yMax : vertices[i+1].y;
+        //         yMin = yMin < vertices[i+1].y ? yMin : vertices[i+1].y;
+
+        //         if (minVertex === null || (minVertex.x > vertices[i].x && minVertex.y > vertices[i+1].y)) {
+        //             minVertex = vertices[i];
+        //         }
+
+        //         if (maxVertex === null || (maxVertex.x < vertices[i].x && maxVertex.y < vertices[i+1].y)) {
+        //             maxVertex = vertices[i];
+        //         }
+        //     };
+
+        //     return {
+        //         max: new hamonengine.math.vector2(xMax, yMax),
+        //         min: new hamonengine.math.vector2(xMin, yMin),
+        //         center: new hamonengine.math.vector2(xMin + (xMax - xMin) / 2, yMin + (yMax - yMin) / 2),
+        //         minVertex,
+        //         maxVertex
+        //     };
+        // }        
     }
 })();

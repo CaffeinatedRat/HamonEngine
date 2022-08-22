@@ -105,9 +105,9 @@ hamonengine.geometry = hamonengine.geometry || {};
             return this._direction.length;
         }
         /**
-         * Returns the middle point on the lineSegment.
+         * Returns the center of the lineSegment.
          */
-        get midPoint() {
+        get center() {
             return this._direction.midPoint;
         }
         /**
@@ -216,6 +216,105 @@ hamonengine.geometry = hamonengine.geometry || {};
                 this.x2 + translateVector.x,
                 this.y2 + translateVector.y
             );
+        }
+        /**
+         * Creates and returns a new instance of a rotated lineSegment.
+         * @param {number} theta angle to rotate in radians.
+         * @param {Object} offsetVector an offset vector (hamonengine.math.vector2) of where to rotate.
+         * @returns {Object} rotated lineSegment.
+         */
+        rotate(theta, offsetVector, {sinTheta, cosTheta} = {}) {
+            //Normalize
+            theta = theta || 0.0;
+            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+
+            //Precalculate the sin & cos values of theta.
+            //NOTE: This can be precomputed using the undocumented precalculated parameters.
+            sinTheta = sinTheta || Math.sin(theta), cosTheta = cosTheta|| Math.cos(theta);
+
+            //Adjust/translate the vertex based on the offset.
+            const xOffset = this.x - offsetVector.x;
+            const yOffset = this.y - offsetVector.y;
+            const xOffset2 = this.x2 - offsetVector.x;
+            const yOffset2 = this.y2 - offsetVector.y;
+
+            let x, y, x2, y2;
+            if (hamonengine.geometry.settings.coordinateSystem === COORDINATE_SYSTEM.RHS) {
+                //2d Rotation Matrix (RHS CCW)
+                //x' = x * cos(θ) - y * sin(θ)
+                //y' = x * sin(θ) + y * cos(θ)
+                x = (xOffset * cosTheta) - (yOffset * sinTheta);
+                y = (xOffset * sinTheta) + (yOffset * cosTheta);
+                x2 = (xOffset2 * cosTheta) - (yOffset2 * sinTheta);
+                y2 = (xOffset2 * sinTheta) + (yOffset2 * cosTheta);
+            }
+            else {
+                //2d Rotation Matrix (LHS CW)
+                //x' = x * cos(θ) + y * sin(θ)
+                //y' = -x * sin(θ) + y * cos(θ)
+                x = (xOffset * cosTheta) + (yOffset * sinTheta);
+                y = -(xOffset * sinTheta) + (yOffset * cosTheta);
+                x2 = (xOffset2 * cosTheta) + (yOffset2 * sinTheta);
+                y2 = -(xOffset2 * sinTheta) + (yOffset2 * cosTheta);
+            }
+
+            //Adjust the lineSegment after it has been rotated so that it is centered.
+            x += offsetVector.x, y += offsetVector.y, x2 += offsetVector.x, y2 += offsetVector.y;
+
+            //Return a new instance of the lineSegment as to preserve the original.
+            //This means we create a new coords array otherwise we're mutating the original.
+            return new hamonengine.geometry.lineSegment(x, y, x2, y2);
+        }
+        /**
+         * Creates and returns a new instance of a rotated lineSegment around the center.
+         * @param {number} theta angle to rotate in radians.
+         * @returns {Object} rotated lineSegment.
+         */
+        rotateAtCenter(theta) {
+            return this.rotate(theta, this.center);
+        }
+        /**
+         * Creates and returns a new instance of a scaled lineSegment.
+         * @param {Object} scaleVector a scale vector (hamonengine.math.vector2) to apply to the lineSegment.
+         * @param {Object} offsetVector an offset vector (hamonengine.math.vector2) of where to scale.
+         * @returns {Object} scaled lineSegment.
+         */
+        scale(scaleVector, offsetVector, {xFlipped, yFlipped} = {}) {
+            //Normalize.
+            scaleVector = scaleVector || new hamonengine.math.vector2(0, 0);
+            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+
+            //If the x-axis (exclusively) or the y-axis is being flipped then reverse the order of vertices so the normals are generated correctly.
+            //NOTE: This can be precomputed using the undocumented precalculated parameters.
+            xFlipped = xFlipped || scaleVector.x < 0;
+            yFlipped = yFlipped || scaleVector.y < 0;
+
+            let x, y, x2, y2;
+            if (!xFlipped && yFlipped || xFlipped & !yFlipped) {
+                x = (this.x2 * scaleVector.x) + offsetVector.x;
+                y = (this.y2 * scaleVector.y) + offsetVector.y;
+                x2 = (this.x * scaleVector.x) + offsetVector.x;
+                y2 = (this.y * scaleVector.y) + offsetVector.y;
+            }
+            //Handle vertices normal for all other conditions.
+            else {
+                x = (this.x * scaleVector.x) + offsetVector.x;
+                y = (this.y * scaleVector.y) + offsetVector.y;
+                x2 = (this.x2 * scaleVector.x) + offsetVector.x;
+                y2 = (this.y2 * scaleVector.y) + offsetVector.y;
+            }
+
+            //Return a new instance of the lineSegment as to preserve the original.
+            //This means we create a new coords array otherwise we're mutating the original.
+            return new hamonengine.geometry.lineSegment(x, y, x2, y2);
+        }
+        /**
+         * Creates and returns a new instance of a scaled polygon around the center.
+         * @param {Object} scaleVector a scale vector (hamonengine.math.vector2) to apply to the polygon.
+         * @returns {Object} scaled polygon.
+         */
+        scaleAtCenter(scaleVector) {
+            return this.scale(scaleVector, this.center.subtract(this.center.multiplyVector(scaleVector)));
         }
         /**
          * Determines if this lineSegment collides with another using SAT (Separating Axis Theorem) and returns a MTV (Minimum Translation Vector).
