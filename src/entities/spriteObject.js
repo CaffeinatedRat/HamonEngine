@@ -121,6 +121,25 @@ hamonengine.entities = hamonengine.entities || {};
             return this.sprite.rotate().mirror(false);
         }
         /**
+         * Determines if this sprite object collides with the other sprite object.
+         * @param {Object} spriteObject to evaluated based on the coordinates.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
+         */
+        isCollision(spriteObject) {
+            if (this.isSolid) {
+
+                let direction = new hamonengine.math.vector2();
+                if (spriteObject instanceof hamonengine.entities.shapeObject && spriteObject.isSolid) {
+                    direction = spriteObject.position.subtract(this.position);
+                    spriteObject = spriteObject.shape.translate(spriteObject.position);
+                }
+
+                return super.isCollision(spriteObject, direction);
+            }
+
+            return new hamonengine.math.vector2();
+        }
+        /**
          * Draws the sprite object.
          * @param {Object} layer to render the cell's objects to.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 

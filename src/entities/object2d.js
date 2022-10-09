@@ -46,6 +46,7 @@ hamonengine.entities = hamonengine.entities || {};
                     position: options._position,
                     direction: options._direction,
                     theta: options._theta,
+                    scale: options._scale,
                     state: options._state
                 };
             }
@@ -61,9 +62,11 @@ hamonengine.entities = hamonengine.entities || {};
             this._movementRate = options.movementRate || 0;
             this._position = options.position || new hamonengine.math.vector2();
             this._direction = options.direction || new hamonengine.math.vector2();
+            this._transformDirection = options.transformDirection || new hamonengine.math.vector2();
 
             //Transformation variables.
             this._theta = options.theta || 0.0;
+            this._scale = options.scale || 1.0;
 
             //Determines the state of the object whether it solid, moveable, and/or visible.
             if (options.state !== undefined) {
@@ -116,10 +119,28 @@ hamonengine.entities = hamonengine.entities || {};
             return this._direction;
         }
         /**
-         * Returns the angle of the sprite's rotation in radians.
+         * Returns the angle of the object rotation in radians.
          */
         get theta() {
             return this._theta || 0.0;
+        }
+        /**
+         * Assigns the angle of the object rotation in radians.
+         */
+        set theta(v) {
+            this._theta = v;
+        }
+        /**
+         * Returns the scalar scale of the object.
+         */
+        get scale() {
+            return this._scale || 1.0;
+        }
+        /**
+         * Assigns the scalar scale value.
+         */
+        set scale(v) {
+            this._scale = v;
         }
         /**
          * Returns the width of the object.
@@ -178,11 +199,24 @@ hamonengine.entities = hamonengine.entities || {};
         set isVisible(v) {
             this._state = v ? (this._state | OBJECT_STATE_FLAG.VISIBLE) : (this._state ^ OBJECT_STATE_FLAG.VISIBLE);
         }
+        /**
+         * A helper property that returns the hold state for rotating.
+         */
+        get isHoldRotate() {
+            return this._transformDirection.x;
+        }
+        /**
+         * A helper property that returns the hold state for scaling.
+         */
+        get isHoldScale() {
+            return this._transformDirection.y;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
         /**
          * Moves the object.
+         * This method supports chaining.
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          * @param {Object} movementVector the movement vector to move the object. 
          */
@@ -207,13 +241,16 @@ hamonengine.entities = hamonengine.entities || {};
             );
         }
         /**
-         * Determines if the object has collided with another.
-         * @param {Object} object to calculate the collision with.
-         * @return {number} a COLLISION_TYPES 
+         * Determines if the object has collided with another and takes into account the position, rotation angle & scale.
+         * @param {object} object object to test against.
+         * @param {object} direction optional paramter used to help determine the direction of the MTV.
+         * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
-        isCollision(object) {
-            const translatedShape = this.boundingShape.translate(this.position);
-            return translatedShape.isCollision(object);
+        isCollision(object, direction = new hamonengine.math.vector2()) {
+            const translation = this.boundingShape.translate(this.position);
+            const rotation = translation.rotateAtCenter ? translation.rotateAtCenter(this.theta) : translation;
+            const scale = rotation.scaleAtCenter ? rotation.scaleAtCenter(new hamonengine.math.vector2(this.scale, this.scale)) : rotation;
+            return scale.isCollision(object, direction);
         }
         /**
          * Determines if the targetObject is contained in this object's bounding shape and returns a MTV (Minimum Translation Vector).
@@ -228,39 +265,95 @@ hamonengine.entities = hamonengine.entities || {};
         }
         /**
          * A helper method for moving the object to the left continuously.
+         * This method supports chaining.
          */
-        holdLeft () {
+        holdLeft() {
             this.direction.x = -1;
+            return this;
         }
         /**
          * A helper method for moving the object to the right continuously.
+         * This method supports chaining.
          */
-        holdRight () {
+        holdRight() {
             this.direction.x = 1;
+            return this;
         }
         /**
          * A helper method for moving the object to the up continuously.
+         * This method supports chaining.
          */
-        holdUp () {
+        holdUp() {
             this.direction.y = -1;
+            return this;
         }
         /**
          * A helper method for moving the object to the down continuously.
+         * This method supports chaining.
          */
         holdDown() {
             this.direction.y = 1;
+            return this;
         }
         /**
          * A helper method for stopping horizontal movement.
+         * This method supports chaining.
          */
         releaseHorizontal() {
             this.direction.x = 0;
+            return this;
         }
         /**
          * A helper method for stopping vertical movement.
+         * This method supports chaining.
          */
         releaseVertical() {
             this.direction.y = 0;
+            return this;
+        }
+        /**
+         * A helper method for rotating.
+         * This method supports chaining.
+         * @param {boolean} state performs a scaling operation if true.
+         * @param {number} direction to use when rotating where 1 is clockwise and -1 is counter-clockwise.
+         */
+        holdRotate(state, direction = 1) {
+            this._transformDirection.x = state ? direction : 0;
+            return this;
+        }
+        /**
+         * A helper to reset rotating.
+         * This method supports chaining.
+         */
+        resetRotate() {
+            this._transformDirection.x = 0;
+            this.theta = 0;
+            return this;
+        }
+        /**
+         * A helper method for scaling.
+         * This method supports chaining.
+         * @param {boolean} state performs a scaling operation if true.
+         * @param {number} direction to use when scaling where 1 is to scale up and -1 is to scale down.
+         */
+        holdScale(state, direction = 1) {
+            this._transformDirection.y = state ? direction : 0;
+            return this;
+        }
+        /**
+         * A helper to reset scaling.
+         * This method supports chaining.
+         */
+        resetScale() {
+            this._transformDirection.y = 0;
+            this.scale = 1.0;
+            return this;
+        }
+        /**
+         * Resets the object orientation.
+         */
+        reset() {
+            return this.resetRotate().resetScale().releaseHorizontal().releaseVertical();
         }
         /**
          * Outputs the objects as a string.

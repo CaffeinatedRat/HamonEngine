@@ -58,7 +58,6 @@ hamonengine.entities = hamonengine.entities || {};
             this._directionBasis = options.directionBasis || new hamonengine.math.vector2(-1, -1);
 
             this._mirroredState = false;
-            this._theta = 0;
 
             if (hamonengine.debug) {
                 !this._hasBoundingShape && console.debug(`[hamonengine.entities.shapeObject.constructor] BoundingShape not found, using shape dimensions.`);
@@ -111,7 +110,7 @@ hamonengine.entities = hamonengine.entities || {};
         /**
          * Returns true if the shape is a lineSegment.
          */
-         get isLine() {
+        get isLine() {
             return this.shape instanceof hamonengine.geometry.lineSegment;
         }
         //--------------------------------------------------------
@@ -121,9 +120,8 @@ hamonengine.entities = hamonengine.entities || {};
          * Resets the shape to it's original orientation.
          */
         reset() {
-            this._theta = 0;
             this._mirroredState = false;
-            return this;
+            return super.reset();
         }
         /**
          * Helper method for adding a new vertex to the shape.
@@ -131,7 +129,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {number} x
          * @param {number} y
          */
-         addVertex(x, y) {
+        addVertex(x, y) {
             //Adding another vertext to a rect automatically promotes it to a polygon.
             (this.isPolygon ? this._shape : this._shape = this._shape.toPolygon()).addVertex(x, y);
             return this;
@@ -141,7 +139,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          * @param {Object} movementVector the movement vector to move the object. 
          */
-         move(elapsedTimeInMilliseconds, movementVector = null) {
+        move(elapsedTimeInMilliseconds, movementVector = null) {
             super.move(elapsedTimeInMilliseconds, movementVector);
 
             if (this.isPolygon) {
@@ -149,14 +147,14 @@ hamonengine.entities = hamonengine.entities || {};
                     //Don't change the state unless there is a specific direction.
                     if (this.direction.x !== 0) {
                         this._mirroredState = this.direction.x === this._directionBasis.x;
-                        this._theta = 0;
+                        this.theta = 0;
                     }
                 }
-                
+
                 if ((this.faceAxisOnMove & OBJECT_FACE_DIRECTION.YAXIS) === OBJECT_FACE_DIRECTION.YAXIS) {
                     //Don't change the state unless there is a specific direction.
                     if (this.direction.y !== 0) {
-                        this._theta = this.direction.y === this._directionBasis.y ? Math.PI_2 : -Math.PI_2;
+                        this.theta = this.direction.y === this._directionBasis.y ? Math.PI_2 : -Math.PI_2;
                     }
                 }
             }
@@ -164,12 +162,32 @@ hamonengine.entities = hamonengine.entities || {};
             return this;
         }
         /**
+         * 
+         * @param {*} elapsedTimeInMilliseconds 
+         * @returns 
+         */
+        transformShape(elapsedTimeInMilliseconds) {
+            //Handle rotation & scale.
+            this.theta = ((this.theta + (this.isHoldRotate * elapsedTimeInMilliseconds / 1000 * Math.PI / 4)) % Math.PI2);
+            this.scale = (this.scale + (this.isHoldScale * elapsedTimeInMilliseconds / 1000 * 0.10));
+
+            const translation = this.shape.translate(this.position);
+
+            if (this.isPolygon) {
+                const mirror = translation.mirror ? translation.mirror(this._mirroredState) : translation;
+                const rotation = mirror.rotateAtCenter ? mirror.rotateAtCenter(this.theta) : mirror;
+                return rotation.scaleAtCenter ? rotation.scaleAtCenter(new hamonengine.math.vector2(this.scale, this.scale)) : rotation;
+            }
+
+            return translation;
+        }
+        /**
          * Determines if this shape collides with the other shape.
          * @param {Object} shapeObject to evaluated based on the coordinates.
          * @returns {object} a MTV (Minimum Translation Vector) that determines where collision occurs and is not a unit vector.
          */
         isCollision(shapeObject) {
-            if(this.isSolid) {
+            if (this.isSolid) {
 
                 let direction = new hamonengine.math.vector2();
                 if (shapeObject instanceof hamonengine.entities.shapeObject && shapeObject.isSolid) {
@@ -177,8 +195,9 @@ hamonengine.entities = hamonengine.entities || {};
                     shapeObject = shapeObject.shape.translate(shapeObject.position);
                 }
 
-                return this.shape.translate(this.position).isCollision(shapeObject, direction);
+                return super.isCollision(shapeObject, direction);
             }
+
             return new hamonengine.math.vector2();
         }
         /**
@@ -188,9 +207,7 @@ hamonengine.entities = hamonengine.entities || {};
          */
         render(layer, elapsedTimeInMilliseconds, { lineWidth = 2, color = 'blue', drawNormals = false } = {}) {
             if (this.shape) {
-                let transformedShape = this.shape.translate(this.position);
-                transformedShape = this.isPolygon ? transformedShape.mirror(this._mirroredState).rotateAtCenter(this._theta) : transformedShape;
-                layer.drawShape(transformedShape, 0, 0, { lineWidth, color, drawNormals });
+                layer.drawShape(this.transformShape(elapsedTimeInMilliseconds), 0, 0, { lineWidth, color, drawNormals });
             }
         }
     }
