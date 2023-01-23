@@ -265,7 +265,7 @@ hamonengine.core = hamonengine.core || {};
                 await eventBindingPromise;
                 console.log("%c[hamonengine.core.engine.load] Engine has resumed loading, event binding has completed.", "color: green");
 
-                let loadingResource = this.onloadResources();
+                const loadingResource = this.onloadResources();
                 if (!(loadingResource instanceof Promise)) {
                     throw 'onloadResources is not returning a promise!  This event must return an unhandled promise.';
                 }

@@ -1,4 +1,4 @@
-src/global.js
+src/debug-global.js
 ./src/util/bitflag.js
 ./src/util/connect.js
 ./src/util/fps-counter.js
@@ -31,4 +31,6 @@ src/entities/object2d.js
 src/entities/spriteObject.js
 src/entities/shapeObject.js
 src/entities/cell.js
+./src/events/frame.js
+./src/events/storyboard.js
 src/hamon-engine.js
