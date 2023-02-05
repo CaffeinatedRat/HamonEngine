@@ -67,23 +67,26 @@ hamonengine.events = hamonengine.events || {};
         }
         /**
          * Preloads any resource loading.
+         * @param {boolean} loadDescendantFrames determines if the child frames should load resources at the same time.
          * @return {Object} a promise to complete resource loading.
          */
-        async load() {
+        async load(loadDescendantFrames) {
             const nodePromises = [];
-            const parentNodePromise = this.onLoadResources();
+            const parentNodePromise = this.onloadResources();
             if ((parentNodePromise instanceof Promise)) {
                 nodePromises.push(parentNodePromise);
 
-                //Traverse all nodes and invoke the onloadResources method on all children waiting for this event.
-                let node = this.first;
-                while (node !== null) {
-                    const nodePromise = node.load();
-                    if ((nodePromise instanceof Promise)) {
-                        nodePromises.push(nodePromise);
-                    }
+                if (loadDescendantFrames) {
+                    //Traverse all nodes and invoke the onloadResources method on all descendants waiting for this event.
+                    let node = this.first;
+                    while (node !== null) {
+                        const nodePromise = node.load(loadDescendantFrames);
+                        if ((nodePromise instanceof Promise)) {
+                            nodePromises.push(nodePromise);
+                        }
 
-                    node = node.next;
+                        node = node.next;
+                    }
                 }
 
                 await Promise.all(nodePromises);
@@ -122,13 +125,13 @@ hamonengine.events = hamonengine.events || {};
          * An internal event that occurs when attempting to load resources.
          * @return {Object} a promise that the resource has loaded successfully.
          */
-        async onLoadResources() {
+        async onloadResources() {
         }
         /**
          * An onAction event that is triggered when this item is active.
          * @param {number} elapsedTimeInMilliseconds since the engine has started.
          * @param {object} storyboard used to invoke this onAction event.
-         * @param {object} engine
+         * @param {object} engine instance of the engine that is running.
          */
         onAction(elapsedTimeInMilliseconds, storyboard, engine) {
         }
@@ -136,6 +139,36 @@ hamonengine.events = hamonengine.events || {};
          * An onRelease event that is triggered when a frame needs to release resources.
          */
         onRelease() {
+        }
+        /**
+         * Processes keyboard events.
+         * @param {object} storyboard used to invoke this onAction event.
+         * @param {object} engine instance of the engine that is running.
+         * @param {string} type of keyboard event such as 'up' or 'down' for keyup and keydown.
+         * @param {string} keyCode of the key (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code)
+         * @param {object} e KeyboardEvent (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)
+         */
+        onKeyEvent(storyboard, engine, type, keyCode, e) {
+        }
+        /**
+         * Processes mouse events.
+         * @param {object} storyboard used to invoke this onAction event.
+         * @param {object} engine instance of the engine that is running.
+         * @param {string} type of mouse event such as: 'click', 'up', 'down', 'move', 'enter', 'leave'.
+         * @param {object} v an instance of vector2 object that contain the x & y coordinates (see hamonengine.math.vector2).
+         * @param {object} e MouseEvent (see https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent)
+         */
+        onMouseEvent(storyboard, engine, type, v, e) {
+        }
+        /**
+         * Processes touch events.
+         * @param {object} storyboard used to invoke this onAction event.
+         * @param {object} engine instance of the engine that is running.
+         * @param {string} type of touch event such as: 'start', 'move', 'end', 'cancel', 'click'.
+         * @param {Array} touches an array of vector2 objects that contain the x & y coordinates (see hamonengine.math.vector2).
+         * @param {object} e TouchEvent (https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent)
+         */
+        onTouchEvent(storyboard, engine, type, touches, e) {
         }
     }
 })();
