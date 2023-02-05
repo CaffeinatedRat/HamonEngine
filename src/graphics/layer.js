@@ -451,12 +451,16 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} text to draw.
          * @param {number} sourceX coordinate of where to draw the text.
          * @param {number} sourceY coordinate of where to draw the text.
-         * @param {string} obj.font of the text.
-         * @param {string} obj.color of the text.
+         * @param {string} obj.font of the text.  By default this is set to '16px serif'
+         * @param {string} obj.color of the text.  By default this is 'white'.
          * @param {number} obj.textDrawType format to draw, by default this is TEXT_DRAW_TYPE.FILL.
          * @param {number} obj.textOffset horizontal coordinate of where to offset the text.  By default this is centered.
+         * @param {boolean} obj.shadow draws a shadow under the text.  By default this is false.
+         * @param {number} obj.shadowXOffset horizontal coordinate of where to offset the shadow text.  By default this is 2.
+         * @param {number} obj.shadowYOffset horizontal coordinate of where to offset the shadow text.  By default this is 2.
+         * @param {string} obj.shadowColor of the shadow text.  By default this is 'black'.
          */
-        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left' } = {}) {
+        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black' } = {}) {
             this.context.font = font;
             this.context.textBaseline = 'top';
 
@@ -485,10 +489,24 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
 
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
+                //Draw the shadow text.
+                if (shadow) {
+                    this.context.strokeStyle = shadowColor;
+                    this.context.strokeText(text, sourceX + shadowXOffset, sourceY + shadowYOffset);
+                }
+
+                //Draw the regular text.
                 this.context.strokeStyle = color;
                 this.context.strokeText(text, sourceX, sourceY);
             }
             else {
+                //Draw the shadow text.
+                if (shadow) {
+                    this.context.fillStyle = shadowColor;
+                    this.context.fillText(text, sourceX + shadowXOffset, sourceY + shadowYOffset);
+                }
+
+                //Draw the regular text.
                 this.context.fillStyle = color;
                 this.context.fillText(text, sourceX, sourceY);
             }
