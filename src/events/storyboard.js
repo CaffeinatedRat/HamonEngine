@@ -40,13 +40,15 @@ hamonengine.events = hamonengine.events || {};
                 options = {
                     engine: options._engine,
                     currentFrame: options._currentFrame,
-                    loop: options._loop
+                    loop: options._loop,
+                    preloadAllFrames: options._preloadAllFrames
                 };
             }
 
             this._engine = options.engine;
             this._currentFrame = options.currentFrame;
             this._loop = options.loop !== undefined ? options.loop : false;
+            this._preloadAllFrames = options.preloadAllFrames !== undefined ? options.preloadAllFrames : false;
         }
         //--------------------------------------------------------
         // Properties
@@ -86,13 +88,12 @@ hamonengine.events = hamonengine.events || {};
         }
         /**
          * Preloads any resource loading.
-         * @param {boolean} loadDescendantFrames determines if the descendant frames should load resources at the same time.
          * @return {Object} a promise to complete resource loading.
          */
-        async start(loadDescendantFrames) {
+        async start() {
             //Use the topFrame if one doesn't exist.
             !this.currentFrame && this.goTop();
-            await this.load(loadDescendantFrames, this);
+            await this.load(this._preloadAllFrames, this);
         }
         /**
          * Stops and clears the storyboard of all resources.
