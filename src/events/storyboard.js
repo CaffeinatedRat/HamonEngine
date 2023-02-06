@@ -92,7 +92,7 @@ hamonengine.events = hamonengine.events || {};
         async start(loadDescendantFrames) {
             //Use the topFrame if one doesn't exist.
             !this.currentFrame && this.goTop();
-            await this.load(loadDescendantFrames);
+            await this.load(loadDescendantFrames, this);
         }
         /**
          * Stops and clears the storyboard of all resources.
