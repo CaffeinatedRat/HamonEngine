@@ -1,4 +1,4 @@
-src/debug-global.js
+src/global.js
 ./src/util/bitflag.js
 ./src/util/connect.js
 ./src/util/fps-counter.js
@@ -10,16 +10,17 @@ src/debug-global.js
 ./src/math/util.js
 ./src/math/vector2.js
 ./src/math/vector3.js
-./src/audio/album.js
-./src/audio/audioext.js
-./src/audio/playlist.js
-./src/audio/track.js
+./src/math/datastructures/tree.js
 ./src/geometry/interval.js
 ./src/geometry/lineSegment.js
 ./src/geometry/polyChain.js
 ./src/geometry/polygon.js
 ./src/geometry/rect.js
 ./src/geometry/type.js
+./src/audio/album.js
+./src/audio/audioext.js
+./src/audio/playlist.js
+./src/audio/track.js
 src/graphics/type.js
 src/graphics/imageext.js
 src/graphics/layer.js
