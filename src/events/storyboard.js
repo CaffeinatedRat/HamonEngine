@@ -111,7 +111,8 @@ hamonengine.events = hamonengine.events || {};
          * Stops and clears the storyboard of all resources.
          */
         stop() {
-            this.first && this.first.clear();
+            this.clear();
+            this._currentFrame = null;
         }
         /**
          * Returns to the top frame, the frame ancestor frame before this one.
