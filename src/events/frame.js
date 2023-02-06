@@ -131,9 +131,8 @@ hamonengine.events = hamonengine.events || {};
          * An onAction event that is triggered when this item is active.
          * @param {number} elapsedTimeInMilliseconds since the engine has started.
          * @param {object} storyboard used to invoke this onAction event.
-         * @param {object} engine instance of the engine that is running.
          */
-        onAction(elapsedTimeInMilliseconds, storyboard, engine) {
+        onAction(elapsedTimeInMilliseconds, storyboard) {
         }
         /**
          * An onRelease event that is triggered when a frame needs to release resources.
@@ -143,35 +142,32 @@ hamonengine.events = hamonengine.events || {};
         /**
          * Processes keyboard events.
          * @param {object} storyboard used to invoke this onAction event.
-         * @param {object} engine instance of the engine that is running.
          * @param {string} type of keyboard event such as 'up' or 'down' for keyup and keydown.
          * @param {string} keyCode of the key (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code)
          * @param {object} e KeyboardEvent (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
-        onKeyEvent(storyboard, engine, type, keyCode, e, caller) {
+        onKeyEvent(storyboard, type, keyCode, e, caller) {
         }
         /**
          * Processes mouse events.
          * @param {object} storyboard used to invoke this onAction event.
-         * @param {object} engine instance of the engine that is running.
          * @param {string} type of mouse event such as: 'click', 'up', 'down', 'move', 'enter', 'leave'.
          * @param {object} v an instance of vector2 object that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e MouseEvent (see https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent)
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
-        onMouseEvent(storyboard, engine, type, v, e, caller) {
+        onMouseEvent(storyboard, type, v, e, caller) {
         }
         /**
          * Processes touch events.
          * @param {object} storyboard used to invoke this onAction event.
-         * @param {object} engine instance of the engine that is running.
          * @param {string} type of touch event such as: 'start', 'move', 'end', 'cancel', 'click'.
          * @param {Array} touches an array of vector2 objects that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e TouchEvent (https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent)
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
-        onTouchEvent(storyboard, engine, type, touches, e, caller) {
+        onTouchEvent(storyboard, type, touches, e, caller) {
         }
     }
 })();

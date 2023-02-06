@@ -58,6 +58,12 @@ hamonengine.events = hamonengine.events || {};
             return this._currentFrame;
         }
         /**
+         * Returns the current engine instance.
+         */
+        get engine() {
+            return this._engine;
+        }
+        /**
          * Returns the loop status.  If true the current frame will advance to the beginning of the current branch.
          */
         get loop() {
@@ -176,7 +182,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} elapsedTimeInMilliseconds since the engine has started.
          */
         render(elapsedTimeInMilliseconds) {
-            this.currentFrame && this.currentFrame.onAction(elapsedTimeInMilliseconds, this, this._engine);
+            this.currentFrame && this.currentFrame.onAction(elapsedTimeInMilliseconds, this);
         }
         //--------------------------------------------------------
         // Events
@@ -196,7 +202,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
         onKeyEvent(type, keyCode, e, caller) {
-            this.currentFrame && this.currentFrame.onKeyEvent(this, this._engine, type, keyCode, e, caller);
+            this.currentFrame && this.currentFrame.onKeyEvent(this, type, keyCode, e, caller);
         }
         /**
          * Processes mouse & touch events if captureTouchAsMouseEvents is set to true.
@@ -206,7 +212,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
         onMouseEvent(type, v, e, caller) {
-            this.currentFrame && this.currentFrame.onMouseEvent(this, this._engine, type, v, e, caller);
+            this.currentFrame && this.currentFrame.onMouseEvent(this, type, v, e, caller);
         }
         /**
          * Processes touch events.
@@ -216,7 +222,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
         onTouchEvent(type, touches, e, caller) {
-            this.currentFrame && this.currentFrame.onTouchEvent(this, this._engine, type, touches, e, caller);
+            this.currentFrame && this.currentFrame.onTouchEvent(this, type, touches, e, caller);
         }
     }
 })();
