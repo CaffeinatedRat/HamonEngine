@@ -109,6 +109,38 @@ hamonengine.events = hamonengine.events || {};
             return (this._currentFrame = this.first);
         }
         /**
+         * Traverses to the immediately parent frame and returns the new frame, otherwise null is returned.
+         */
+        goUp() {
+            if (this.currentFrame && this.currentFrame.parent) {
+                return (this._currentFrame = this.currentFrame.parent);
+            }
+
+            return null;
+        }
+        /**
+         * Traverses to the immediately child frame and returns the new frame, otherwise null is returned.
+         */
+        goDown() {
+            if (this.currentFrame && this.currentFrame.first) {
+                return (this._currentFrame = this.currentFrame.first);
+            }
+
+            return null;
+        }    
+        /**
+         * Traverses to the first frame on the current branch.
+         * If traversal succeeds then the new frame is returned, otherwise null is returned.
+         */
+        goFirst() {
+            const parent = this.goUp();
+            if (parent && parent.first) {
+                return (this._currentFrame = parent.first)
+            }
+
+            return null;
+        }
+        /**
          * Traverses to the next frame in line and will start over at the first frame if loop is true.
          * If traversal succeeds then the new frame is returned, otherwise null is returned.
          */
@@ -136,26 +168,6 @@ hamonengine.events = hamonengine.events || {};
                 if (prevFrame) {
                     return (this._currentFrame = prevFrame);
                 }
-            }
-
-            return null;
-        }
-        /**
-         * Traverses to the immediately child frame and returns the new frame, otherwise null is returned.
-         */
-        goDown() {
-            if (this.currentFrame && this.currentFrame.first) {
-                return (this._currentFrame = this.currentFrame.first);
-            }
-
-            return null;
-        }
-        /**
-         * Traverses to the immediately parent frame and returns the new frame, otherwise null is returned.
-         */
-        goUp() {
-            if (this.currentFrame && this.currentFrame.parent) {
-                return (this._currentFrame = this.currentFrame.parent);
             }
 
             return null;
