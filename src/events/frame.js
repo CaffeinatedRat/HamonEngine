@@ -68,11 +68,12 @@ hamonengine.events = hamonengine.events || {};
         /**
          * Preloads any resource loading.
          * @param {boolean} loadDescendantFrames determines if the child frames should load resources at the same time.
-         * @return {Object} a promise to complete resource loading.
+         * @param {object} storyboard calling the load operation.
+         * @return {object} a promise to complete resource loading.
          */
-        async load(loadDescendantFrames) {
+        async load(loadDescendantFrames, storyboard) {
             const nodePromises = [];
-            const parentNodePromise = this.onloadResources();
+            const parentNodePromise = this.onloadResources(storyboard);
             if ((parentNodePromise instanceof Promise)) {
                 nodePromises.push(parentNodePromise);
 
@@ -80,7 +81,7 @@ hamonengine.events = hamonengine.events || {};
                     //Traverse all nodes and invoke the onloadResources method on all descendants waiting for this event.
                     let node = this.first;
                     while (node !== null) {
-                        const nodePromise = node.load(loadDescendantFrames);
+                        const nodePromise = node.load(loadDescendantFrames, storyboard);
                         if ((nodePromise instanceof Promise)) {
                             nodePromises.push(nodePromise);
                         }
@@ -122,10 +123,11 @@ hamonengine.events = hamonengine.events || {};
         // Events
         //--------------------------------------------------------
         /**
-         * An internal event that occurs when attempting to load resources.
+         * An event that occurs when attempting to load resources.
+         * @param {object} storyboard calling the load operation.
          * @return {Object} a promise that the resource has loaded successfully.
          */
-        async onloadResources() {
+        async onloadResources(storyboard) {
         }
         /**
          * An onAction event that is triggered when this item is active.
