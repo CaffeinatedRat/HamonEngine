@@ -66,6 +66,18 @@ hamonengine.events = hamonengine.events || {};
             return this._engine;
         }
         /**
+         * A read-only assignment that will only assign the engine once.
+         * All additional attempts to assign the engine will result in an exception.
+         */
+        set engine(v) {
+            if (!this._engine) {
+                this._engine = v;
+                return;
+            }
+
+            throw `The engine has already been assigned for the storyboard: ${this.name}`;
+        }
+        /**
          * Returns the loop status.  If true the current frame will advance to the beginning of the current branch.
          */
         get loop() {
