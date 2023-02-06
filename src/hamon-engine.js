@@ -51,7 +51,7 @@ hamonengine.core = hamonengine.core || {};
     }
 
     const canvas_default_name = 'canvas';
-    const VERSION = '0.2.0';
+    const VERSION = '1.0.0';
 
     hamonengine.core.engine = class {
         constructor(options = {}) {
@@ -65,6 +65,12 @@ hamonengine.core = hamonengine.core || {};
             this._detectCanvas = options.detectCanvas !== undefined ? options.detectCanvas : true;
             this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
             this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
+            this._storyboard = options.storyboard;
+
+            //Assign the engine if this one is not assigned.
+            if (this._storyboard && !this._storyboard.engine) {
+                 this._storyboard.engine = this;
+            }
 
             //Determines the prevent default & event propagation states.
             const blockArrowKeys = options.blockArrowKeys !== undefined ? options.blockArrowKeys : true;
@@ -128,6 +134,8 @@ hamonengine.core = hamonengine.core || {};
                 console.debug(`[hamonengine.core.engine.constructor] SyncFrames: ${this.syncFrames ? 'Enabled' : 'Disabled'}`);
                 console.debug(`[hamonengine.core.engine.constructor] SplashScreen Wait Time: ${this._splashScreenWait} milliseconds.`);
 
+                this._storyboard && console.debug(`[hamonengine.core.engine.constructor] Storyboard Added: ${this._storyboard.name}`);
+
                 console.debug(`[hamonengine.core.engine.constructor] Global States`);
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.floor: ${hamonengine.geometry.settings.collisionDetection.floor}`);
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.limit: ${hamonengine.geometry.settings.collisionDetection.limit}`);
@@ -138,8 +146,17 @@ hamonengine.core = hamonengine.core || {};
         //--------------------------------------------------------
         // Properties
         //--------------------------------------------------------
+        /**
+         * Returns the primary layer.
+         */
         get primaryLayer() {
             return this._layers[`${canvas_default_name}0`];
+        }
+        /**
+         * Returns the primary storyboard.
+         */
+        get primaryStoryboard() {
+            return this._storyboard;
         }
         /**
          * Returns true if the resource are loaded.
@@ -277,6 +294,12 @@ hamonengine.core = hamonengine.core || {};
                 console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for preload event to resolve...", "color: yellow");
                 await preloadPromise;
                 console.log("%c[hamonengine.core.engine.load] Preload completed.", "color: green");
+
+                if (this.primaryStoryboard) {
+                    console.log(`%c[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve for storybook: ${this.primaryStoryboard.name}`, "color: green");
+                    await this.primaryStoryboard.start();
+                    console.log(`%c[hamonengine.core.engine.load] Preload completed for storybook: ${this.primaryStoryboard.name} `, "color: green");
+                }
             }
             catch (error) {
                 console.error("[hamonengine.core.engine.load] Resources could not be loaded due to a failure! Stopping the engine.");
@@ -311,12 +334,19 @@ hamonengine.core = hamonengine.core || {};
             hamonengine.debug && console.debug("[hamonengine.core.engine.stop]");
             window.cancelAnimationFrame(this._animationId);
             this._animationId = 0;
-            this._startTimeStamp = 0;
+            this._startTimeStamp = this._lastFrameTimeStamp = 0;
             this._state = ENGINE_STATES.STOPPED;
             console.log(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
             //Let everyone know the engine has stopped and for what reason.
             this.onStop(reasons);
+
+            //Clean up resources.
+            this.primaryStoryboard && this.primaryStoryboard.stop();
+            this._primaryStoryboard = null;
+            this._externalElements = null;
+            this._layers = null;
+            this._fpsCounter = null;
 
             //Allow chaining.
             return this;
@@ -441,7 +471,8 @@ hamonengine.core = hamonengine.core || {};
          */
         onKeyEvent(type, keyCode, e, caller) {
             //e && e.preventDefault();
-            hamonengine.debug && console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
+            this.primaryStoryboard && this.primaryStoryboard.onKeyEvent(type, keyCode, e, caller);
+            hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
             return this;
         }
         /**
@@ -452,6 +483,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
         onMouseEvent(type, v, e, caller) {
+            this.primaryStoryboard && this.primaryStoryboard.onMouseEvent(type, v, e, caller);
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
             return this;
         }
@@ -464,6 +496,7 @@ hamonengine.core = hamonengine.core || {};
          */
         onTouchEvent(type, touches, e, caller) {
             e && e.preventDefault();
+            this.primaryStoryboard && this.primaryStoryboard.onTouchEvent(type, touches, e, caller);
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
             return this;
         }
@@ -516,6 +549,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {number} elapsedTimeInMilliseconds since the engine has started.
          */
         onFrame(elapsedTimeInMilliseconds) {
+            this.primaryStoryboard && this.primaryStoryboard.render(elapsedTimeInMilliseconds);
             return this;
         }
         /**
@@ -530,6 +564,11 @@ hamonengine.core = hamonengine.core || {};
          * @param {string} reasons as to why the engine stopped.
          */
         onStop(reasons) {
+            //Goodnight
+            if (reasons === 'Stopped By User') {
+                this.primaryLayer.clear();
+                this.primaryLayer.drawText('お やすみ', this.primaryLayer.viewPort.width / 2, this.primaryLayer.viewPort.height / 2, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
+            }
             return this;
         }
     }
