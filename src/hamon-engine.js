@@ -439,7 +439,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {string} type of keyboard event such as 'up' or 'down' for keyup and keydown.
          * @param {string} keyCode of the key (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code)
          * @param {object} e KeyboardEvent (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)
-         * @param {object} caller that triggered the event be it an HTMLElement or an instance of the HamonEngine.
+         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
         onKeyEvent(type, keyCode, e, caller) {
             //e && e.preventDefault();
@@ -447,11 +447,11 @@ hamonengine.core = hamonengine.core || {};
             return this;
         }
         /**
-         * Processes mouse events.
+         * Processes mouse & touch events if captureTouchAsMouseEvents is set to true.
          * @param {string} type of mouse event such as: 'click', 'up', 'down', 'move', 'enter', 'leave'.
          * @param {object} v an instance of vector2 object that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e MouseEvent (see https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent)
-         * @param {object} caller that triggered the event be it an HTMLElement or an instance of the HamonEngine.
+         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
         onMouseEvent(type, v, e, caller) {
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
@@ -462,7 +462,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {string} type of touch event such as: 'start', 'move', 'end', 'cancel', 'click'.
          * @param {Array} touches an array of vector2 objects that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e TouchEvent (https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent)
-         * @param {object} caller that triggered the event be it an HTMLElement or an instance of the HamonEngine.
+         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
         onTouchEvent(type, touches, e, caller) {
             e && e.preventDefault();
