@@ -59,8 +59,6 @@ hamonengine.core = hamonengine.core || {};
             console.log(`HamonEngine -- Using version: ${VERSION}`);
 
             //Options.
-            this._movementRate = options.movementRate || 0.25;
-            this._size = options.size || 64;
             this._showFPS = options.showFPS !== undefined ? options.showFPS : false;
             this._syncFrames = options.syncFrames !== undefined ? options.syncFrames : false;
             this._splashScreenWait = options.splashScreenWait !== undefined ? options.splashScreenWait : 500;
