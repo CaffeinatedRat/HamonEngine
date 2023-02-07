@@ -225,30 +225,30 @@ hamonengine.events = hamonengine.events || {};
          * @param {string} type of keyboard event such as 'up' or 'down' for keyup and keydown.
          * @param {string} keyCode of the key (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code)
          * @param {object} e KeyboardEvent (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)
-         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
+         * @param {object} layer that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (see hamonengine.graphics.layer).
          */
-        onKeyEvent(type, keyCode, e, caller) {
-            this.currentFrame && this.currentFrame.onKeyEvent(this, type, keyCode, e, caller);
+        onKeyEvent(type, keyCode, e, layer) {
+            this.currentFrame && this.currentFrame.onKeyEvent(this, type, keyCode, e, layer);
         }
         /**
          * Processes mouse & touch events if captureTouchAsMouseEvents is set to true.
          * @param {string} type of mouse event such as: 'click', 'up', 'down', 'move', 'enter', 'leave'.
          * @param {object} v an instance of vector2 object that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e MouseEvent (see https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent)
-         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
+         * @param {object} layer that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (see hamonengine.graphics.layer).
          */
-        onMouseEvent(type, v, e, caller) {
-            this.currentFrame && this.currentFrame.onMouseEvent(this, type, v, e, caller);
+        onMouseEvent(type, v, e, layer) {
+            this.currentFrame && this.currentFrame.onMouseEvent(this, type, v, e, layer);
         }
         /**
          * Processes touch events.
          * @param {string} type of touch event such as: 'start', 'move', 'end', 'cancel', 'click'.
          * @param {Array} touches an array of vector2 objects that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e TouchEvent (https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent)
-         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
+         * @param {object} layer that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (see hamonengine.graphics.layer).
          */
-        onTouchEvent(type, touches, e, caller) {
-            this.currentFrame && this.currentFrame.onTouchEvent(this, type, touches, e, caller);
+        onTouchEvent(type, touches, e, layer) {
+            this.currentFrame && this.currentFrame.onTouchEvent(this, type, touches, e, layer);
         }
     }
 })();
