@@ -273,6 +273,30 @@ hamonengine.graphics = hamonengine.graphics || {};
         set alpha(v) {
             this.context.globalAlpha = v;
         }
+        /**
+         * Gets the current tooltip of the layer.
+         */
+        get tooltip() {
+            return this.canvas.title;
+        }
+        /**
+         * Sets the current tooltip of the layer.
+         */
+        set tooltip(v) {
+            this.canvas.title = v;
+        }
+        /**
+         * Returns the current cursor of the layer.
+         */
+        get cursor() {
+            return this.canvas.style.cursor;
+        }
+        /**
+          * Sets the current cursor of the layer.
+          */
+        set cursor(v) {
+            this.canvas.style.cursor = v;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
