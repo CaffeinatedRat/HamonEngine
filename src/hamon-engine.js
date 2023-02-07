@@ -280,13 +280,24 @@ hamonengine.core = hamonengine.core || {};
                 await eventBindingPromise;
                 console.log("%c[hamonengine.core.engine.load] Engine has resumed loading, event binding has completed.", "color: green");
 
+                const loadingResourcePromises = [];
                 const loadingResource = this.onloadResources();
                 if (!(loadingResource instanceof Promise)) {
                     throw 'onloadResources is not returning a promise!  This event must return an unhandled promise.';
                 }
 
+                loadingResourcePromises.push(loadingResource);
+
+                if (this.primaryStoryboard) {
+                    const storyboardResource = this.primaryStoryboard.start();
+                    if (!(storyboardResource instanceof Promise)) {
+                        throw 'onloadResources is not returning a promise!  This event must return an unhandled promise.';
+                    }
+                    loadingResourcePromises.push(storyboardResource);
+                }
+
                 console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve...", "color: yellow");
-                await loadingResource;
+                await Promise.all(loadingResourcePromises);
                 this._resourcesLoaded = true;
                 console.log("%c[hamonengine.core.engine.load] Engine has resumed loading, resource loading completed.", "color: green");
 
@@ -294,12 +305,6 @@ hamonengine.core = hamonengine.core || {};
                 console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for preload event to resolve...", "color: yellow");
                 await preloadPromise;
                 console.log("%c[hamonengine.core.engine.load] Preload completed.", "color: green");
-
-                if (this.primaryStoryboard) {
-                    console.log(`%c[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve for storybook: ${this.primaryStoryboard.name}`, "color: green");
-                    await this.primaryStoryboard.start();
-                    console.log(`%c[hamonengine.core.engine.load] Preload completed for storybook: ${this.primaryStoryboard.name} `, "color: green");
-                }
             }
             catch (error) {
                 console.error("[hamonengine.core.engine.load] Resources could not be loaded due to a failure! Stopping the engine.");
