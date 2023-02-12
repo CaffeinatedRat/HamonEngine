@@ -569,7 +569,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {number} elapsedTimeInMilliseconds since the engine has started.
          */
         onFrame(elapsedTimeInMilliseconds) {
-            this.primaryStoryboard && this.primaryStoryboard.render(elapsedTimeInMilliseconds);
+            this.primaryStoryboard && this.primaryStoryboard.onFrame(elapsedTimeInMilliseconds);
             return this;
         }
         /**
@@ -577,6 +577,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {number} elapsedTimeInMilliseconds since the engine has started.
          */
         onProcessingFrame(elapsedTimeInMilliseconds) {
+            this.primaryStoryboard && this.primaryStoryboard.onProcessingFrame(elapsedTimeInMilliseconds);
             return this;
         }
         /**

@@ -203,13 +203,6 @@ hamonengine.events = hamonengine.events || {};
             //Traverse the currentFrame and return it.
             return (this._currentFrame = node);
         }
-        /**
-         * Processes the current frame in the storyboard on an onFrame event.
-         * @param {number} elapsedTimeInMilliseconds since the engine has started.
-         */
-        render(elapsedTimeInMilliseconds) {
-            this.currentFrame && this.currentFrame.onAction(elapsedTimeInMilliseconds, this);
-        }
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
@@ -219,6 +212,20 @@ hamonengine.events = hamonengine.events || {};
          */
         async onloadResources() {
             hamonengine.debug && console.debug("[hamonengine.events.storyboard.onloadResources]");
+        }
+        /**
+         * Processes the current frame in the storyboard on an onFrame event.
+         * @param {number} elapsedTimeInMilliseconds since the engine has started.
+         */
+        onFrame(elapsedTimeInMilliseconds) {
+            this.currentFrame && this.currentFrame.onFrame(elapsedTimeInMilliseconds, this);
+        }
+        /**
+         * Processes the current frame in the storyboard on an onProcessingFrame event.
+         * @param {number} elapsedTimeInMilliseconds since the engine has started.
+         */
+        onProcessingFrame(elapsedTimeInMilliseconds) {
+            this.currentFrame && this.currentFrame.onProcessingFrame(elapsedTimeInMilliseconds, this);
         }
         /**
          * Processes keyboard events.
