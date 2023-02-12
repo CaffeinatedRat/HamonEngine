@@ -566,7 +566,7 @@ hamonengine.core = hamonengine.core || {};
         }
         /**
          * An onFrame event that is triggered when a single frame is being rendered to the canvas.
-         * @param {number} elapsedTimeInMilliseconds since the engine has started.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
          */
         onFrame(elapsedTimeInMilliseconds) {
             this.primaryStoryboard && this.primaryStoryboard.onFrame(elapsedTimeInMilliseconds);
@@ -574,7 +574,7 @@ hamonengine.core = hamonengine.core || {};
         }
         /**
          * An onProcessingFrame event that is triggered when a single frame is being processed before drawn.
-         * @param {number} elapsedTimeInMilliseconds since the engine has started.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
          */
         onProcessingFrame(elapsedTimeInMilliseconds) {
             this.primaryStoryboard && this.primaryStoryboard.onProcessingFrame(elapsedTimeInMilliseconds);

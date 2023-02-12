@@ -131,17 +131,17 @@ hamonengine.events = hamonengine.events || {};
         }
         /**
          * An onFrame event that is triggered when this item is active.
-         * @param {number} elapsedTimeInMilliseconds since the engine has started.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
          * @param {object} storyboard used to invoke this onFrame event.
          */
         onFrame(elapsedTimeInMilliseconds, storyboard) {
         }
         /**
          * Processes the current frame in the storyboard on an onProcessingFrame event.
-         * @param {number} elapsedTimeInMilliseconds since the engine has started.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
          */
         onProcessingFrame(elapsedTimeInMilliseconds) {
-        }        
+        }
         /**
          * An onRelease event that is triggered when a frame needs to release resources.
          */

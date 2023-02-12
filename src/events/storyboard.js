@@ -215,14 +215,14 @@ hamonengine.events = hamonengine.events || {};
         }
         /**
          * Processes the current frame in the storyboard on an onFrame event.
-         * @param {number} elapsedTimeInMilliseconds since the engine has started.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
          */
         onFrame(elapsedTimeInMilliseconds) {
             this.currentFrame && this.currentFrame.onFrame(elapsedTimeInMilliseconds, this);
         }
         /**
          * Processes the current frame in the storyboard on an onProcessingFrame event.
-         * @param {number} elapsedTimeInMilliseconds since the engine has started.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
          */
         onProcessingFrame(elapsedTimeInMilliseconds) {
             this.currentFrame && this.currentFrame.onProcessingFrame(elapsedTimeInMilliseconds, this);
