@@ -86,10 +86,14 @@ hamonengine.core = hamonengine.core || {};
             this._startTimeStamp = 0;
             this._lastFrameTimeStamp = 0;
             this._animationId = 0;
+            this._processingId = 0;
             this._fpsCounter = new fpscounter();
 
             //Add support for multiple layers that will house our canvas, and other drawing components.
             this._layers = {};
+
+            //Store all engine registered events for resource clean-up on stop.
+            this._registeredEvents = [];
 
             //Try to detect all canvas if the feature is enabled and none are passsed in.
             const canvasCollection = options.canvas || [];
@@ -333,25 +337,31 @@ hamonengine.core = hamonengine.core || {};
             return this;
         }
         /**
-         * Stops the engine.
+         * Stops the engine and releases resources.
          */
         stop({ reasons } = { reasons: 'Stopped By User' }) {
             hamonengine.debug && console.debug("[hamonengine.core.engine.stop]");
+            
+            //Relase the timing events
             window.cancelAnimationFrame(this._animationId);
-            this._animationId = 0;
-            this._startTimeStamp = this._lastFrameTimeStamp = 0;
-            this._state = ENGINE_STATES.STOPPED;
-            console.log(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);
-
+            clearTimeout(this._processingId);
+            this._processingId = this._animationId = this._startTimeStamp = this._lastFrameTimeStamp = 0;
+            
             //Let everyone know the engine has stopped and for what reason.
             this.onStop(reasons);
 
-            //Clean up resources.
+            //Relase the DOM events registered by the engine.
+            this._registeredEvents.forEach(({name, element, functionSignature}) => element.removeEventListener(name, functionSignature));
+
+            //Clean up other resources.
             this.primaryStoryboard && this.primaryStoryboard.stop();
             this._primaryStoryboard = null;
             this._externalElements = null;
             this._layers = null;
             this._fpsCounter = null;
+
+            this._state = ENGINE_STATES.STOPPED;
+            console.log(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
             //Allow chaining.
             return this;
@@ -379,9 +389,15 @@ hamonengine.core = hamonengine.core || {};
          * Starts binding the events.
          */
         async onEventBinding() {
+
+            const registerAndAddEventListener = (name, element, functionSignature) => {
+                element.addEventListener(name, functionSignature)
+                this._registeredEvents.push({name, element, functionSignature});
+            };
+
             return new Promise((resolve, reject) => {
                 //Only add events when the DOM has completed loading.
-                window.addEventListener('DOMContentLoaded', (event) => {
+                registerAndAddEventListener("DOMContentLoaded", window, (event) => {
                     const touchEventMap = new Map();
                     const bindEvents = (elementToBind, eventContainer) => {
                         const keyEvent = (type, e) => {
@@ -436,18 +452,18 @@ hamonengine.core = hamonengine.core || {};
                             }
                         };
 
-                        elementToBind.addEventListener('keyup', (e) => keyEvent('up', e));
-                        elementToBind.addEventListener('keydown', (e) => keyEvent('down', e));
-                        elementToBind.addEventListener('click', (e) => mouseEvent('click', e));
-                        elementToBind.addEventListener('mouseup', (e) => mouseEvent('up', e));
-                        elementToBind.addEventListener('mousedown', (e) => mouseEvent('down', e));
-                        elementToBind.addEventListener('mousemove', (e) => mouseEvent('move', e));
-                        elementToBind.addEventListener('mouseenter', (e) => mouseEvent('enter', e));
-                        elementToBind.addEventListener('mouseleave', (e) => mouseEvent('leave', e));
-                        elementToBind.addEventListener('touchstart', (e) => touchEvent('start', e), { passive: false });
-                        elementToBind.addEventListener('touchmove', (e) => touchEvent('move', e), { passive: false });
-                        elementToBind.addEventListener("touchend", (e) => touchEvent('end', e), { passive: false });
-                        elementToBind.addEventListener("touchcancel", (e) => touchEvent('cancel', e), { passive: false });
+                        registerAndAddEventListener('keyup', elementToBind, (e) => keyEvent('up', e));
+                        registerAndAddEventListener('keydown', elementToBind, (e) => keyEvent('down', e));
+                        registerAndAddEventListener('click', elementToBind, (e) => mouseEvent('click', e));
+                        registerAndAddEventListener('mouseup', elementToBind, (e) => mouseEvent('up', e));
+                        registerAndAddEventListener('mousedown', elementToBind, (e) => mouseEvent('down', e));
+                        registerAndAddEventListener('mousemove', elementToBind, (e) => mouseEvent('move', e));
+                        registerAndAddEventListener('mouseenter', elementToBind, (e) => mouseEvent('enter', e));
+                        registerAndAddEventListener('mouseleave', elementToBind, (e) => mouseEvent('leave', e));
+                        registerAndAddEventListener('touchstart', elementToBind, (e) => touchEvent('start', e), { passive: false });
+                        registerAndAddEventListener('touchmove', elementToBind, (e) => touchEvent('move', e), { passive: false });
+                        registerAndAddEventListener('touchend', elementToBind, (e) => touchEvent('end', e), { passive: false });
+                        registerAndAddEventListener('touchcancel', elementToBind, (e) => touchEvent('cancel', e), { passive: false });
                     };
 
                     //Allow document event binding.
@@ -463,7 +479,6 @@ hamonengine.core = hamonengine.core || {};
                 resolve();
             });
         }
-
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
@@ -526,7 +541,7 @@ hamonengine.core = hamonengine.core || {};
             try {
                 //Experimental processing frame.
                 let processingComplete = false;
-                setTimeout(() => {
+                this._processingId = setTimeout(() => {
                     this.onProcessingFrame(elapsedTimeInMilliseconds);
                     processingComplete = true;
                 }, 1);
