@@ -158,7 +158,9 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this._backbufferResource = this._backbufferResource || hamonengine.graphics.layer.createNewCanvas(this.rawImage.width, this.rawImage.height);
                 
                 //Draw the raw image to our modified canvas.
-                this._backbufferCtx = this._backbufferCtx || this._backbufferResource.getContext('2d');
+                this._backbufferCtx = this._backbufferCtx || this._backbufferResource.getContext('2d',{
+                    willReadFrequently: true
+                });
                 this._backbufferCtx.drawImage(this.rawImage, 0, 0);
 
                 //Normalize the dimensions.
