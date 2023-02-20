@@ -147,7 +147,7 @@ hamonengine.entities = hamonengine.entities || {};
                             if (!collisionsEdges.has(edgeName)) {
 
                                 //Determine if this object has collided with its sibling.
-                                console.log(object.isCollision(siblingObject));
+                                //console.log(object.isCollision(siblingObject));
                                 //if (object.isCollision(siblingObject) !== COLLISION_TYPES.NONE) {
                                     //console.debug(`${object.name} collides with: ${siblingObject.name}`);
                                 //}
