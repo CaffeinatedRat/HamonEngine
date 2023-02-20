@@ -39,16 +39,20 @@ hamonengine.events = hamonengine.events || {};
             if (options instanceof hamonengine.events.storyboard) {
                 options = {
                     engine: options._engine,
-                    currentFrame: options._currentFrame,
+                    currentFrames: options._currentFrames,
                     loop: options._loop,
-                    preloadAllFrames: options._preloadAllFrames
+                    preloadAllFrames: options._preloadAllFrames,
+                    allowFramesToComplete: options._allowFramesToComplete
                 };
             }
 
             this._engine = options.engine;
-            this._currentFrame = options.currentFrame;
+            //this._currentFrame = options.currentFrame;
             this._loop = options.loop !== undefined ? options.loop : false;
             this._preloadAllFrames = options.preloadAllFrames !== undefined ? options.preloadAllFrames : false;
+            this._allowFramesToComplete = options.allowFramesToComplete !== undefined ? options.allowFramesToComplete : true;
+
+            this._currentFrames = options._currentFrames || [];
         }
         //--------------------------------------------------------
         // Properties
@@ -57,7 +61,7 @@ hamonengine.events = hamonengine.events || {};
          * Returns the current frame.
          */
         get currentFrame() {
-            return this._currentFrame;
+            return this._currentFrames.first();
         }
         /**
          * Returns the current engine instance.
@@ -78,16 +82,32 @@ hamonengine.events = hamonengine.events || {};
             throw `The engine has already been assigned for the storyboard: ${this.name}`;
         }
         /**
-         * Returns the loop status.  If true the current frame will advance to the beginning of the current branch.
+         * Returns the loop status.  If true the current frame will advance to the beginning of the current branch.  This is false by default.
          */
         get loop() {
             return this._loop;
         }
         /**
-         * Sets the loop status.  If true the current frame will advance to the beginning of the current branch.
+         * Sets the loop status.  If true the current frame will advance to the beginning of the current branch.  This is false by default.
          */
         set loop(v) {
             this._loop = v;
+        }
+        /**
+         * Determines if the storyboard will allow a frame to complete.  By default this is true.
+         * If this is true, the storyboard will not continue proceed to another frame until the current one is complete.
+         * If this is false, the storyboard will cancel the current frame and proceed to another frame.
+         */
+        get allowFramesToComplete() {
+            return this._allowFramesToComplete;
+        }
+        /**
+         * Enables/disables the storyboard's ability to allow a frame to complete.  By default this is true.
+         * If this is true, the storyboard will not continue proceed to another frame until the current one is complete.
+         * If this is false, the storyboard will cancel the current frame and proceed to another frame.
+         */
+        set allowFramesToComplete(v) {
+            this._allowFramesToComplete = v;
         }
         //--------------------------------------------------------
         // Methods
@@ -103,16 +123,20 @@ hamonengine.events = hamonengine.events || {};
          * @return {Object} a promise to complete resource loading.
          */
         async start() {
+            super.start();
             //Use the topFrame if one doesn't exist.
             !this.currentFrame && this.goTop();
             await this.load(this._preloadAllFrames, this);
+            //Start the current frame.
+            this.currentFrame.start();
         }
         /**
          * Stops and clears the storyboard of all resources.
          */
         stop() {
+            super.stop();
             this.clear();
-            this._currentFrame = null;
+            this._currentFrame.clear();
         }
         /**
          * Returns to the top frame, the frame ancestor frame before this one.
@@ -120,14 +144,14 @@ hamonengine.events = hamonengine.events || {};
          */
         goTop() {
             //NOTE: Since the storyboard is derived from the frame/tree classes this means that the top node will always be this one, so we need to use the first node of the storyboard to be the true top.
-            return (this._currentFrame = this.first);
+            return this.setFrame(this.first);
         }
         /**
          * Traverses to the immediately parent frame and returns the new frame, otherwise null is returned.
          */
         goUp() {
             if (this.currentFrame && this.currentFrame.parent) {
-                return (this._currentFrame = this.currentFrame.parent);
+                return this.setFrame(this.currentFrame.parent);
             }
 
             return null;
@@ -137,19 +161,19 @@ hamonengine.events = hamonengine.events || {};
          */
         goDown() {
             if (this.currentFrame && this.currentFrame.first) {
-                return (this._currentFrame = this.currentFrame.first);
+                return this.setFrame(this.currentFrame.first);
             }
 
             return null;
-        }    
+        }
         /**
          * Traverses to the first frame on the current branch.
          * If traversal succeeds then the new frame is returned, otherwise null is returned.
          */
         goFirst() {
-            const parent = this.goUp();
+            const parent = this.currentFrame ? this.currentFrame.parent : null;
             if (parent && parent.first) {
-                return (this._currentFrame = parent.first)
+                return this.setFrame(parent.first);
             }
 
             return null;
@@ -164,7 +188,7 @@ hamonengine.events = hamonengine.events || {};
                 //If no next frame is available and loop is enabled then jump to the beginning frame.
                 const nextFrame = (this.currentFrame.next || !this.loop) ? this.currentFrame.next : this.currentFrame.parent.first;
                 if (nextFrame) {
-                    return (this._currentFrame = nextFrame);
+                    return this.setFrame(nextFrame);
                 }
             }
 
@@ -180,7 +204,7 @@ hamonengine.events = hamonengine.events || {};
                 //If no previous frame is available and loop is enabled then jump to the end frame.
                 const prevFrame = (this.currentFrame.prev || !this.loop) ? this.currentFrame.prev : this.currentFrame.parent.last;
                 if (prevFrame) {
-                    return (this._currentFrame = prevFrame);
+                    return this.setFrame(prevFrame);
                 }
             }
 
@@ -190,7 +214,7 @@ hamonengine.events = hamonengine.events || {};
          * Jumps to the frame by the name and traversal path and returns the new frame, otherwise null is returned.
          * The dot notation is used to determine the traversal path allowing the storyboard to jump to any frame.
          * For example: root1.root1-node1.root1-node1-node3 will allow the storyboard to traverse to the 3rd node under node 1 under root 1.
-         * @param {*} framePathAndName 
+         * @param {string} framePathAndName to find and jump to.
          */
         jump(framePathAndName) {
             //Find the rootNode.
@@ -201,7 +225,28 @@ hamonengine.events = hamonengine.events || {};
             while (pathTokens.length > 0 && (node = node.findChildByName(pathTokens.shift()))) { };
 
             //Traverse the currentFrame and return it.
-            return (this._currentFrame = node);
+            return this.setFrame(node);
+        }
+        /**
+         * Sets the current frame and handles the rendering logic.
+         * @param {*} newFrame to replace the existing current frame.
+         */
+        setFrame(newFrame) {
+
+            //When setting a new frame if allow frames to complete is false or the frame state is STOPPED and is not the last one, then remove the frame instantly.
+            const currentFrame = (!this.allowFramesToComplete || (this.currentFrame && (this.currentFrame.frameState === FRAME_STATE.STOPPED) || this._currentFrames.length > 1))
+                ? this._currentFrames.shift()
+                    : this.currentFrame;
+
+            //If allow frames to complete is true then retrieve the current frame and signal it to stop.
+            currentFrame && currentFrame.stop(!this.allowFramesToComplete);
+
+            //Add the new frame and start it.
+            this._currentFrames.push(newFrame);
+
+            //Do not start frames that are storyboards
+            (!(newFrame instanceof hamonengine.events.storyboard)) && newFrame.start();
+            return newFrame;
         }
         //--------------------------------------------------------
         // Events
@@ -216,16 +261,26 @@ hamonengine.events = hamonengine.events || {};
         /**
          * Processes the current frame in the storyboard on an onFrame event.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
-        onFrame(elapsedTimeInMilliseconds) {
-            this.currentFrame && this.currentFrame.onFrame(elapsedTimeInMilliseconds, this);
+        onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
+            const currentFrame = this.currentFrame;
+
+            //Remove stopped frame but not if it's the last one.
+            if (currentFrame && currentFrame.frameState === FRAME_STATE.STOPPED && this._currentFrames.length > 1) {
+                this._currentFrames.shift();
+            }
+
+            //Render the proceeding frame.
+            this.currentFrame && this.currentFrame.render(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds);
         }
         /**
          * Processes the current frame in the storyboard on an onProcessingFrame event.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
-        onProcessingFrame(elapsedTimeInMilliseconds) {
-            this.currentFrame && this.currentFrame.onProcessingFrame(elapsedTimeInMilliseconds, this);
+        onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
+            this.currentFrame && this.currentFrame.onProcessingFrame(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds);
         }
         /**
          * Processes keyboard events.

@@ -542,7 +542,7 @@ hamonengine.core = hamonengine.core || {};
                 //Experimental processing frame.
                 let processingComplete = false;
                 this._processingId = setTimeout(() => {
-                    this.onProcessingFrame(elapsedTimeInMilliseconds);
+                    this.onProcessingFrame(elapsedTimeInMilliseconds, timestampInMilliseconds);
                     processingComplete = true;
                 }, 1);
 
@@ -550,7 +550,7 @@ hamonengine.core = hamonengine.core || {};
                 //If this parameter is removed then the timestamp will always be zero.
                 this._animationId = window.requestAnimationFrame((scopedTimestampInMS) => {
                     this._state = ENGINE_STATES.RUNNING;
-                    (!this.syncFrames || processingComplete) && this.onFrame(elapsedTimeInMilliseconds);
+                    (!this.syncFrames || processingComplete) && this.onFrame(elapsedTimeInMilliseconds, timestampInMilliseconds);
                     this.onDraw(scopedTimestampInMS);
                 });
             }
@@ -567,17 +567,19 @@ hamonengine.core = hamonengine.core || {};
         /**
          * An onFrame event that is triggered when a single frame is being rendered to the canvas.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
-        onFrame(elapsedTimeInMilliseconds) {
-            this.primaryStoryboard && this.primaryStoryboard.onFrame(elapsedTimeInMilliseconds);
+        onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
+            this.primaryStoryboard && this.primaryStoryboard.onFrame(totalTimeInMilliseconds, totalTimeInMilliseconds);
             return this;
         }
         /**
          * An onProcessingFrame event that is triggered when a single frame is being processed before drawn.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
-        onProcessingFrame(elapsedTimeInMilliseconds) {
-            this.primaryStoryboard && this.primaryStoryboard.onProcessingFrame(elapsedTimeInMilliseconds);
+        onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
+            this.primaryStoryboard && this.primaryStoryboard.onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds);
             return this;
         }
         /**

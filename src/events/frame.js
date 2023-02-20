@@ -36,6 +36,9 @@ hamonengine.events = hamonengine.events || {};
             super(options);
 
             this._name = options.name || '';
+            this._frameState = FRAME_STATE.STOPPED;
+            this._loadingState = FRAME_STATE.STOPPED;
+            this._startFrameTime = 0;
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.events.frame.constructor] Name: ${this._name}`);
@@ -56,6 +59,30 @@ hamonengine.events = hamonengine.events || {};
         set name(v) {
             this._name = v;
         }
+        /**
+         * Returns the state of the frame.
+         */
+        get frameState() {
+            return this._frameState;
+        }
+        /**
+         * Sets the state of the frame.
+         */
+        set frameState(v) {
+            this._frameState = v;
+        }
+        /**
+         * Returns the total time since the frame was started with respect to the engine.
+         */
+        get startFrameTime() {
+            return this._startFrameTime;
+        }
+        /**
+         * Returns true if the frame is loaded.
+         */
+        get isLoaded() {
+            return this._loadingState === FRAME_STATE.LOADED;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -66,12 +93,43 @@ hamonengine.events = hamonengine.events || {};
             return new hamonengine.events.frame(this);
         }
         /**
+         * Starts the current frame with the current total time with respect to the engine.
+         * @returns {object} an instance of this frame, allowing chaining.
+         */
+        start() {
+            if (this.frameState === FRAME_STATE.STOPPED) {
+                this.frameState = FRAME_STATE.STARTING;
+            }
+        }
+        /**
+         * Stops the current frame.
+         * @param {boolean} cancel the frame abruptly.
+         * @param {string} reason the reason the frame was cancelled.
+         * @returns {object} an instance of this frame, allowing chaining.
+         */
+        stop(cancel=false) {
+            if (this.frameState !== FRAME_STATE.STOPPED) {
+                //Determine if the frame is stopping or has to stop immediately.
+                this.frameState = cancel ? FRAME_STATE.STOPPED : FRAME_STATE.STOPPING;
+            }
+        }
+        /**
+         * Pauses execution of the current frame.
+         * @returns {object} an instance of this frame, allowing chaining.
+         */
+        pause() {
+            if (this.frameState === FRAME_STATE.RUNNING) {
+                this.frameState = FRAME_STATE.PAUSED;
+            }
+        }
+        /**
          * Preloads any resource loading.
          * @param {boolean} loadDescendantFrames determines if the child frames should load resources at the same time.
          * @param {object} storyboard calling the load operation.
          * @return {object} a promise to complete resource loading.
          */
         async load(loadDescendantFrames, storyboard) {
+            this._loadingState = FRAME_STATE.LOADING;
             const nodePromises = [];
             const parentNodePromise = this.onloadResources(storyboard);
             if ((parentNodePromise instanceof Promise)) {
@@ -91,6 +149,7 @@ hamonengine.events = hamonengine.events || {};
                 }
 
                 await Promise.all(nodePromises);
+                this._loadingState = FRAME_STATE.LOADED;
             }
         }
         /**
@@ -119,6 +178,32 @@ hamonengine.events = hamonengine.events || {};
         findChildByName(name) {
             return hamonengine.events.frame.searchByPredicate(this.first, node => node !== null && node.name.toLowerCase() !== name.toLowerCase());
         }
+        /**
+         * Handles the rendering and states of a frame.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
+         * @param {object} storyboard used to invoke this onFrame event.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         */
+        render(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+            switch(this.frameState) {
+                case FRAME_STATE.STARTING:
+                    if (this._startFrameTime === 0) {
+                        this._startFrameTime = totalTimeInMilliseconds;
+                    }
+                    this.onFrameStarting(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds);
+                    break;
+
+                case FRAME_STATE.RUNNING:
+                    this.onFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds);
+                    break;
+
+                case FRAME_STATE.STOPPING:
+                    this.onFrameStopping(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds);
+                    break;
+
+                //NOTE: The Stopped/Cancelled event will not occur here since the Storyboard has stopped rendering the frame.
+            }
+        }
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
@@ -130,22 +215,46 @@ hamonengine.events = hamonengine.events || {};
         async onloadResources(storyboard) {
         }
         /**
+         * An onFrameStarting event that is triggered when frame is starting.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
+         * @param {object} storyboard used to invoke this onFrame event.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         */
+        onFrameStarting(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+            //Unless overridden skip the starting frame.
+            this.frameState = FRAME_STATE.RUNNING;
+        }
+        /**
          * An onFrame event that is triggered when this item is active.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
          * @param {object} storyboard used to invoke this onFrame event.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
-        onFrame(elapsedTimeInMilliseconds, storyboard) {
+        onFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+        }
+        /**
+         * An onFrameStopping event that is triggered when frame is stop.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
+         * @param {object} storyboard used to invoke this onFrame event.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         */
+        onFrameStopping(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+            //Unless overridden skip the stopping frame.
+            this.frameState = FRAME_STATE.STOPPED;
         }
         /**
          * Processes the current frame in the storyboard on an onProcessingFrame event.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
+         * @param {object} storyboard used to invoke this onFrame event.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
-        onProcessingFrame(elapsedTimeInMilliseconds) {
+        onProcessingFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
         }
         /**
          * An onRelease event that is triggered when a frame needs to release resources.
          */
         onRelease() {
+            this.stop();
         }
         /**
          * Processes keyboard events.

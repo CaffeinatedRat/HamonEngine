@@ -1,6 +1,7 @@
 src/global.js
 ./src/util/bitflag.js
 ./src/util/connect.js
+./src/util/extensions.js
 ./src/util/fps-counter.js
 ./src/util/listenerPool.js
 ./src/util/sort.js
@@ -34,4 +35,5 @@ src/entities/shapeObject.js
 src/entities/cell.js
 ./src/events/frame.js
 ./src/events/storyboard.js
+./src/events/type.js
 src/hamon-engine.js
