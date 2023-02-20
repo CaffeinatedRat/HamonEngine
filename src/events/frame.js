@@ -254,7 +254,6 @@ hamonengine.events = hamonengine.events || {};
          * An onRelease event that is triggered when a frame needs to release resources.
          */
         onRelease() {
-            this.stop();
         }
         /**
          * Processes keyboard events.

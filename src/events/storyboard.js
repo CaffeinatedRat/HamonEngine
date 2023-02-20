@@ -47,7 +47,6 @@ hamonengine.events = hamonengine.events || {};
             }
 
             this._engine = options.engine;
-            //this._currentFrame = options.currentFrame;
             this._loop = options.loop !== undefined ? options.loop : false;
             this._preloadAllFrames = options.preloadAllFrames !== undefined ? options.preloadAllFrames : false;
             this._allowFramesToComplete = options.allowFramesToComplete !== undefined ? options.allowFramesToComplete : true;
@@ -136,7 +135,6 @@ hamonengine.events = hamonengine.events || {};
         stop() {
             super.stop();
             this.clear();
-            this._currentFrame.clear();
         }
         /**
          * Returns to the top frame, the frame ancestor frame before this one.
