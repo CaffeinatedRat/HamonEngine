@@ -113,8 +113,9 @@ hamonengine.audio = hamonengine.audio || {};
             //Load all of the static tracks from the metadata.
             for (let i = 0; i < albumMetadata.tracks.length; i++) {
                 const trackData = albumMetadata.tracks[i];
-                this._trackIndex.push(trackData.name);
-                this._tracks[trackData.name] = new hamonengine.audio.track({
+                const trackName = trackData.name.toLowerCase();
+                this._trackIndex.push(trackName);
+                this._tracks[trackName] = new hamonengine.audio.track({
                     audioext: this._audioResource.clone(),
                     name: trackData.name,
                     trackBegin: trackData.begin,
@@ -122,15 +123,15 @@ hamonengine.audio = hamonengine.audio || {};
                 });
             }
 
-            return Promise.resolve();
-            //return resourceLoadingPromise;
+            //return Promise.resolve();
+            return resourceLoadingPromise;
         }
         /**
          * Returns the track based on the name.
          * @param {string} name of track to return.
          */
         getTrack(name) {
-            return this._tracks[name].clone();
+            return this._tracks[name.toLowerCase()].clone();
         }
         /**
          * Returns the track based on the ordinal value.
