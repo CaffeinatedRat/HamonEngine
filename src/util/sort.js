@@ -40,6 +40,7 @@ hamonengine.util = hamonengine.util || {};
         // Methods
         //--------------------------------------------------------
         quickSort(arr) {
+            //TODO: Add an immutable sort option to preserve the original array.
             hamonengine.util.sort.iquicksort(this._compareFunc, arr, 0, arr.length - 1);
         }
         /**
