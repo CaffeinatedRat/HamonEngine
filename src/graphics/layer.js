@@ -297,6 +297,30 @@ hamonengine.graphics = hamonengine.graphics || {};
         set cursor(v) {
             this.canvas.style.cursor = v;
         }
+        /**
+         * Returns the background color, defaults to black.
+         */
+        get backgroundColor() {
+            return this._backgroundColor;
+        }
+        /**
+         * Assigns the background color.
+         */
+        set backgroundColor(v) {
+            this._backgroundColor = v;
+        }
+        /**
+         * Returns the zIndex of the canvas element.
+         */
+        get depthIndex() {
+            return this.canvas.style.zIndex;
+        }
+        /**
+         * Assigns the zIndex of the canvas element.
+         */
+        set depthIndex(v) {
+            this.canvas.style.zIndex = v;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -380,17 +404,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         clear(x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height) {
             this._wasReset = false;
-
             this.context.clearRect(x, y, width, height);
-
-            // --- 3/7/21 --- Handle the Chromium 89 bug where if alpha is set to false, ClearRect will not properly clear the canvas resulting in a mirroring effect.
-            // This is not an issue in Firefox and was not an issue before Chromium 89.
-            if (this._workAround) {
-                const originalFillStyle = this.context.fillStyle;
-                this.context.fillStyle = this._backgroundColor;
-                this.context.fillRect(x, y, width, height);
-                this.context.fillStyle = originalFillStyle;
-            }
         }
         /**
          * Resets the transformation.
@@ -423,10 +437,18 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.drawImage(image, x, y, this.viewPort.width, this.viewPort.height);
         }
         /**
-         * Begins default painting on this layer.
+         * Begins default painting on this layer with varoius options
+         * @param {number} obj.x location to start painting.  By default this is set to the this.viewPort.x;
+         * @param {number} obj.y location to start painting.  By default this is set to the this.viewPort.y;
+         * @param {number} obj.width to start painting.  By default this is set to the this.viewPort.width;
+         * @param {number} obj.height to start painting.  By default this is set to the this.viewPort.height;
+         * @param {string} obj.backgroundColor to fill the canvas.  By default this is this.backgroundColor.
         */
-        beginPainting() {
-            this.clear();
+        beginPainting({x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor}={}) {
+            
+            //Added support for resetting the background color.
+            this.context.fillStyle = backgroundColor;
+            this.context.fillRect(x, y, width, height);
 
             if (this.borderColor) {
                 this.context.strokeStyle = this.borderColor;
