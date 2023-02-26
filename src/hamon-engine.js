@@ -570,7 +570,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
         onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
-            this.primaryStoryboard && this.primaryStoryboard.onFrame(totalTimeInMilliseconds, totalTimeInMilliseconds);
+            this.primaryStoryboard && this.primaryStoryboard.onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds);
             return this;
         }
         /**
