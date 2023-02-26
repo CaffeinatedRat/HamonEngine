@@ -1,4 +1,4 @@
-src/global.js
+src/debug-global.js
 ./src/util/bitflag.js
 ./src/util/connect.js
 ./src/util/extensions.js

@@ -49,7 +49,8 @@ hamonengine.audio = hamonengine.audio || {};
             this._name = options.name;
             this._audioext = options.audioext || new hamonengine.audio.audioext({
                 audio: options.audio,
-                src: options.src
+                src: options.src,
+                loop: (options.loop !== undefined? options.loop : false)
             });
 
             //Contains the position of the track if contained in one file.

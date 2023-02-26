@@ -588,9 +588,10 @@ hamonengine.core = hamonengine.core || {};
          */
         onStop(reasons) {
             //Goodnight
-            if (reasons === 'Stopped By User') {
+            if (reasons === 'Stopped By User' && this.primaryLayer) {
                 this.primaryLayer.clear();
                 this.primaryLayer.drawText('お やすみ', this.primaryLayer.viewPort.width / 2, this.primaryLayer.viewPort.height / 2, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
+                console.log("%c[hamonengine.core.engine.onStop] お やすみ GoodBye", "color: red");
             }
             return this;
         }
