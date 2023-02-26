@@ -47,7 +47,8 @@ hamonengine.entities = hamonengine.entities || {};
                     direction: options._direction,
                     theta: options._theta,
                     scale: options._scale,
-                    state: options._state
+                    state: options._state,
+                    adjustBoundingShape: options._adjustBoundingShape
                 };
             }
 
@@ -57,6 +58,10 @@ hamonengine.entities = hamonengine.entities || {};
             this._width = options.width || 0;
             this._height = options.height || 0;
             this._zindex = options.zindex || 0;
+            
+            //Automatically adjust the bounding shape if one is not provided.
+            //If the bounding shape is provided then the user must manage its dimensions.
+            this._adjustBoundingShape = !options.boundingShape && (options.adjustBoundingShape !== undefined ? options.adjustBoundingShape : true);
 
             //Movement variables
             this._movementRate = options.movementRate || 0;
@@ -89,6 +94,7 @@ hamonengine.entities = hamonengine.entities || {};
                 console.debug(`[hamonengine.entities.object2d.constructor] isSolid: ${this.isSolid}`);
                 console.debug(`[hamonengine.entities.object2d.constructor] isMovable: ${this.isMovable}`);
                 console.debug(`[hamonengine.entities.object2d.constructor] isVisible: ${this.isVisible}`);
+                console.debug(`[hamonengine.entities.object2d.constructor] adjustBoundingShape: ${this._adjustBoundingShape}`);
             }
         }
         //--------------------------------------------------------
@@ -149,10 +155,32 @@ hamonengine.entities = hamonengine.entities || {};
             return this._width;
         }
         /**
+         * Sets the width of the object.
+         */
+        set width(v) {
+            //Update the bounding shape if the dimensions are changed.
+            if (this._adjustBoundingShape) {
+                this._boundingShape = null;
+            }
+
+            this._width = v;
+        }
+        /**
          * Returns the height of the object.
          */
         get height() {
             return this._height;
+        }
+        /**
+         * Sets the height of the object.
+         */
+        set height(v) {
+            //Update the bounding shape if the dimensions are changed.
+            if (this._adjustBoundingShape) {
+                this._boundingShape = null;
+            }
+
+            this._height = v;
         }
         /**
          * Returns the z-index that can be used in evaluating depth for things such as a painter's algorithm.

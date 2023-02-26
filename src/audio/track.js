@@ -61,7 +61,7 @@ hamonengine.audio = hamonengine.audio || {};
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.audio.track.constructor] Name: ${this._name}`);
                 console.debug(`[hamonengine.audio.track.constructor] Track Begin: ${this._trackBegin}`);
-                console.debug(`[hamonengine.audio.track.constructor] Track End: {${this._trackEnd}}`);
+                console.debug(`[hamonengine.audio.track.constructor] Track End: ${this._trackEnd}`);
             }
         }
         //--------------------------------------------------------

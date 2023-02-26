@@ -53,7 +53,7 @@ hamonengine.audio = hamonengine.audio || {};
             this._name = options.name || '';
 
             if (hamonengine.debug) {
-                console.debug(`[hamonengine.audio.album.constructor] Name: '${this._name}'`);
+                console.debug(`[hamonengine.audio.album.constructor] Name: '${this.name}'`);
                 console.debug(`[hamonengine.audio.album.constructor] Url: '${this._url}'`);
             }
         }

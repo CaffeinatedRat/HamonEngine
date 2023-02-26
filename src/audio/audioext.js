@@ -107,8 +107,8 @@ hamonengine.audio = hamonengine.audio || {};
             this._audioListenerDelegate = null;
 
             if (hamonengine.debug) {
-                console.debug(`[hamonengine.audio.audioext.constructor] ResourceState: {${this._resourceState}}`);
-                console.debug(`[hamonengine.audio.audioext.constructor] PlayingState: {${this._playingState}}`);
+                console.debug(`[hamonengine.audio.audioext.constructor] ResourceState: ${this._resourceState}`);
+                console.debug(`[hamonengine.audio.audioext.constructor] PlayingState: ${this._playingState}`);
             }
         }
         //--------------------------------------------------------

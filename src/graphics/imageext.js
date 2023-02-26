@@ -56,7 +56,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._backbufferResource = null;
             this._backbufferCtx = null;
 
-            hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.graphics.imageext.constructor] Starting State: {${this._state}}`);
+            hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.graphics.imageext.constructor] Starting State: ${this._state}`);
         }
         //--------------------------------------------------------
         // Properties

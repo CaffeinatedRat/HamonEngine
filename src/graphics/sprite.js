@@ -78,7 +78,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             if (hamonengine.debug && hamonengine.verbose) {
                 console.debug(`[hamonengine.graphics.sprite.constructor] Starting Dimensions: {${this._dimensions.toString()}}`);
-                console.debug(`[hamonengine.graphics.sprite.constructor] Name: ${this._name}`);
+                console.debug(`[hamonengine.graphics.sprite.constructor] Name: '${this._name}'`);
                 console.debug(`[hamonengine.graphics.sprite.constructor] Theta: ${this._theta}`);
                 console.debug(`[hamonengine.graphics.sprite.constructor] ScaleVector: {${this._scaleVector.toString()}}`);
             }
