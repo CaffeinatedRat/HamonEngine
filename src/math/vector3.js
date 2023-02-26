@@ -27,12 +27,12 @@
 
 hamonengine.math = hamonengine.math || {};
 
-(function() {
+(function () {
     /**
      * This class represents a three-dimensional vector.
      */
     hamonengine.math.vector3 = class {
-        constructor(x=0.0,y=0.0,z=0.0) {
+        constructor(x = 0.0, y = 0.0, z = 0.0) {
             this.x = x;
             this.y = y;
             this.z = z;
@@ -49,20 +49,20 @@ hamonengine.math = hamonengine.math || {};
         /**
          * Returns the middle point on the vector3.
          */
-         get midPoint() {
+        get midPoint() {
             return new hamonengine.math.vector3(this.x / 2, this.y / 2, this.z / 2);
         }
         /**
          * Returns the minimum coordinate.
          */
-         get min() {
+        get min() {
             const min = this.x < this.y ? this.x : this.y;
             return min < this.z ? min : this.z;
         }
         /**
          * Returns the maximum coordinate.
          */
-         get max() {
+        get max() {
             const max = this.x > this.y ? this.x : this.y;
             return max > this.z ? max : this.z;
         }
@@ -92,8 +92,8 @@ hamonengine.math = hamonengine.math || {};
          * Normalizes and returns a unit vector.
          */
         normalize() {
-            const l = this.length; 
-            return (l > 0) ? new  hamonengine.math.vector3(this.x / l, this.y / l, this.z / l) : new hamonengine.math.vector3();
+            const l = this.length;
+            return (l > 0) ? new hamonengine.math.vector3(this.x / l, this.y / l, this.z / l) : new hamonengine.math.vector3();
         }
         /**
          * Returns an inverted vector3.
@@ -152,11 +152,17 @@ hamonengine.math = hamonengine.math || {};
         equals(v) {
             return this.x === v.x && this.y === v.y && this.z === v.z;
         }
+        /**
+         * Returns true if the vector is empty and at origin (0,0)
+         */
+        isEmpty() {
+            return this.x === 0.0 && this.y === 0.0 && this.z === 0.0;
+        }
     }
 
     //Constants
-    hamonengine.math.vector3.X_AXIS_NORMAL = new hamonengine.math.vector3(1,0,0);
-    hamonengine.math.vector3.Y_AXIS_NORMAL = new hamonengine.math.vector3(0,1,0);
-    hamonengine.math.vector3.Z_AXIS_NORMAL = new hamonengine.math.vector3(0,0,1);
-    
+    hamonengine.math.vector3.X_AXIS_NORMAL = new hamonengine.math.vector3(1, 0, 0);
+    hamonengine.math.vector3.Y_AXIS_NORMAL = new hamonengine.math.vector3(0, 1, 0);
+    hamonengine.math.vector3.Z_AXIS_NORMAL = new hamonengine.math.vector3(0, 0, 1);
+
 })();

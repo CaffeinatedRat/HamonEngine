@@ -197,6 +197,12 @@ hamonengine.math = hamonengine.math || {};
         equals(v) {
             return this.x === v.x && this.y === v.y;
         }
+        /**
+         * Returns true if the vector is empty and at origin (0,0)
+         */
+        isEmpty() {
+            return this.x === 0.0 && this.y === 0.0;
+        }
     }
 
     //Constants
