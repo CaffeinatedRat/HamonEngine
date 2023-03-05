@@ -444,8 +444,8 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} obj.height to start painting.  By default this is set to the this.viewPort.height;
          * @param {string} obj.backgroundColor to fill the canvas.  By default this is this.backgroundColor.
         */
-        beginPainting({x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor}={}) {
-            
+        beginPainting({ x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor } = {}) {
+
             //Added support for resetting the background color.
             this.context.fillStyle = backgroundColor;
             this.context.fillRect(x, y, width, height);

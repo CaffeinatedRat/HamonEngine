@@ -36,4 +36,5 @@ src/entities/cell.js
 ./src/events/frame.js
 ./src/events/storyboard.js
 ./src/events/type.js
+src/resources/splashscreen.js
 src/hamon-engine.js

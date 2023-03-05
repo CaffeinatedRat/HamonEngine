@@ -28,6 +28,7 @@
 hamonengine.core = hamonengine.core || {};
 
 (function () {
+
     const ENGINE_STATES = {
         STOPPED: 0,
         STARTED: 1,
@@ -68,7 +69,7 @@ hamonengine.core = hamonengine.core || {};
 
             //Assign the engine if this one is not assigned.
             if (this._storyboard && !this._storyboard.engine) {
-                 this._storyboard.engine = this;
+                this._storyboard.engine = this;
             }
 
             //Determines the prevent default & event propagation states.
@@ -138,8 +139,8 @@ hamonengine.core = hamonengine.core || {};
                 console.debug(`[hamonengine.core.engine.constructor] MovementRate: ${this._movementRate}`);
                 console.debug(`[hamonengine.core.engine.constructor] State: ${ENGINE_STATES_NAMES[this._state]}`);
                 console.debug(`[hamonengine.core.engine.constructor] SyncFrames: ${this.syncFrames ? 'Enabled' : 'Disabled'}`);
-                console.debug(`[hamonengine.core.engine.constructor] SplashScreen Wait Time: ${this._splashScreenWait} milliseconds.`);
-                console.debug(`[hamonengine.core.engine.constructor] Engine SplashScreen: ${this._showEngineSplashScreen ? 'Enabled' : 'Disabled'}`);
+                console.debug(`[hamonengine.core.engine.constructor] Splash screen Wait Time: ${this._splashScreenWait} milliseconds.`);
+                console.debug(`[hamonengine.core.engine.constructor] Engine splash screen: ${this._showEngineSplashScreen ? 'Enabled' : 'Disabled'}`);
 
                 this._storyboard && console.debug(`[hamonengine.core.engine.constructor] Storyboard Added: ${this._storyboard.name}`);
 
@@ -261,15 +262,8 @@ hamonengine.core = hamonengine.core || {};
         async load() {
             hamonengine.debug && console.debug("[hamonengine.core.engine.load]");
 
-            //Perform a preload and wait if a splashscreen is present.
-            const preloadPromise = new Promise(resolve => {
-                if (this.onPreload()) {
-                    setTimeout(() => resolve(), this._splashScreenWait);
-                }
-                else {
-                    resolve();
-                }
-            });
+            //Show the loading splash screen if one exists.
+            const loadingSplashScreenPromise = (this.onPreload && this.onPreload()) ? new Promise(resolve => setTimeout(() => resolve(), this._splashScreenWait)) : Promise.resolve();
 
             this._state = ENGINE_STATES.LOADING;
             console.log(`[hamonengine.core.engine.load] State: ${ENGINE_STATES_NAMES[this._state]}`);
@@ -309,7 +303,7 @@ hamonengine.core = hamonengine.core || {};
 
                 //Wait at the preload promise while the other events & resources are loading.
                 console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for preload event to resolve...", "color: yellow");
-                await preloadPromise;
+                await loadingSplashScreenPromise;
                 console.log("%c[hamonengine.core.engine.load] Preload completed.", "color: green");
             }
             catch (error) {
@@ -343,17 +337,17 @@ hamonengine.core = hamonengine.core || {};
          */
         stop({ reasons } = { reasons: 'Stopped By User' }) {
             hamonengine.debug && console.debug("[hamonengine.core.engine.stop]");
-            
+
             //Relase the timing events
             window.cancelAnimationFrame(this._animationId);
             clearTimeout(this._processingId);
             this._processingId = this._animationId = this._startTimeStamp = this._lastFrameTimeStamp = 0;
-            
+
             //Let everyone know the engine has stopped and for what reason.
             this.onStop(reasons);
 
             //Relase the DOM events registered by the engine.
-            this._registeredEvents.forEach(({name, element, functionSignature}) => element.removeEventListener(name, functionSignature));
+            this._registeredEvents.forEach(({ name, element, functionSignature }) => element.removeEventListener(name, functionSignature));
             this._registeredEvents = [];
 
             //Clean up other resources.
@@ -370,14 +364,6 @@ hamonengine.core = hamonengine.core || {};
         //--------------------------------------------------------
         // Internal Events
         //--------------------------------------------------------
-        /**
-         * An internal event that occurs before loading has started.
-         * You can use this event to display static images that have already been loaded.
-         */
-        onPreload() {
-            hamonengine.debug && console.debug("[hamonengine.core.engine.onPreload]");
-            return false;
-        }
         /**
          * An internal event that occurs when attempting to load resources.
          * @return {Object} a promise that the resource has loaded successfully.
@@ -447,7 +433,7 @@ hamonengine.core = hamonengine.core || {};
                         //Helper method to store the DOM listeners to remove at another time.
                         const registerAndAddEventListener = (name, element, functionSignature) => {
                             element.addEventListener(name, functionSignature)
-                            this._registeredEvents.push({name, element, functionSignature});
+                            this._registeredEvents.push({ name, element, functionSignature });
                         };
 
                         registerAndAddEventListener('keyup', elementToBind, (e) => keyEvent('up', e));

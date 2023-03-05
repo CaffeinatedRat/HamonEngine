@@ -339,7 +339,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} height the option height of the sprite to scale.
          */
         draw(layer, elapsedTimeInMilliseconds, x, y, width = this.width, height = this.height) {
-            layer.drawImage(this, x, y, this.width, this.height, destinationX, destinationY, width, height) 
+            layer.drawImage(this, x, y, this.width, this.height, x, y, width, height);
         }
         /**
          * Releases resources.

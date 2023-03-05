@@ -278,7 +278,8 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {object} unitVector (hamonengine.math.vector2) to project onto.
          */
         project(unitVector) {
-            let min = max = unitVector.dot(new hamonengine.math.vector2(this.x, this.y));
+            let min = unitVector.dot(new hamonengine.math.vector2(this.x, this.y));
+            let max = min;
             const calcProjections = (vector) => {
                 const dotProduct = unitVector.dot(vector);
                 if (dotProduct < min) {

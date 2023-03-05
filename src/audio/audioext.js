@@ -309,7 +309,11 @@ hamonengine.audio = hamonengine.audio || {};
                     this.audio.removeEventListener('loadeddata', () => handleSuccess(), false);
                 }
 
-                hamonengine.debug && console.debug(`[hamonengine.audio.audioext.load] Audio '${this.src}' has loaded successfully.`);
+                if (hamonengine.debug) {
+                    src = src.length > 100 ? `${src.substring(0, 97)}...` : src;
+                    console.debug(`[hamonengine.audio.audioext.load] Audio '${src}' has loaded successfully.`);
+                }
+                
                 return Promise.resolve(this);
             };
 

@@ -216,7 +216,7 @@ hamonengine.events = hamonengine.events || {};
          */
         jump(framePathAndName) {
             //Find the rootNode.
-            var node = storyboard;
+            let node = this.top;
 
             //Traverse through the rest of the tree to find the matching node by name.
             const pathTokens = framePathAndName.split('.');
