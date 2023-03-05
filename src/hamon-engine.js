@@ -390,15 +390,8 @@ hamonengine.core = hamonengine.core || {};
          * Starts binding the events.
          */
         async onEventBinding() {
-
-            const registerAndAddEventListener = (name, element, functionSignature) => {
-                element.addEventListener(name, functionSignature)
-                this._registeredEvents.push({name, element, functionSignature});
-            };
-
             return new Promise((resolve, reject) => {
-                //Only add events when the DOM has completed loading.
-                registerAndAddEventListener("DOMContentLoaded", window, (event) => {
+                const handleDOMBinding = () => {
                     const touchEventMap = new Map();
                     const bindEvents = (elementToBind, eventContainer) => {
                         const keyEvent = (type, e) => {
@@ -414,11 +407,9 @@ hamonengine.core = hamonengine.core || {};
                             }
                         }
                         const mouseEvent = (type, e) => {
-                            const v = new hamonengine.math.vector2(e.offsetX, e.offsetY);
-                            this.onMouseEvent(type, v, e, eventContainer);
+                            this.onMouseEvent(type, new hamonengine.math.vector2(e.offsetX, e.offsetY), e, eventContainer);
                         }
                         const touchEvent = (type, e) => {
-
                             //Retain the current touch type so we can determine if the next event is a click.
                             const lasttouchevent = touchEventMap.has(eventContainer.name) ? touchEventMap.get(eventContainer.name) : '';
                             touchEventMap.set(eventContainer.name, type);
@@ -453,6 +444,12 @@ hamonengine.core = hamonengine.core || {};
                             }
                         };
 
+                        //Helper method to store the DOM listeners to remove at another time.
+                        const registerAndAddEventListener = (name, element, functionSignature) => {
+                            element.addEventListener(name, functionSignature)
+                            this._registeredEvents.push({name, element, functionSignature});
+                        };
+
                         registerAndAddEventListener('keyup', elementToBind, (e) => keyEvent('up', e));
                         registerAndAddEventListener('keydown', elementToBind, (e) => keyEvent('down', e));
                         registerAndAddEventListener('click', elementToBind, (e) => mouseEvent('click', e));
@@ -465,6 +462,9 @@ hamonengine.core = hamonengine.core || {};
                         registerAndAddEventListener('touchmove', elementToBind, (e) => touchEvent('move', e), { passive: false });
                         registerAndAddEventListener('touchend', elementToBind, (e) => touchEvent('end', e), { passive: false });
                         registerAndAddEventListener('touchcancel', elementToBind, (e) => touchEvent('cancel', e), { passive: false });
+
+                        //We're done loading so remove this event.
+                        window.removeEventListener("DOMContentLoaded", handleDOMBinding);
                     };
 
                     //Allow document event binding.
@@ -475,7 +475,15 @@ hamonengine.core = hamonengine.core || {};
 
                     // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
                     this.layers.forEach(layer => layer.allowEventBinding && bindEvents(layer.canvas, layer));
-                });
+                }
+
+                //Handle DOM Binding regardless of the state of the DOMContent loading state.
+                if (window.document.readyState !== "complete") {
+                    window.document.addEventListener("DOMContentLoaded", handleDOMBinding);
+                }
+                else {
+                    handleDOMBinding();
+                }
 
                 resolve();
             });
