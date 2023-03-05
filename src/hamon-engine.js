@@ -262,6 +262,9 @@ hamonengine.core = hamonengine.core || {};
         async load() {
             hamonengine.debug && console.debug("[hamonengine.core.engine.load]");
 
+            //Show the engine splash screen if enabled.
+            !this._showEngineSplashScreen ? Promise.resolve() : await this.onShowEngineSplashScreen();
+
             //Show the loading splash screen if one exists.
             const loadingSplashScreenPromise = (this.onPreload && this.onPreload()) ? new Promise(resolve => setTimeout(() => resolve(), this._splashScreenWait)) : Promise.resolve();
 
@@ -474,6 +477,49 @@ hamonengine.core = hamonengine.core || {};
                 resolve();
             });
         }
+        /**
+         * Shows the engine's splash screen.
+         * @returns 
+         */
+        async onShowEngineSplashScreen() {
+            if (this.primaryLayer) {
+
+                let track;
+                if (hamonengine.support_resources) {
+                    track = new hamonengine.audio.track({ src: hamonengine.resources.audio3 });
+                    track.load().then(() => track.play());
+                }
+
+                const xOffset = this.primaryLayer.viewPort.width / 2;
+                const yOffset = (this.primaryLayer.viewPort.height / 2) - 48;
+
+                return new Promise(resolve => {
+                    const internalDraw = () => {
+                        const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
+
+                            this.primaryLayer.beginPainting();
+                            this.primaryLayer.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
+                            this.primaryLayer.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
+                            this.primaryLayer.endPainting();
+
+                            if (scopedTimestampInMS < 2000) {
+                                internalDraw();
+                            }
+                            else {
+                                track && track.release();
+                                window.cancelAnimationFrame(animationId);
+                                resolve();
+                            }
+
+                        });
+                    };
+                    
+                    internalDraw();
+                });
+            }
+
+            return Promise.resolve();
+        }
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
@@ -587,6 +633,11 @@ hamonengine.core = hamonengine.core || {};
                 this.primaryLayer.clear();
                 this.primaryLayer.drawText('お やすみ', this.primaryLayer.viewPort.width / 2, this.primaryLayer.viewPort.height / 2, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
                 console.log("%c[hamonengine.core.engine.onStop] お やすみ GoodBye", "color: red");
+
+                if (hamonengine.support_resources) {
+                    const track = new hamonengine.audio.track({ src: hamonengine.resources.audio2 });
+                    track.load().then(() => track.play());
+                }
             }
             return this;
         }

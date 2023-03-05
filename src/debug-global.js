@@ -29,5 +29,7 @@
 //Used to compile the debug minification file.
 var hamonengine = {
     debug: true,
-    verbose: true
+    verbose: true,
+    //Determine if the HamonEngine uses internal resources such as splash screen assets.
+    support_resources: true
 };

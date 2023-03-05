@@ -12,4 +12,5 @@ java -jar "tools/closure-compiler-v20200719.jar" --output_manifest "build/manife
  --js="src/graphics/type.js" --js="src/graphics/imageext.js" --js="src/graphics/layer.js" --js="src/graphics/sprite.js" --js="src/graphics/animsprite.js" --js="src/graphics/spritesheet.js"^
  --js="src/entities/type.js" --js="src/entities/object2d.js" --js="src/entities/spriteObject.js" --js="src/entities/shapeObject.js" --js="src/entities/cell.js"^
  --js="src/events/*.js"^
+ --js="src/resources/splashscreen.js"^
  --js="src/hamon-engine.js"
