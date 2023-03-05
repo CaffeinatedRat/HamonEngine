@@ -143,5 +143,14 @@ hamonengine.entities = hamonengine.entities || {};
         render(layer, elapsedTimeInMilliseconds) {
             this.sprite && this.sprite.draw(layer, elapsedTimeInMilliseconds, this.position.x, this.position.y, this.width, this.height);
         }
+        /**
+         * Releases resources.
+         */
+        release() {
+            if (this.sprite) {
+                this.sprite.release();
+                delete this._sprite;
+            }
+        }
     }
 })();

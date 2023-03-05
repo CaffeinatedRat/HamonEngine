@@ -523,5 +523,17 @@ hamonengine.graphics = hamonengine.graphics || {};
                 }
             }
         }
+        /**
+         * Releases resources.
+         */
+        release() {
+            if (this.image) {
+                if (this.image instanceof hamonengine.graphics.imageext) {
+                    this.image.release();
+                }
+                
+                delete this._image;
+            }
+        }
     }
 })();

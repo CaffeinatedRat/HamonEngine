@@ -105,12 +105,6 @@ hamonengine.audio = hamonengine.audio || {};
             return this._audioext.isPlaying;
         }
         /**
-         * Returns the internal audio data of the type Audio.
-         */
-        //get audio() {
-        //    return this._audioext.audio;
-        //}
-        /**
          * Returns the duration of the track.
          */
         get duration() {
@@ -217,6 +211,14 @@ hamonengine.audio = hamonengine.audio || {};
         async stop({ suspend = true } = {}) {
             return this._audioext.stop({ suspend });
         }
+        /**
+         * Releases resources.
+         */
+        release() {
+            this._listenerPool.clear();
+            this._audioext.release();
+            delete this._audioext;
+        }
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
@@ -237,24 +239,5 @@ hamonengine.audio = hamonengine.audio || {};
                 this._listenerPool.invoke('onTrackEnd', { track: this });
             }
         }
-        /**
-         * An event that is triggered on a track update.
-         */
-        //Deprecated as the AudioBufferSourceNode does not provide a timeupdate event.
-        /*
-        onAudioTimeUpdate(e) {
-            const trackEnd = this._trackEnd || this._audioext.duration;
-            const remainingTime = trackEnd - this._audioext.currentTime;
-
-            //End the track if the currentTime has exceeded the track's end time.
-            if (remainingTime < 0) {
-                this.stop({ suspend: false });
-                e.preventDefault();
-            }
-            else {
-                const elapsedTime = this._audioext.currentTime - this._trackBegin;
-                this._listenerPool.invoke('onTrackUpdate', { track: this, elapsedTime, remainingTime });
-            }
-        }*/
     }
 })();

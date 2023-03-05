@@ -127,20 +127,27 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._state = IMAGE_STATES.LOADING;
             return new Promise((resolve, reject) => {
                 if (!this.complete) {
-                    //Handle a successful loading event and resolve the promise.
-                    this.image.addEventListener('load', () => {
+
+                    const loadCompleted = () => {
                         this._state = IMAGE_STATES.COMPLETE;
+                        this.image.removeEventListener('load', loadCompleted, false);
                         hamonengine.debug && console.debug(`[hamonengine.graphics.imageext.load] Image '${src}' has loaded successfully.`);
                         resolve();
-                    }, false);
+                    };
 
-                    //Handle errors and reject the promise.
-                    this.image.addEventListener('error', (error) => {
+                    //Handle a successful loading event and resolve the promise.
+                    this.image.addEventListener('load', loadCompleted, false);
+
+                    const handleError = (error) => {
                         this._state = IMAGE_STATES.ERROR;
                         const imagePath = error && error.path && error.path.length > 0 && error.path[0].src || '';
                         const errorMsg = `The image '${imagePath}' could not be loaded.`;
+                        this.image.removeEventListener('error', error => handleError(error), false);
                         reject(errorMsg);
-                    }, false);
+                    };
+
+                    //Handle errors and reject the promise.
+                    this.image.addEventListener('error', error => handleError(error), false);
                 }
                 else {
                     this._state = IMAGE_STATES.COMPLETE;
@@ -333,6 +340,21 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         draw(layer, elapsedTimeInMilliseconds, x, y, width = this.width, height = this.height) {
             layer.drawImage(this, x, y, this.width, this.height, destinationX, destinationY, width, height) 
+        }
+        /**
+         * Releases resources.
+         */
+        release() {
+            if (this._backbufferCtx) {
+                delete this._backbufferCtx;
+            }
+
+            if (this._backbufferResource) {
+                this._backbufferResource.release();
+                delete this._backbufferResource;
+            }
+
+            delete this._image;
         }
     }
 })();

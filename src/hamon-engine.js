@@ -59,10 +59,9 @@ hamonengine.core = hamonengine.core || {};
             console.log(`HamonEngine -- Using version: ${VERSION}`);
 
             //Options.
-            this._showFPS = options.showFPS !== undefined ? options.showFPS : false;
             this._syncFrames = options.syncFrames !== undefined ? options.syncFrames : false;
+            this._showEngineSplashScreen = options.showEngineSplashScreen !== undefined ? options.showEngineSplashScreen : true;
             this._splashScreenWait = options.splashScreenWait !== undefined ? options.splashScreenWait : 500;
-            this._detectCanvas = options.detectCanvas !== undefined ? options.detectCanvas : true;
             this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
             this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
             this._storyboard = options.storyboard;
@@ -96,15 +95,18 @@ hamonengine.core = hamonengine.core || {};
             this._registeredEvents = [];
 
             //Try to detect all canvas if the feature is enabled and none are passsed in.
+            const detectCanvas = options.detectCanvas !== undefined ? options.detectCanvas : true;
             const canvasCollection = options.canvas || [];
-            if (this._detectCanvas && canvasCollection.length === 0) {
+            if (detectCanvas && canvasCollection.length === 0) {
                 hamonengine.debug && console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: true.  Attempting to detect all canvas.`);
                 const discoveredCanvas = Object.entries(document.getElementsByTagName('canvas'));
                 discoveredCanvas.forEach(([key, value]) => {
                     const canvasName = value.getAttribute('name') || `${canvas_default_name}${key}`;
+                    const canvasId = value.getAttribute('id') || `${canvas_default_name}${key}`;
                     this._layers[canvasName] = new hamonengine.graphics.layer({
                         name: canvasName,
                         canvas: value,
+                        canvasId: canvasId,
                         allowEventBinding: value.dataset.alloweventbinding,
                         enableImageSmoothing: value.dataset.enableimagesmoothing,
                         clipToViewPort: value.dataset.cliptoviewport
@@ -137,6 +139,7 @@ hamonengine.core = hamonengine.core || {};
                 console.debug(`[hamonengine.core.engine.constructor] State: ${ENGINE_STATES_NAMES[this._state]}`);
                 console.debug(`[hamonengine.core.engine.constructor] SyncFrames: ${this.syncFrames ? 'Enabled' : 'Disabled'}`);
                 console.debug(`[hamonengine.core.engine.constructor] SplashScreen Wait Time: ${this._splashScreenWait} milliseconds.`);
+                console.debug(`[hamonengine.core.engine.constructor] Engine SplashScreen: ${this._showEngineSplashScreen ? 'Enabled' : 'Disabled'}`);
 
                 this._storyboard && console.debug(`[hamonengine.core.engine.constructor] Storyboard Added: ${this._storyboard.name}`);
 
@@ -145,7 +148,6 @@ hamonengine.core = hamonengine.core || {};
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.limit: ${hamonengine.geometry.settings.collisionDetection.limit}`);
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.coordinateSystem: ${hamonengine.geometry.settings.coordinateSystem}`);
             }
-
         }
         //--------------------------------------------------------
         // Properties
@@ -275,7 +277,7 @@ hamonengine.core = hamonengine.core || {};
             try {
 
                 //Added a promise so the start can be delayed if designer so wishes to wait before starting the engine.
-                let eventBindingPromise = this.onEventBinding();
+                const eventBindingPromise = this.onEventBinding();
                 if (!(eventBindingPromise instanceof Promise)) {
                     throw 'onEventBinding is not returning a promise!  This event must return an unhandled promise.';
                 }
@@ -352,13 +354,12 @@ hamonengine.core = hamonengine.core || {};
 
             //Relase the DOM events registered by the engine.
             this._registeredEvents.forEach(({name, element, functionSignature}) => element.removeEventListener(name, functionSignature));
+            this._registeredEvents = [];
 
             //Clean up other resources.
             this.primaryStoryboard && this.primaryStoryboard.stop();
-            this._primaryStoryboard = null;
-            this._externalElements = null;
-            this._layers = null;
-            this._fpsCounter = null;
+            Object.values(this._layers).forEach(layer => layer && layer.release());
+            this._externalElements = this._layers = [];
 
             this._state = ENGINE_STATES.STOPPED;
             console.log(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);

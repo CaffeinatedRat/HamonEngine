@@ -131,7 +131,7 @@ hamonengine.audio = hamonengine.audio || {};
          * An existing HTMLAudioElement if the audioext was constructed with an audio element.
          * WARNING: This property can return null if the AudioBuffer is in use.
          */
-         get audio() {
+        get audio() {
             return this._audio;
         }
         /**
@@ -284,73 +284,80 @@ hamonengine.audio = hamonengine.audio || {};
 
             this._resourceState = AUDIO_STATES.LOADING;
 
-            //return new Promise((resolve, reject) => {
-
-                //Common success logic handling.
-                const handleSuccess = buffer => {
-                    if (this.audio) {
-                        //Only assign the MediaElementAudioSourceNode (this._mediaSource) if we are using an HTMLAudioElement.
-                        //For HTMLAudioElements, only create this once and attach the nodes once.
-                        //Attempting to disconnect or make new MediaElementAudioSourceNode (this._mediaSource) will throw an error as the HTMLAudioElement still exists in the DOM.
-                        if (!this._mediaSource) {
-                            this._mediaSource = this.context.createMediaElementSource(this.audio);
-                            this._mediaSource.connect(this._gainNode).connect(this._panNode).connect(this.context.destination);
-                        }
-                    }
-                    else {
-                        //Assign the buffer that will be used for the AudioBufferSourceNode.
-                        this._buffer = buffer;
-                    }
-
-                    //Assign the source url on successful load and completion state.
-                    this._src = src;
-                    this._resourceState = AUDIO_STATES.COMPLETE;
-
-                    hamonengine.debug && console.debug(`[hamonengine.audio.audioext.load] Audio '${this.src}' has loaded successfully.`);
-                    return Promise.resolve(this);
-                };
-
-                //Common failure logic handling.
-                const handleFailure = error => {
-                    this._resourceState = AUDIO_STATES.ERROR;
-                    this._buffer = null;
-                    const message = (error instanceof String) ? error : (error.statusText || error);
-                    const errorMsg = `The audio '${src}' could not be loaded.  Due to '${message}'.`;
-                    return Promise.reject(errorMsg);
-                }
-
-                //Attach events to the HTMLAudioElement if one exists.
+            //Common success logic handling.
+            const handleSuccess = buffer => {
                 if (this.audio) {
-
-                    //Handle errors and reject the promise.
-                    this.audio.addEventListener('error', error => handleFailure(error), false);
-                    this.audio.addEventListener('stalled', error => handleFailure(error), false);
-
-                    //Handle the HTMLAudioElement ending.
-                    this.audio.addEventListener('ended', () => this.onAudioEnd(), false);
-                    //this.audio.addEventListener('timeupdate', e => this.onAudioTimeUpdate(e), false);
-
-                    //Handle a situation where the DOM has completed the loading the data.
-                    if (this.audio.readyState === READY_STATES.HAVE_NOTHING) {
-                        this.audio.addEventListener('loadeddata', () => handleSuccess(), false);
-                        return Promise.resolve(this);
-                    }
-                    else {
-                        return handleSuccess();
+                    //Only assign the MediaElementAudioSourceNode (this._mediaSource) if we are using an HTMLAudioElement.
+                    //For HTMLAudioElements, only create this once and attach the nodes once.
+                    //Attempting to disconnect or make new MediaElementAudioSourceNode (this._mediaSource) will throw an error as the HTMLAudioElement still exists in the DOM.
+                    if (!this._mediaSource) {
+                        this._mediaSource = this.context.createMediaElementSource(this.audio);
+                        this._mediaSource.connect(this._gainNode).connect(this._panNode).connect(this.context.destination);
                     }
                 }
-                //Otherwise the load the media dynamically, where the HTMLAudioElement is no longer used.
                 else {
-                    try {
-                        const { data, status, statusText, event } = await connect.get(src, { responseType: 'arraybuffer' });
-                        const buffer = await this.context.decodeAudioData(data);
-                        return handleSuccess(buffer);
-                    }
-                    catch (error) {
-                        return handleFailure(error);
-                    }
+                    //Assign the buffer that will be used for the AudioBufferSourceNode.
+                    this._buffer = buffer;
                 }
-            //});
+
+                //Assign the source url on successful load and completion state.
+                this._src = src;
+                this._resourceState = AUDIO_STATES.COMPLETE;
+
+                //Remove these events once done.
+                if (this.audio) {
+                    this.audio.removeEventListener('loadeddata', () => handleSuccess(), false);
+                }
+
+                hamonengine.debug && console.debug(`[hamonengine.audio.audioext.load] Audio '${this.src}' has loaded successfully.`);
+                return Promise.resolve(this);
+            };
+
+            //Common failure logic handling.
+            const handleFailure = error => {
+                this._resourceState = AUDIO_STATES.ERROR;
+                this._buffer = null;
+                const message = (error instanceof String) ? error : (error.statusText || error);
+                const errorMsg = `The audio '${src}' could not be loaded.  Due to '${message}'.`;
+
+                //Remove these events once done.
+                if (this.audio) {
+                    this.audio.removeEventListener('error', error => handleFailure(error), false);
+                    this.audio.removeEventListener('stalled', error => handleFailure(error), false);
+                }
+                return Promise.reject(errorMsg);
+            }
+
+            //Attach events to the HTMLAudioElement if one exists.
+            if (this.audio) {
+
+                //Handle errors and reject the promise.
+                this.audio.addEventListener('error', error => handleFailure(error), false);
+                this.audio.addEventListener('stalled', error => handleFailure(error), false);
+
+                //Handle the HTMLAudioElement ending.
+                this.audio.addEventListener('ended', () => this.onAudioEnd(), false);
+                //this.audio.addEventListener('timeupdate', e => this.onAudioTimeUpdate(e), false);
+
+                //Handle a situation where the DOM has completed the loading the data.
+                if (this.audio.readyState === READY_STATES.HAVE_NOTHING) {
+                    this.audio.addEventListener('loadeddata', () => handleSuccess(), false);
+                    return Promise.resolve(this);
+                }
+                else {
+                    return handleSuccess();
+                }
+            }
+            //Otherwise the load the media dynamically, where the HTMLAudioElement is no longer used.
+            else {
+                try {
+                    const { data, status, statusText, event } = await connect.get(src, { responseType: 'arraybuffer' });
+                    return handleSuccess(await this.context.decodeAudioData(data));
+                }
+                catch (error) {
+                    return handleFailure(error);
+                }
+            }
         }
         /**
          * Starts or resumes playback.
@@ -395,7 +402,7 @@ hamonengine.audio = hamonengine.audio || {};
                     this._mediaSource.addEventListener('ended', (e) => this.onAudioEnd(e), false);
 
                     //Attach any extra nodes.
-                    for(let i = 0; i < this._audioNodes.length; i ++) {
+                    for (let i = 0; i < this._audioNodes.length; i++) {
                         this._mediaSource.connect(this._audioNodes[i]);
                     }
 
@@ -484,6 +491,22 @@ hamonengine.audio = hamonengine.audio || {};
             this._audioNodes = this._audioNodes.filter(node => node !== audioNode);
             return audioNode;
         }
+        /**
+         * Releases resources.
+         */
+        release() {
+            this.stop({suspend: true});
+
+            if (this.audio) {
+                this.audio.removeEventListener('ended', () => this.onAudioEnd(), false);
+                delete this._audio;
+            }
+
+            if (this._mediaSource) {
+                this._mediaSource.removeEventListener('ended', (e) => this.onAudioEnd(e), false);
+                delete this._mediaSource;
+            }
+        }
         //--------------------------------------------------------
         // Events
         //--------------------------------------------------------
@@ -499,17 +522,5 @@ hamonengine.audio = hamonengine.audio || {};
                 this.audioListenerDelegate && this.audioListenerDelegate.onAudioEnd && this.audioListenerDelegate.onAudioEnd();
             }
         }
-        /**
-         * An event that is triggered when the time update event occurs.
-         */
-        //Deprecated as the AudioBufferSourceNode does not provide a timeupdate event.
-        /*
-        onAudioTimeUpdate(e) {
-            if (this.audioListenerDelegate) {
-                this.audioListenerDelegate.onAudioTimeUpdate && this.audioListenerDelegate.onAudioTimeUpdate(e);
-                e.preventDefault();
-            }
-        }
-        */
     }
 })();

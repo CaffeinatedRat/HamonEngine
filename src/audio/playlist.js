@@ -256,6 +256,14 @@ hamonengine.audio = hamonengine.audio || {};
             this._tracks.push(track);
         }
         /**
+         * Releases resources.
+         */
+        release() {
+            this._listenerPool.clear();
+            this._tracks.forEach(track => track && track.release());
+            this._tracks = [];
+        }
+        /**
          * Creates an autoplay fade filter where the track will fade before playing the next track.
          * NOTE: These filters only work when autoplay is enabled.
          * @param {number} fadeOutStart the percentage of the track's duration where fade out will start at the end of the track.  This is 1% by default.

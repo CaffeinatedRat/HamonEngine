@@ -1024,5 +1024,13 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this.drawPolyChain(shape, sourceX, sourceY, { lineWidth, drawNormals, color });
             }
         }
+        /**
+         * Releases resources.
+         */
+        release() {
+            delete this._canvasId;
+            delete this._canvas;
+            delete this._canvasContext;
+        }
     }
 })();

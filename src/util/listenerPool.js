@@ -53,4 +53,10 @@ class listenerPool {
     invoke(event, args) {
         this._listeners.forEach(listener => listener[event] && listener[event](args));
     }
+    /**
+     * Clears the listener pool.
+     */
+    clear() {
+        this._listeners = [];
+    }
 }

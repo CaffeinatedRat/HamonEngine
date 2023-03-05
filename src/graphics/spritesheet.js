@@ -157,5 +157,14 @@ hamonengine.graphics = hamonengine.graphics || {};
         getSpriteByOrdinal(index) {
             return this._sprites[this._spriteIndex[index]].clone();
         }
+        /**
+         * Releases resources.
+         */
+        release() {
+            this._imageResource && this._imageResource.release();
+            Object.values(this._sprites).forEach(sprite => sprite && sprite.release());
+            this._sprites = [];
+            delete this._imageResource;
+        }
     }
 })();

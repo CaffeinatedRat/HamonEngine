@@ -140,5 +140,14 @@ hamonengine.audio = hamonengine.audio || {};
         getTrackByOrdinal(index) {
             return this._tracks[this._trackIndex[index]].clone();
         }
+        /**
+         * Releases resources.
+         */
+        release() {
+            this._audioResource && this._audioResource.release();
+            this._tracks.forEach(track => track && track.release());
+            this._tracks = [];
+            delete this._audioResource;
+        }
     }
 })();
