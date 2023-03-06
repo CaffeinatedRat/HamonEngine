@@ -429,7 +429,7 @@ hamonengine.audio = hamonengine.audio || {};
                         this._mediaSource.start(0, begin, end - begin);
                     }
 
-                    return Promise.resolve();
+                    //return Promise.resolve();
                 }
             }
         }

@@ -315,6 +315,7 @@ hamonengine.core = hamonengine.core || {};
                 this.stop({ reasons: `A critical error occured during resource loading.` });
             }
 
+            //Allow chaining.
             return this;
         }
         /**
@@ -373,109 +374,104 @@ hamonengine.core = hamonengine.core || {};
          */
         async onloadResources() {
             hamonengine.debug && console.debug("[hamonengine.core.engine.onloadResources]");
-            return Promise.resolve();
         }
         /**
          * Starts binding the events.
          */
         async onEventBinding() {
-            return new Promise((resolve, reject) => {
-                const handleDOMBinding = () => {
-                    const touchEventMap = new Map();
-                    const bindEvents = (elementToBind, eventContainer) => {
-                        const keyEvent = (type, e) => {
-                            this.onKeyEvent(type, e.code, e, eventContainer);
-                            //Handle default preventDefault logic
-                            if (e) {
-                                if (!this.blockByDefaultAllKeys) {
-                                    this.blockByDefaultArrowKeys && (e.code === "ArrowLeft" || e.code === "ArrowRight" || e.code === "ArrowUp" || e.code === "ArrowDown") && e.preventDefault();
-                                }
-                                else {
-                                    e.preventDefault();
-                                }
+            const handleDOMBinding = () => {
+                const touchEventMap = new Map();
+                const bindEvents = (elementToBind, eventContainer) => {
+                    const keyEvent = (type, e) => {
+                        this.onKeyEvent(type, e.code, e, eventContainer);
+                        //Handle default preventDefault logic
+                        if (e) {
+                            if (!this.blockByDefaultAllKeys) {
+                                this.blockByDefaultArrowKeys && (e.code === "ArrowLeft" || e.code === "ArrowRight" || e.code === "ArrowUp" || e.code === "ArrowDown") && e.preventDefault();
+                            }
+                            else {
+                                e.preventDefault();
                             }
                         }
-                        const mouseEvent = (type, e) => {
-                            this.onMouseEvent(type, new hamonengine.math.vector2(e.offsetX, e.offsetY), e, eventContainer);
-                        }
-                        const touchEvent = (type, e) => {
-                            //Retain the current touch type so we can determine if the next event is a click.
-                            const lasttouchevent = touchEventMap.has(eventContainer.name) ? touchEventMap.get(eventContainer.name) : '';
-                            touchEventMap.set(eventContainer.name, type);
+                    }
+                    const mouseEvent = (type, e) => {
+                        this.onMouseEvent(type, new hamonengine.math.vector2(e.offsetX, e.offsetY), e, eventContainer);
+                    }
+                    const touchEvent = (type, e) => {
+                        //Retain the current touch type so we can determine if the next event is a click.
+                        const lasttouchevent = touchEventMap.has(eventContainer.name) ? touchEventMap.get(eventContainer.name) : '';
+                        touchEventMap.set(eventContainer.name, type);
 
-                            const position = eventContainer.position;
-                            if (position) {
-                                const touches = [];
-                                for (let i = 0; i < e.touches.length; i++) {
-                                    touches.push(new hamonengine.math.vector2(e.touches[i].clientX - position.x, e.touches[i].clientY - position.y));
-                                }
-                                //Mimic the click event for touch.
-                                const isClick = (type === 'end' && lasttouchevent === 'start');
-
-                                //Triger the touch events.
-                                this.onTouchEvent(type, touches, e, eventContainer);
-                                isClick && this.onTouchEvent('click', touches, e, eventContainer);
-
-                                //If enabled, trigger the mouse event on a touch event.
-                                if (this.captureTouchAsMouseEvents) {
-                                    //MDN's suggestion on mapping touch to click events.
-                                    //https://developer.mozilla.org/en-US/docs/Web/API/Touch_events#handling_clicks
-                                    //Map the touch events to mouse events before invoking the onMouseEvent.
-                                    type = (type === 'start') ? 'down' : type;
-                                    type = (type === 'end') ? 'up' : type;
-                                    //Capture only changedTouches as the touches collection will contain no coordinates.
-                                    const v = new hamonengine.math.vector2(e.changedTouches[0].clientX - position.x, e.changedTouches[0].clientY - position.y)
-
-                                    //Triger the mouse events.
-                                    this.onMouseEvent(type, v, e, eventContainer);
-                                    isClick && this.onMouseEvent('click', v, e, eventContainer);
-                                }
+                        const position = eventContainer.position;
+                        if (position) {
+                            const touches = [];
+                            for (let i = 0; i < e.touches.length; i++) {
+                                touches.push(new hamonengine.math.vector2(e.touches[i].clientX - position.x, e.touches[i].clientY - position.y));
                             }
-                        };
+                            //Mimic the click event for touch.
+                            const isClick = (type === 'end' && lasttouchevent === 'start');
 
-                        //Helper method to store the DOM listeners to remove at another time.
-                        const registerAndAddEventListener = (name, element, functionSignature) => {
-                            element.addEventListener(name, functionSignature)
-                            this._registeredEvents.push({ name, element, functionSignature });
-                        };
+                            //Triger the touch events.
+                            this.onTouchEvent(type, touches, e, eventContainer);
+                            isClick && this.onTouchEvent('click', touches, e, eventContainer);
 
-                        registerAndAddEventListener('keyup', elementToBind, (e) => keyEvent('up', e));
-                        registerAndAddEventListener('keydown', elementToBind, (e) => keyEvent('down', e));
-                        registerAndAddEventListener('click', elementToBind, (e) => mouseEvent('click', e));
-                        registerAndAddEventListener('mouseup', elementToBind, (e) => mouseEvent('up', e));
-                        registerAndAddEventListener('mousedown', elementToBind, (e) => mouseEvent('down', e));
-                        registerAndAddEventListener('mousemove', elementToBind, (e) => mouseEvent('move', e));
-                        registerAndAddEventListener('mouseenter', elementToBind, (e) => mouseEvent('enter', e));
-                        registerAndAddEventListener('mouseleave', elementToBind, (e) => mouseEvent('leave', e));
-                        registerAndAddEventListener('touchstart', elementToBind, (e) => touchEvent('start', e), { passive: false });
-                        registerAndAddEventListener('touchmove', elementToBind, (e) => touchEvent('move', e), { passive: false });
-                        registerAndAddEventListener('touchend', elementToBind, (e) => touchEvent('end', e), { passive: false });
-                        registerAndAddEventListener('touchcancel', elementToBind, (e) => touchEvent('cancel', e), { passive: false });
+                            //If enabled, trigger the mouse event on a touch event.
+                            if (this.captureTouchAsMouseEvents) {
+                                //MDN's suggestion on mapping touch to click events.
+                                //https://developer.mozilla.org/en-US/docs/Web/API/Touch_events#handling_clicks
+                                //Map the touch events to mouse events before invoking the onMouseEvent.
+                                type = (type === 'start') ? 'down' : type;
+                                type = (type === 'end') ? 'up' : type;
+                                //Capture only changedTouches as the touches collection will contain no coordinates.
+                                const v = new hamonengine.math.vector2(e.changedTouches[0].clientX - position.x, e.changedTouches[0].clientY - position.y)
 
-                        //We're done loading so remove this event.
-                        window.removeEventListener("DOMContentLoaded", handleDOMBinding);
+                                //Triger the mouse events.
+                                this.onMouseEvent(type, v, e, eventContainer);
+                                isClick && this.onMouseEvent('click', v, e, eventContainer);
+                            }
+                        }
                     };
 
-                    //Allow document event binding.
-                    this.allowDocumentEventBinding && bindEvents(document, this);
+                    //Helper method to store the DOM listeners to remove at another time.
+                    const registerAndAddEventListener = (name, element, functionSignature) => {
+                        element.addEventListener(name, functionSignature)
+                        this._registeredEvents.push({ name, element, functionSignature });
+                    };
 
-                    //Allow support for external elements.
-                    this.externalElements.forEach(externalElement => bindEvents(externalElement, externalElement));
+                    registerAndAddEventListener('keyup', elementToBind, (e) => keyEvent('up', e));
+                    registerAndAddEventListener('keydown', elementToBind, (e) => keyEvent('down', e));
+                    registerAndAddEventListener('click', elementToBind, (e) => mouseEvent('click', e));
+                    registerAndAddEventListener('mouseup', elementToBind, (e) => mouseEvent('up', e));
+                    registerAndAddEventListener('mousedown', elementToBind, (e) => mouseEvent('down', e));
+                    registerAndAddEventListener('mousemove', elementToBind, (e) => mouseEvent('move', e));
+                    registerAndAddEventListener('mouseenter', elementToBind, (e) => mouseEvent('enter', e));
+                    registerAndAddEventListener('mouseleave', elementToBind, (e) => mouseEvent('leave', e));
+                    registerAndAddEventListener('touchstart', elementToBind, (e) => touchEvent('start', e), { passive: false });
+                    registerAndAddEventListener('touchmove', elementToBind, (e) => touchEvent('move', e), { passive: false });
+                    registerAndAddEventListener('touchend', elementToBind, (e) => touchEvent('end', e), { passive: false });
+                    registerAndAddEventListener('touchcancel', elementToBind, (e) => touchEvent('cancel', e), { passive: false });
 
-                    // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
-                    this.layers.forEach(layer => layer.allowEventBinding && bindEvents(layer.canvas, layer));
-                }
+                    //We're done loading so remove this event.
+                    window.removeEventListener("DOMContentLoaded", handleDOMBinding);
+                };
 
-                //Handle DOM Binding regardless of the state of the DOMContent loading state.
-                if (window.document.readyState !== "complete") {
-                    window.document.addEventListener("DOMContentLoaded", handleDOMBinding);
-                }
-                else {
-                    handleDOMBinding();
-                }
+                //Allow document event binding.
+                this.allowDocumentEventBinding && bindEvents(document, this);
 
-                resolve();
-            });
+                //Allow support for external elements.
+                this.externalElements.forEach(externalElement => bindEvents(externalElement, externalElement));
+
+                // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
+                this.layers.forEach(layer => layer.allowEventBinding && bindEvents(layer.canvas, layer));
+            }
+
+            //Handle DOM Binding regardless of the state of the DOMContent loading state.
+            if (window.document.readyState !== "complete") {
+                window.document.addEventListener("DOMContentLoaded", handleDOMBinding);
+            }
+            else {
+                handleDOMBinding();
+            }
         }
         /**
          * Shows the engine's splash screen.
@@ -483,26 +479,21 @@ hamonengine.core = hamonengine.core || {};
          */
         async onShowEngineSplashScreen() {
             if (this.primaryLayer) {
-
-                let track;
-                if (hamonengine.support_resources) {
-                    track = new hamonengine.audio.track({ src: hamonengine.resources.audio3 });
-                    track.load().then(() => track.play());
-                }
-
                 const xOffset = this.primaryLayer.viewPort.width / 2;
                 const yOffset = (this.primaryLayer.viewPort.height / 2) - 48;
 
                 return new Promise(resolve => {
+                    let track;
                     const internalDraw = () => {
                         const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
-
+                            //Draw the name of the engine.
                             this.primaryLayer.beginPainting();
                             this.primaryLayer.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
                             this.primaryLayer.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
                             this.primaryLayer.endPainting();
 
-                            if (scopedTimestampInMS < 2000) {
+                            //Wait for the splash screen animation & music to complete.
+                            if (scopedTimestampInMS < 1000 || (track && track.isPlaying)) {
                                 internalDraw();
                             }
                             else {
@@ -510,15 +501,19 @@ hamonengine.core = hamonengine.core || {};
                                 window.cancelAnimationFrame(animationId);
                                 resolve();
                             }
-
                         });
                     };
-                    
-                    internalDraw();
+
+                    //Only attempt to play music if it is supported.
+                    if (hamonengine.support_resources) {
+                        track = new hamonengine.audio.track({ src: hamonengine.resources.audio3 });
+                        track.load().then(track => track.play()).then(() => internalDraw(track));
+                    }
+                    else {
+                        internalDraw();
+                    }
                 });
             }
-
-            return Promise.resolve();
         }
         //--------------------------------------------------------
         // Events

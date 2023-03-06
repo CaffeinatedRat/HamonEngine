@@ -164,7 +164,6 @@ hamonengine.audio = hamonengine.audio || {};
          * @return {Object} a promise to complete loading.
          */
         async load() {
-
             //NOTE: Reduced readability for better performance.
             const unloadedTracks = [];
             for (let i = 0; i < this._tracks.length; i++) {
@@ -176,8 +175,6 @@ hamonengine.audio = hamonengine.audio || {};
             if (unloadedTracks.length > 0) {
                 return Promise.all(unloadedTracks);
             }
-
-            return Promise.resolve();
         }
         /**
          * Starts or resumes playlist playback.

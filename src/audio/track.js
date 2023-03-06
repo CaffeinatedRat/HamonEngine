@@ -186,7 +186,8 @@ hamonengine.audio = hamonengine.audio || {};
          * @return {Object} a promise to complete loading.
          */
         async load(src = '') {
-            return this._audioext.load(src);
+            await this._audioext.load(src);
+            return this;
         }
         /**
          * Starts or resumes playback.
