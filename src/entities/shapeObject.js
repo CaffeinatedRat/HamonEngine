@@ -42,7 +42,7 @@ hamonengine.entities = hamonengine.entities || {};
                 };
             }
 
-            this._shape = options.shape || new hamonengine.geometry.rect();
+            this._shape = options.shape || new hamonengine.geometry.polygon();
 
             //Determines if the sprite rotates 0 or 180 (mirrors) when moving left or right.
             //Determines if the sprite rotates 90 or -90 when moving up and down.

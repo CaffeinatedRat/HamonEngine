@@ -482,14 +482,19 @@ hamonengine.core = hamonengine.core || {};
                 const xOffset = this.primaryLayer.viewPort.width / 2;
                 const yOffset = (this.primaryLayer.viewPort.height / 2) - 48;
 
+                let counter = 0;
+
                 return new Promise(resolve => {
                     let track;
                     const internalDraw = () => {
                         const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
+                            
+                            const glow = 215; 
+
                             //Draw the name of the engine.
                             this.primaryLayer.beginPainting();
-                            this.primaryLayer.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
-                            this.primaryLayer.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
+                            this.primaryLayer.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${glow},0)` });
+                            this.primaryLayer.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${glow},0)` });
                             this.primaryLayer.endPainting();
 
                             //Wait for the splash screen animation & music to complete.

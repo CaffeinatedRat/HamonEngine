@@ -866,16 +866,16 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.wrapHorizontal) {
                 //DRAW RIGHT
                 //Determine if the minimum vertex of a polygon extends beyond the minimum edge (left side) of the viewport.
-                const xOffset = (sourceX + polygon.min.x) - this.viewPort.x;
-                if (xOffset <= 0) {
+                let xOffset = sourceX - this.viewPort.x;
+                if (xOffset + polygon.min.x <= 0) {
                     this.simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
                     wrappingPosition.x = this.viewPort.width + xOffset;
                 }
 
                 //DRAW LEFT
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (right side) of the viewport.
-                if (sourceX + polygon.width >= this.viewPort.width) {
-                    const xOffset = this.viewPort.width - (sourceX + polygon.min.x);
+                xOffset = this.viewPort.width - sourceX;
+                if (sourceX + polygon.min.x + polygon.width >= this.viewPort.width) {
                     this.simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
                     wrappingPosition.x = this.viewPort.x - xOffset;
                 }
@@ -885,16 +885,17 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.wrapVertical) {
                 //DRAW DOWN
                 //Determine if the minimum vertex of a polygon extends beyond the minimum edge (top side) of the viewport.
-                const yOffset = (sourceY + polygon.min.y) - this.viewPort.y;
-                if (yOffset <= 0) {
+                //const yOffset = (sourceY + polygon.min.y) - this.viewPort.y;
+                let yOffset = sourceY - this.viewPort.y;
+                if (yOffset + polygon.min.y <= 0) {
                     this.simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, { lineWidth, color, drawNormals, fill, fillColor });
                     wrappingPosition.y = this.viewPort.height + yOffset;
                 }
 
                 //DRAW UP
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (bottom side) of the viewport.
-                if (sourceY + polygon.height >= this.viewPort.height) {
-                    const yOffset = this.viewPort.height - (sourceY + polygon.min.y);
+                yOffset = this.viewPort.height - sourceY;
+                if (sourceY + polygon.min.y + polygon.height >= this.viewPort.height) {
                     this.simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, { lineWidth, color, drawNormals, fill, fillColor });
                     wrappingPosition.y = this.viewPort.y - yOffset;
                 }
@@ -1023,6 +1024,33 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (shape instanceof hamonengine.geometry.polyChain) {
                 this.drawPolyChain(shape, sourceX, sourceY, { lineWidth, drawNormals, color });
             }
+        }
+        simpleDrawEllipse(ellipse, sourceX = 0, sourceY = 0, radiusX = 1, radiusY = 1, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
+
+            /*
+            if (!(ellipse instanceof hamonengine.geometry.ellipse)) {
+                throw "Parameter polygon is not of type hamonengine.geometry.ellipse.";
+            }*/
+
+            this.context.lineWidth = lineWidth;
+            this.context.strokeStyle = color;
+            this.context.fillStyle = fillColor;
+
+            this.context.beginPath();
+            this.context.ellipse(sourceX, sourceY, radiusX, radiusY, 0, Math.PI2, true);
+
+            //Complete the shape and draw the ellipse.
+            this.context.closePath();
+            fill && this.context.fill();
+            this.context.stroke();
+
+            /*
+            if (hamonengine.debug && drawNormals) {
+                this.context.strokeStyle = 'white';
+                this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
+                this.context.stroke();
+            }
+            */
         }
         /**
          * Releases resources.
