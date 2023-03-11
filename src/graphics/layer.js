@@ -500,38 +500,56 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.font of the text.  By default this is set to '16px serif'
          * @param {string} obj.color of the text.  By default this is 'white'.
          * @param {number} obj.textDrawType format to draw, by default this is TEXT_DRAW_TYPE.FILL.
-         * @param {number} obj.textOffset horizontal coordinate of where to offset the text.  By default this is centered.
+         * @param {number} obj.textOffset horizontal starting coordinate of where to offset the text. By default this is left. The values are left, center, right.
+         * @param {number} obj.verticalTextOffset vertical starting coordinate of where to offset the text. By default this is left. The values are top, center, bottom.
          * @param {boolean} obj.shadow draws a shadow under the text.  By default this is false.
          * @param {number} obj.shadowXOffset horizontal coordinate of where to offset the shadow text.  By default this is 2.
          * @param {number} obj.shadowYOffset horizontal coordinate of where to offset the shadow text.  By default this is 2.
          * @param {string} obj.shadowColor of the shadow text.  By default this is 'black'.
          */
-        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black' } = {}) {
+        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', verticalTextOffset = 'top', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black' } = {}) {
             this.context.font = font;
             this.context.textBaseline = 'top';
 
+            //Get the metrics for any offset that is not left or top.
+            const metrics = (textOffset !== 'left' || verticalTextOffset !== 'top') ? this.context.measureText(text) : {};
+
             //Attempt to handle predefined text offsets.
-            switch (textOffset) {
+            switch (textOffset.toLowerCase()) {
                 case 'center':
-                    {
-                        const metrics = this.context.measureText(text);
-                        sourceX -= (metrics.width / 2);
-                    }
+                    sourceX -= (metrics.width / 2);
+                    break;
+
+                case 'right':
+                    sourceX -= metrics.width;
                     break;
 
                 case 'left':
                     break;
 
-                case 'right':
-                    {
-                        const metrics = this.context.measureText(text);
-                        sourceX -= metrics.width;
-                    }
-                    break;
-
+                //If the textual offsets aren't passed then try to parse the offset as an integer.
                 default:
                     sourceX -= parseInt(textOffset);
                     break;
+            }
+
+            //Attempt to handle predefined vertical text offsets.
+            switch (verticalTextOffset.toLowerCase()) {
+                case 'center':
+                    sourceY -= ((metrics.fontBoundingBoxDescent - metrics.fontBoundingBoxAscent) / 2);
+                    break;
+
+                case 'bottom':
+                    sourceY -= ((metrics.fontBoundingBoxDescent - metrics.fontBoundingBoxAscent));
+                    break;
+
+                case 'top':
+                    break;
+
+               //If the textual offsets aren't passed then try to parse the offset as an integer.
+               default:
+                sourceY -= parseInt(verticalTextOffset);
+                break;
             }
 
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
