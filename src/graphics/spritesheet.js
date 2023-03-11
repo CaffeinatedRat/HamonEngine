@@ -144,6 +144,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             return resourceLoadingPromise;
         }
         /**
+         * Returns true if the spritesheet has the sprite.
+         * @param {string} spriteName of sprite to check.
+         * @returns 
+         */
+        hasSprite(spriteName) {
+            return this._sprites[spriteName.toLowerCase()] !== undefined;
+        }
+        /**
          * Returns the sprite based on the name.
          * @param {string} spriteName of sprite to return.
          */

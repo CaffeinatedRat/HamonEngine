@@ -127,6 +127,14 @@ hamonengine.audio = hamonengine.audio || {};
             return resourceLoadingPromise;
         }
         /**
+         * Returns true if the album has the track.
+         * @param {string} name of track to check.
+         * @returns 
+         */
+        hasTrack(name) {
+            return this._tracks[name.toLowerCase()] !== undefined;
+        }
+        /**
          * Returns the track based on the name.
          * @param {string} name of track to return.
          */
