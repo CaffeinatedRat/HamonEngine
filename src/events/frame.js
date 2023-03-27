@@ -40,6 +40,13 @@ hamonengine.events = hamonengine.events || {};
             this._loadingState = FRAME_STATE.STOPPED;
             this._startFrameTime = 0;
 
+            //Append any frames
+            if (options.frames) {
+                for(let i = 0; i < options.frames.length; i++) {
+                    this.append(options.frames[i]);
+                }
+            }
+
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.events.frame.constructor] Name: ${this._name}`);
             }
