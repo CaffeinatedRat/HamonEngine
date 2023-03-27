@@ -482,9 +482,7 @@ hamonengine.core = hamonengine.core || {};
                 const xOffset = this.primaryLayer.viewPort.width / 2;
                 const yOffset = (this.primaryLayer.viewPort.height / 2) - 48;
 
-                let counter = 0;
-
-                return new Promise(resolve => {
+                return new Promise((resolve, reject) => {
                     let track;
                     const internalDraw = () => {
                         const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
@@ -512,7 +510,8 @@ hamonengine.core = hamonengine.core || {};
                     //Only attempt to play music if it is supported.
                     if (hamonengine.support_resources) {
                         track = new hamonengine.audio.track({ src: hamonengine.resources.audio3 });
-                        track.load().then(track => track.play()).then(() => internalDraw(track));
+                        track.load().then(track => track.play());
+                        internalDraw();
                     }
                     else {
                         internalDraw();
