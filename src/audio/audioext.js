@@ -313,7 +313,7 @@ hamonengine.audio = hamonengine.audio || {};
                     src = src.length > 100 ? `${src.substring(0, 97)}...` : src;
                     console.debug(`[hamonengine.audio.audioext.load] Audio '${src}' has loaded successfully.`);
                 }
-                
+
                 return Promise.resolve(this);
             };
 
@@ -374,7 +374,7 @@ hamonengine.audio = hamonengine.audio || {};
 
                 //Resume if the context has been suspended.
                 if (this.context.state === 'suspended') {
-                    await this.context.resume();
+                    return await this.context.resume();
                 }
 
                 //Do not replay the audio if it was paused.
@@ -461,6 +461,8 @@ hamonengine.audio = hamonengine.audio || {};
                 if (this._mediaSource) {
                     this._mediaSource.disconnect();
                     this._mediaSource.stop(0);
+                    this._mediaSource.removeEventListener('ended', (e) => this.onAudioEnd(e), false);
+
                     //Attach a temporary property to the AudioBufferSourceNode that indicates this mediasource was STOPPED by the user and not ended.
                     //This is needed as stopping the AudioBufferSourceNode, suspending the context, and then resuming the context will allow the original AudioBufferSourceNode to complete garbage collection and send out an onended event.
                     //An onended message sent to due a stop is problematic, as the audioext & track classes need the onAudioEnd event to fire only when the track has ended.
@@ -499,7 +501,7 @@ hamonengine.audio = hamonengine.audio || {};
          * Releases resources.
          */
         release() {
-            this.stop({suspend: true});
+            this.stop({ suspend: true });
 
             if (this.audio) {
                 this.audio.removeEventListener('ended', () => this.onAudioEnd(), false);
@@ -507,7 +509,6 @@ hamonengine.audio = hamonengine.audio || {};
             }
 
             if (this._mediaSource) {
-                this._mediaSource.removeEventListener('ended', (e) => this.onAudioEnd(e), false);
                 delete this._mediaSource;
             }
         }
