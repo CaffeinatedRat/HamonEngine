@@ -36,13 +36,14 @@ hamonengine.events = hamonengine.events || {};
             super(options);
 
             this._name = options.name || '';
+            this._resourceFrame = options.resourceFrame !== undefined ? options.resourceFrame : false;
             this._frameState = FRAME_STATE.STOPPED;
             this._loadingState = FRAME_STATE.STOPPED;
             this._startFrameTime = 0;
 
             //Append any frames
             if (options.frames) {
-                for(let i = 0; i < options.frames.length; i++) {
+                for (let i = 0; i < options.frames.length; i++) {
                     this.append(options.frames[i]);
                 }
             }
@@ -90,6 +91,12 @@ hamonengine.events = hamonengine.events || {};
         get isLoaded() {
             return this._loadingState === FRAME_STATE.LOADED;
         }
+        /**
+         * Determines if this frame is a resource frame, which all others must wait for loading to complete.
+         */
+        get isResourceFrame() {
+            return this._resourceFrame;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -114,7 +121,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {string} reason the reason the frame was cancelled.
          * @returns {object} an instance of this frame, allowing chaining.
          */
-        stop(cancel=false) {
+        stop(cancel = false) {
             if (this.frameState !== FRAME_STATE.STOPPED) {
                 //Determine if the frame is stopping or has to stop immediately.
                 this.frameState = cancel ? FRAME_STATE.STOPPED : FRAME_STATE.STOPPING;
@@ -136,29 +143,59 @@ hamonengine.events = hamonengine.events || {};
          * @return {object} a promise to complete resource loading.
          */
         async load(loadDescendantFrames, storyboard) {
+            const framesToAwait = [];
+            await this._internalLoad(loadDescendantFrames, storyboard, framesToAwait);
+            await Promise.all(framesToAwait);
+        }
+        /**
+         * An internal method for recurisvely loading resources.
+         * @param {boolean} loadDescendantFrames determines if the child frames should load resources at the same time.
+         * @param {object} storyboard calling the load operation.
+         * @param {Array} framesToAwait an internal parameter used to gather all nodes and promises that will be awaited in parallel.  Resource Frame nodes will not be included in this array and will be awaited instantly.
+         * @param {}
+         * @return {object} a promise to complete resource loading.
+         */
+        async _internalLoad(loadDescendantFrames, storyboard, framesToAwait = []) {
             this._loadingState = FRAME_STATE.LOADING;
-            const nodePromises = [];
-            const parentNodePromise = this.onloadResources(storyboard);
-            if ((parentNodePromise instanceof Promise)) {
-                nodePromises.push(parentNodePromise);
+            const parentFramePromise = this.onloadResources(storyboard);
+            if ((parentFramePromise instanceof Promise)) {
+
+                //If the frame is a resource frame then we must wait on it to complete, as it will not run in parallel.
+                if (this.isResourceFrame) {
+                    await parentFramePromise;
+                }
+                //Other frames will be ran in parallel to each other.
+                else {
+                    framesToAwait.push(parentFramePromise);
+                }
 
                 if (loadDescendantFrames) {
                     //Traverse all nodes and invoke the onloadResources method on all descendants waiting for this event.
-                    let node = this.first;
-                    while (node !== null) {
-                        const nodePromise = node.load(loadDescendantFrames, storyboard);
+                    let frame = this.first;
+                    while (frame !== null) {
+                        const nodePromise = frame._internalLoad(loadDescendantFrames, storyboard, framesToAwait, false);
                         if ((nodePromise instanceof Promise)) {
-                            nodePromises.push(nodePromise);
+                            //If the frame is a resource frame then we must wait on it to complete, as it will not run in parallel.
+                            if (frame.isResourceFrame) {
+                                await nodePromise;
+                            }
+                            //Other frames will be ran in parallel to each other.
+                            else {
+                                framesToAwait.push(nodePromise);
+                            }
                         }
 
-                        node = node.next;
+                        frame = frame.next;
                     }
                 }
 
-                await Promise.all(nodePromises);
+                //NOTE: This state will be delayed until the entire load method is completed.
+                //This is due to the fact that this flag is set early, for frames that are loaded in parallel and have not been awaited yet.
                 this._loadingState = FRAME_STATE.LOADED;
             }
         }
+
+
         /**
          * Internal logic for clearing nodes.
          * Override this method so that we can invoke onRelease.
@@ -192,7 +229,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
         render(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
-            switch(this.frameState) {
+            switch (this.frameState) {
                 case FRAME_STATE.STARTING:
                     if (this._startFrameTime === 0) {
                         this._startFrameTime = totalTimeInMilliseconds;
