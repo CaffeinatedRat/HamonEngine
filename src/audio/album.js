@@ -153,8 +153,8 @@ hamonengine.audio = hamonengine.audio || {};
          */
         release() {
             this._audioResource && this._audioResource.release();
-            this._tracks.forEach(track => track && track.release());
-            this._tracks = [];
+            Object.values(this._tracks).forEach(track => track && track.release());
+            this._tracks = {};
             delete this._audioResource;
         }
     }
