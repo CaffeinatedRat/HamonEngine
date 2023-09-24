@@ -374,7 +374,7 @@ hamonengine.audio = hamonengine.audio || {};
 
                 //Resume if the context has been suspended.
                 if (this.context.state === 'suspended') {
-                    return await this.context.resume();
+                    await this.context.resume();
                 }
 
                 //Do not replay the audio if it was paused.
