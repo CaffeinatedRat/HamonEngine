@@ -510,7 +510,7 @@ hamonengine.core = hamonengine.core || {};
                     //Only attempt to play music if it is supported.
                     if (hamonengine.support_resources) {
                         track = new hamonengine.audio.track({ src: hamonengine.resources.audio3 });
-                        track.load().then(track => track.play());
+                        track.load().then(t => t.play());
                         internalDraw();
                     }
                     else {
