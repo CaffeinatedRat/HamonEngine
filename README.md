@@ -14,8 +14,10 @@ NOTES
 Compilation
 -----------
 
-This project is minimized and obscured by the [Google Closure Compiler](https://developers.google.com/closure/compiler/).  To compile the library, you'll need to supply a few arguments when running the compiler.jar, as shown below.  NOTE: There are object dependencies so the order of compilation is important.
-NOTE: The later versions of the closure compiler require Java SE 21 (JDK21).
+This project is minimized and obscured by the [Google Closure Compiler](https://developers.google.com/closure/compiler/).  To compile the library, you'll need to supply a few arguments when running the compiler.jar, as shown below.
+NOTES:
+* There are object dependencies so the order of compilation is important.
+* The later versions of the closure compiler require Java SE 21 (JDK21).
 
 <pre>
 java -jar "tools/closure-compiler-v20231112.jar" --output_manifest "build/manifest.MF"^
