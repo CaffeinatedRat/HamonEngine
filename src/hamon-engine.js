@@ -466,7 +466,7 @@ hamonengine.core = hamonengine.core || {};
             }
 
             //Handle DOM Binding regardless of the state of the DOMContent loading state.
-            if (window.document.readyState !== "complete") {
+            if (window.document.readyState === "loading") {
                 window.document.addEventListener("DOMContentLoaded", handleDOMBinding);
             }
             else {
