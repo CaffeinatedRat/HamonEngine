@@ -56,4 +56,8 @@ Change Log
 
 #### 0.1.0
 
-* Initial Release.
+* Initial Alpha Release.  1st unstable release.
+
+#### 1.0.0
+
+* Initial Beta Release that contains a fundamental working engine.
