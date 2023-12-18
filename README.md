@@ -15,16 +15,21 @@ Compilation
 -----------
 
 This project is minimized and obscured by the [Google Closure Compiler](https://developers.google.com/closure/compiler/).  To compile the library, you'll need to supply a few arguments when running the compiler.jar, as shown below.  NOTE: There are object dependencies so the order of compilation is important.
+NOTE: The later versions of the closure compiler require Java SE 21 (JDK21).
 
 <pre>
-java -jar "tools/closure-compiler-v20170626.jar" --output_manifest "build/manifest.MF"^
- --charset UTF-8^
+java -jar "tools/closure-compiler-v20231112.jar" --output_manifest "build/manifest.MF"^
+ --charset UTF-8 --language_in=ES_2020^
+ --compilation_level=SIMPLE^
  --js_output_file="build/hamonengine.min.js" --js="src/global.js"^
- --js="src/util/util.js"^
- --js="src/math/util.js" --js="src/math/sort.js" --js="src/math/LCGRandom.js"^
+ --js="src/util/*.js"^
+ --js="src/math/*.js" --js="src/math/datastructures/*.js"^
  --js="src/geometry/*.js"^
+ --js="src/audio/*.js"^
  --js="src/graphics/type.js" --js="src/graphics/imageext.js" --js="src/graphics/layer.js" --js="src/graphics/sprite.js" --js="src/graphics/animsprite.js" --js="src/graphics/spritesheet.js"^
- --js="src/entities/object2d.js" --js="src/entities/cell.js"^
+ --js="src/entities/type.js" --js="src/entities/object2d.js" --js="src/entities/spriteObject.js" --js="src/entities/shapeObject.js" --js="src/entities/cell.js"^
+ --js="src/events/*.js"^
+ --js="src/resources/splashscreen.js"^
  --js="src/hamon-engine.js"
 </pre>
  

@@ -2,7 +2,7 @@ REM A Windows Batch file that will minify the JS files to the proper location.
 REM Order of compliation is important.
 
 cd ..
-java -jar "tools/closure-compiler-v20200719.jar" --output_manifest "build/manifest.MF"^
+java -jar "tools/closure-compiler-v20231112.jar" --output_manifest "build/manifest.MF"^
  --charset UTF-8 --language_in=ES_2020^
  --compilation_level=SIMPLE^
  --js_output_file="build/hamonengine.min.js" --js="src/global.js"^
