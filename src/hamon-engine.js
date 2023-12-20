@@ -52,7 +52,7 @@ hamonengine.core = hamonengine.core || {};
     }
 
     const canvas_default_name = 'canvas';
-    const VERSION = '1.0.0';
+    const VERSION = '1.0.1';
 
     hamonengine.core.engine = class {
         constructor(options = {}) {
@@ -409,11 +409,10 @@ hamonengine.core = hamonengine.core || {};
                                 touches.push(new hamonengine.math.vector2(e.touches[i].clientX - position.x, e.touches[i].clientY - position.y));
                             }
                             //Mimic the click event for touch.
-                            const isClick = (type === 'end' && lasttouchevent === 'start');
-
-                            //Triger the touch events.
-                            this.onTouchEvent(type, touches, e, eventContainer);
+                            const isClick = (type === 'end' && (lasttouchevent === 'start' || lasttouchevent === 'move'));
+                            //Send both a touch as click event and the original event.
                             isClick && this.onTouchEvent('click', touches, e, eventContainer);
+                            this.onTouchEvent(type, touches, e, eventContainer);
 
                             //If enabled, trigger the mouse event on a touch event.
                             if (this.captureTouchAsMouseEvents) {
@@ -425,9 +424,9 @@ hamonengine.core = hamonengine.core || {};
                                 //Capture only changedTouches as the touches collection will contain no coordinates.
                                 const v = new hamonengine.math.vector2(e.changedTouches[0].clientX - position.x, e.changedTouches[0].clientY - position.y)
 
-                                //Triger the mouse events.
-                                this.onMouseEvent(type, v, e, eventContainer);
+                                //Send both a mouse click and the original event.
                                 isClick && this.onMouseEvent('click', v, e, eventContainer);
+                                this.onMouseEvent(type, v, e, eventContainer);
                             }
                         }
                     };

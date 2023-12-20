@@ -55,9 +55,10 @@ Change Log
 -----------
 
 #### 0.1.0
-
 * Initial Alpha Release.  1st unstable release.
 
 #### 1.0.0
-
 * Initial Beta Release that contains a fundamental working engine.
+
+#### 1.0.1
+* Improved the touch click events when capturing touch events as mouse events.
