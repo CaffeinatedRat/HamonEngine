@@ -182,7 +182,6 @@ hamonengine.audio = hamonengine.audio || {};
          */
         play(trackname = '') {
             if (!this.currentTrack.isPlaying) {
-
                 //If the trackname is specified then change the track to that index.
                 if (trackname !== '') {
                     const index = this._tracks.findIndex(track => track.name === trackname);

@@ -26,76 +26,71 @@
 'use strict';
 
 hamonengine.util = hamonengine.util || {};
+hamonengine.util.sort = class {
+    constructor(options = {}) {
+        //Default to the ascending comparison function if one is not supplied.
+        if (!options.compareFunc)
+            this._compareFunc = hamonengine.util.sort.sort.ascending;
+        else
+            this._compareFunc = options.compareFunc;
+    }
+    //--------------------------------------------------------
+    // Methods
+    //--------------------------------------------------------
+    quickSort(arr) {
+        //TODO: Add an immutable sort option to preserve the original array.
+        hamonengine.util.sort.iquicksort(this._compareFunc, arr, 0, arr.length - 1);
+    }
+    /**
+     * An ascending comparison function that uses the comparison operators.
+     * @param {*} a 
+     * @param {*} b 
+     * @return {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
+     */
+    static ascending(a, b) {
+        return a === b ? 0 : (a < b ? -1 : 1);
+    }
+    /**
+     * An descending comparison function that uses the comparison operators.
+     * @param {*} a 
+     * @param {*} b 
+     * @return {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
+     */
+    static descending(a, b) {
+        return a === b ? 0 : (a < b ? 1 : -1);
+    }
+    /**
+     * Performs an internal quicksort based on the array supplied and the left & right position within that array.
+     * @param {Function} compareFunction the comparison function.
+     * @param {*} arr An array of values to sort.
+     * @param {*} left The left location to start with.
+     * @param {*} right The right location to start with.
+     */
+    static iquicksort(compareFunction, arr, left, right) {
+        let i = left;
+        let j = right;
+        const pivot = arr[Math.truncate((left + right) / 2)];
 
-(function() {
-    hamonengine.util.sort = class {
-        constructor(options={}) {
-            //Default to the ascending comparison function if one is not supplied.
-            if (!options.compareFunc)
-                this._compareFunc = hamonengine.util.sort.sort.ascending;
-            else
-                this._compareFunc = options.compareFunc;
-        }
-        //--------------------------------------------------------
-        // Methods
-        //--------------------------------------------------------
-        quickSort(arr) {
-            //TODO: Add an immutable sort option to preserve the original array.
-            hamonengine.util.sort.iquicksort(this._compareFunc, arr, 0, arr.length - 1);
-        }
-        /**
-         * An ascending comparison function that uses the comparison operators.
-         * @param {*} a 
-         * @param {*} b 
-         * @return {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
-         */
-        static ascending(a, b) {
-            return a === b ? 0 : (a < b ? -1 : 1);
-        }
-        /**
-         * An descending comparison function that uses the comparison operators.
-         * @param {*} a 
-         * @param {*} b 
-         * @return {number} 0 if a==b, -1 if a is less than b, and 1 if a is greater than b.
-         */
-        static descending(a, b) {
-            return a === b ? 0 : (a < b ? 1 : -1);
-        }
-        /**
-         * Performs an internal quicksort based on the array supplied and the left & right position within that array.
-         * @param {Function} compareFunction the comparison function.
-         * @param {*} arr An array of values to sort.
-         * @param {*} left The left location to start with.
-         * @param {*} right The right location to start with.
-         */
-        static iquicksort(compareFunction, arr, left, right) {
-            let i = left;
-            let j = right;
-            const pivot = arr[Math.truncate((left + right) / 2)];
-
-            /* partition */
-            while (i <= j) {
-                while (compareFunction(arr[i], pivot) < 0) i++;
-                while (compareFunction(arr[j], pivot) > 0) j--;
-                if (i <= j) {
-                    let tmp = arr[i];
-                    arr[i] = arr[j];
-                    arr[j] = tmp;
-                    i++;
-                    j--;
-                }
-            };
-
-            /* recursion */
-            if (left < j)
-            {
-                hamonengine.util.sort.iquicksort(compareFunction, arr, left, j);
+        /* partition */
+        while (i <= j) {
+            while (compareFunction(arr[i], pivot) < 0) i++;
+            while (compareFunction(arr[j], pivot) > 0) j--;
+            if (i <= j) {
+                let tmp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = tmp;
+                i++;
+                j--;
             }
+        };
 
-            if (i < right)
-            {
-                hamonengine.util.sort.iquicksort(compareFunction, arr, i, right);
-            }
+        /* recursion */
+        if (left < j) {
+            hamonengine.util.sort.iquicksort(compareFunction, arr, left, j);
+        }
+
+        if (i < right) {
+            hamonengine.util.sort.iquicksort(compareFunction, arr, i, right);
         }
     }
-})();
+}

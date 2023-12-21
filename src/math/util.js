@@ -25,66 +25,50 @@
 //波紋
 'use strict';
 
-hamonengine.math = hamonengine.math || {};
+///////////////////////////////////////////
+// CONSTANTS & UTILITY FUNCTIONS
+///////////////////////////////////////////
+//Math.PI2 = Math.PI * 2;
+Math.PI2 = 6.283185307179586476925286766559;
+Math.PI3_2 = Math.PI * 3 / 2;
+Math.PI_2 = Math.PI / 2;
+Math.HalfPI = 1.5707963267948966192313216916398;
+Math.QuarterPI = 4.7123889803846898576939650749193;
+Math.maxInt32 = 2147483647;
+Math.maxUInt32 = 4294967296;
 
-(function() {
-   
-    ///////////////////////////////////////////
-    // CONSTANTS & UTILITY FUNCTIONS
-    ///////////////////////////////////////////
-    //Math.PI2 = Math.PI * 2;
-    Math.PI2 = 6.283185307179586476925286766559;
-    Math.PI3_2 = Math.PI * 3 / 2;
-    Math.PI_2 = Math.PI / 2;
-    Math.HalfPI = 1.5707963267948966192313216916398;
-    Math.QuarterPI = 4.7123889803846898576939650749193;
-    Math.maxInt32 = 2147483647;
-    Math.maxUInt32 = 4294967296;
+/**
+ * Uses a bitwise operation hack to round the number up.
+ * This will only work with signed integers and will fail with values greater than ((2 ^ 32) / 2) - 1
+ * @param {number} x to round
+ * @return {number} rounded.
+ */
+Math.bitRound = (x) => ((0.5 + x) << 0);
 
-    /**
-     * Uses a bitwise operation hack to round the number up.
-     * This will only work with signed integers and will fail with values greater than ((2 ^ 32) / 2) - 1
-     * @param {number} x to round
-     * @return {number} rounded.
-     */
-    Math.bitRound = (x) => {
-        return ((0.5 + x) << 0);
-    }
+/**
+ * Truncates a value quickier than using Math.Round.  WARNING: This will only work with signed integers and will fail with values greater than ((2 ^ 32) / 2) - 1.</summary>
+ * @param {number} x to truncate
+ * @return {number} truncated value
+ */
+Math.truncate = (x) => ((x >= Math.maxInt32) ? Math.maxInt32 : (~~x));
 
-    /**
-     * Truncates a value quickier than using Math.Round.  WARNING: This will only work with signed integers and will fail with values greater than ((2 ^ 32) / 2) - 1.</summary>
-     * @param {number} x to truncate
-     * @return {number} truncated value
-     */
-    Math.truncate = (x) => {
-        return ((x >= Math.maxInt32) ? Math.maxInt32 : (~~x));
-    }
+/**
+ * Square and return the number supplied.
+ * @param {number} x value to square.
+ * @return {number} squared value.
+ */
+Math.sqr = (x) => x * x;
 
-    /**
-     * Square and return the number supplied.
-     * @param {number} x value to square.
-     * @return {number} squared value.
-     */
-    Math.sqr = (x) => {
-        return x * x;
-    }
+/**
+ * Convert degrees to radians.
+ * @param {number} degrees to convert to radians.
+ * @return {number} radian value.
+ */
+Math.toDegrees = (degrees) => (degrees * Math.PI / 180);
 
-    /**
-     * Convert degrees to radians.
-     * @param {number} degrees to convert to radians.
-     * @return {number} radian value.
-     */
-    Math.toDegrees = (degrees) => {
-        return (degrees * Math.PI / 180);
-    }
-
-    /**
-     * Convert radians to degrees.
-     * @param {number} radians to convert to degrees.
-     * @return {number} degree value.
-     */
-    Math.toRadians = (radians) => {
-        return (radians * 180 / Math.PI);
-    }
-
-})();
+/**
+ * Convert radians to degrees.
+ * @param {number} radians to convert to degrees.
+ * @return {number} degree value.
+ */
+Math.toRadians = (radians) => (radians * 180 / Math.PI);

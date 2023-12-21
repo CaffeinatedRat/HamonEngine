@@ -33,7 +33,6 @@ hamonengine.entities = hamonengine.entities || {};
      */
     hamonengine.entities.object2d = class {
         constructor(options = {}) {
-
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.entities.object2d) {
                 options = {
@@ -200,8 +199,7 @@ hamonengine.entities = hamonengine.entities || {};
         get boundingShape() {
             //Load this on demand.
             //If the boundingShape was not defined on creation then create one by default, on demand, to use the width & height of the object2d.
-            this._boundingShape = this._boundingShape || new hamonengine.geometry.rect(0, 0, this.width, this.height);
-            return this._boundingShape;
+            return (this._boundingShape = this._boundingShape || new hamonengine.geometry.rect(0, 0, this.width, this.height));
         }
         /**
          * Returns true if the object is moveable.

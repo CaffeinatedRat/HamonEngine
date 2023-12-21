@@ -181,24 +181,16 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @return {Object} a promise to complete loading.
          */
         async load(src = '') {
-
             //Handle a pre-existing URL option.
             src = src || this._url;
 
-            return new Promise((resolve, reject) => {
-                if (this._image instanceof hamonengine.graphics.imageext) {
-                    this._image.load(src).then(() => {
-                        //Update the dimensions based on the image's properties.
-                        this._dimensions = new hamonengine.geometry.rect(0, 0, this._image.width, this._image.height);
-                        resolve(this);
-                    }).catch((err) => {
-                        reject(err);
-                    });
-                }
-                else {
-                    resolve(this);
-                }
-            });
+            if (this._image instanceof hamonengine.graphics.imageext) {
+                await this._image.load(src);
+                //Update the dimensions based on the image's properties.
+                this._dimensions = new hamonengine.geometry.rect(0, 0, this._image.width, this._image.height);
+            }
+
+            return this;
         }
         /**
          * Rotates the sprite at the center.
@@ -425,7 +417,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} yOrientation the yOrientation of the sprite.
          */
         drawSpriteWrapping(layer, elapsedTimeInMilliseconds, x, y, width, height, xOrientation, yOrientation) {
-
             const cosAngle = Math.cos(-this.theta);
             const sinAngle = Math.sin(-this.theta);
 

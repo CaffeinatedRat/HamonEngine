@@ -25,8 +25,6 @@
 //波紋
 'use strict';
 
-hamonengine.entities = hamonengine.entities || {};
-
 const OBJECT_STATE_FLAG = {
     NONE: 0,
     SOLID: 1,

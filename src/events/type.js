@@ -25,8 +25,6 @@
 //波紋
 'use strict';
 
-hamonengine.events = hamonengine.events || {};
-
 const FRAME_STATE = {
     STOPPED: 0,
     STARTING: 1,

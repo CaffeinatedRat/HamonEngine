@@ -188,7 +188,6 @@ hamonengine.entities = hamonengine.entities || {};
          */
         isCollision(shapeObject) {
             if (this.isSolid) {
-
                 let direction = new hamonengine.math.vector2();
                 if (shapeObject instanceof hamonengine.entities.shapeObject && shapeObject.isSolid) {
                     direction = shapeObject.position.subtract(this.position);

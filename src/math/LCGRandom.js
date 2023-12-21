@@ -28,7 +28,6 @@
 hamonengine.math = hamonengine.math || {};
 
 (function() {
-   
     const a = 214013;
     const c = 2531011;
     const m = Math.maxUInt32;

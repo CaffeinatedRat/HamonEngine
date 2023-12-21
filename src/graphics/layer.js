@@ -74,7 +74,6 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Try to get the 2d context.
             try {
-
                 // --- 3/7/21 --- Handle the Chromium 89 bug where if alpha is set to false, ClearRect will not properly clear the canvas resulting in a mirroring effect.
                 // This is not an issue in Firefox and was not an issue before Chromium 89.
                 if (this._alpha) {
@@ -156,13 +155,13 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Get the width of the layer.
          */
         get width() {
-            return this._canvas.width;
+            return this.canvas.width;
         }
         /**
          * Get the width of the layer.
          */
         get height() {
-            return this._canvas.height;
+            return this.canvas.height;
         }
         /**
          * Get the left offset of the layer.
@@ -336,12 +335,8 @@ hamonengine.graphics = hamonengine.graphics || {};
             const canvas = document.createElement('canvas');
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
-            if (id) {
-                canvas.setAttribute('id', id);
-            }
-            if (name) {
-                canvas.setAttribute('name', name);
-            }
+            id && canvas.setAttribute('id', id);
+            name && canvas.setAttribute('name', name);
             return canvas;
         }
         /**
@@ -351,7 +346,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {*} elementToAttach to attach the canvas.
          */
         clone(canvasId, name, elementToAttach = null) {
-
             //Create a new canvas element and attach it after the original.
             const newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
             //elementToAttach = elementToAttach || this.canvas.parentNode;
@@ -392,7 +386,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this.context.imageSmoothingEnabled = enable;
             }
             catch (err) {
-
             }
         }
         /**
@@ -445,7 +438,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.backgroundColor to fill the canvas.  By default this is this.backgroundColor.
         */
         beginPainting({ x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor } = {}) {
-
             //Added support for resetting the background color.
             this.context.fillStyle = backgroundColor;
             this.context.fillRect(x, y, width, height);
@@ -481,7 +473,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} destinationHeight 
          */
         drawLayer(layer, destinationX = 0, destinationY = 0, destinationWidth = this.width, destinationHeight = this.height) {
-
             if (!(layer instanceof hamonengine.graphics.layer)) {
                 throw "Parameter layer is not of type hamonengine.graphics.layer.";
             }
@@ -546,10 +537,10 @@ hamonengine.graphics = hamonengine.graphics || {};
                 case 'top':
                     break;
 
-               //If the textual offsets aren't passed then try to parse the offset as an integer.
-               default:
-                sourceY -= parseInt(verticalTextOffset);
-                break;
+                //If the textual offsets aren't passed then try to parse the offset as an integer.
+                default:
+                    sourceY -= parseInt(verticalTextOffset);
+                    break;
             }
 
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
@@ -610,7 +601,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.color of the vector's lines.
          */
         drawVector(vector, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white' } = {}) {
-
             if (!(vector instanceof hamonengine.math.vector2)
                 && !(vector instanceof hamonengine.math.vector3)) {
                 throw "Parameter vector is not of type hamonengine.math.vector2 or of type hamonengine.math.vector3.";
@@ -635,7 +625,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.color of the lineSegment.
          */
         drawLineSegment(lineSegment, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = true, color = 'white' } = {}) {
-
             if (!(lineSegment instanceof hamonengine.geometry.lineSegment)) {
                 throw "Parameter lineSegment is not of type hamonengine.geometry.lineSegment.";
             }
@@ -652,7 +641,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.color of the polyChain.
          */
         drawPolyChain(polyChain, sourceX = 0, sourceY = 0, { lineWidth = 1, drawNormals = true, color = 'white' } = {}) {
-
             if (!(polyChain instanceof hamonengine.geometry.polyChain)) {
                 throw "Parameter polyChain is not of type hamonengine.geometry.polyChain.";
             }
@@ -671,7 +659,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {object} obj.normals associated with the coordinates.
          */
         simpleDrawCoords(coordinates, length = 0, offset = 0, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', normals = [] } = {}) {
-
             //Bail if we don't have asymmetrical coordinates, a coordinate pair (coordinates[i + 0] = x, coordinates[i + 1] = y).
             //Bail if the offset extends beyond the size of the coordinate pair (coordinates[offset + i + 0] = x, coordinates[offset + i + 1] = y).
             if ((coordinates.length % 2 != 0) || (offset + 1 > coordinates.length)) {
@@ -688,7 +675,6 @@ hamonengine.graphics = hamonengine.graphics || {};
             let lastPoint;
             const edges = [];
             for (let i = offset; i < length; i += 2) {
-
                 //Get the x,y coords.
                 let x = Math.bitRound(sourceX + coordinates[i]);
                 let y = Math.bitRound(sourceY + coordinates[i + 1]);
@@ -721,7 +707,6 @@ hamonengine.graphics = hamonengine.graphics || {};
             //1) debug mode is on.
             //2) The number of normals is equal to the number off coordinate pairs or greater.
             if (hamonengine.debug && normals.length > 0) {
-
                 this.context.strokeStyle = 'white';
 
                 for (let index = offset, edgeIndex = 0; index < length && edgeIndex < edges.length && edgeIndex < normals.length; index += 2, edgeIndex++) {
@@ -829,7 +814,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
          */
         simpleDrawRect(rect, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
-
             if (!(rect instanceof hamonengine.geometry.rect)) {
                 throw "Parameter rect is not of type hamonengine.geometry.rect.";
             }
@@ -936,7 +920,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.fillColor determines the fill color of the polygon (Default is 'white').
          */
         simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
-
             if (!(polygon instanceof hamonengine.geometry.polygon)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
             }
@@ -973,7 +956,6 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.stroke();
 
             if (hamonengine.debug && drawNormals) {
-
                 this.context.strokeStyle = 'white';
 
                 for (let index = 0; index < polygon.vertices.length; index++) {
@@ -1044,7 +1026,6 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
         }
         simpleDrawEllipse(ellipse, sourceX = 0, sourceY = 0, radiusX = 1, radiusY = 1, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
-
             /*
             if (!(ellipse instanceof hamonengine.geometry.ellipse)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.ellipse.";

@@ -25,8 +25,6 @@
 //波紋
 'use strict';
 
-hamonengine.graphics = hamonengine.graphics || {};
-
 const BLENDING_OPS = {
     REPLACE: 0,
     ADD: 1,

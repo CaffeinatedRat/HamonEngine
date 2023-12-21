@@ -34,7 +34,6 @@ hamonengine.audio = hamonengine.audio || {};
      */
     hamonengine.audio.album = class {
         constructor(options = {}) {
-
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.audio.album) {
                 options = {
@@ -90,7 +89,6 @@ hamonengine.audio = hamonengine.audio || {};
          * @return {Object} a promise that the album has loaded.
          */
         async load(albumMetadata) {
-
             //Handle a pre-existing URL option.
             albumMetadata = albumMetadata || this._url;
 

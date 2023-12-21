@@ -186,7 +186,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {?number} height the option height of the sprite to scale.
          */
         draw(layer, elapsedTimeInMilliseconds, x, y, width = null, height = null) {
-
             //Timestamp accumulator.
             //Since the time elapsed since the lastframe may be smaller than our rate, we need to accumlate it.
             //NOTE: That the time elapsed between frames can be dramatically different between each frame if there is a disruption in the draw loop.
@@ -197,7 +196,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this._enableAnimation) {
 
                 //Based on the amount of time that has passed, determine the number of animation frames that have passed.
-                const numberOfFrames = parseInt(timeSinceLastFrame / this.animationRate, 10);
+                const numberOfFrames = parseInt(timeSinceLastFrame / this.animationRate);
 
                 //Calculate the number of animation cycles have elapsed during this animation frame.
                 const numberOfAnimationCycles = (this.index + numberOfFrames);
@@ -207,7 +206,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                     //Number of animation cycles accumulator.
                     //Keep a count of the total number of animation cycles.
-                    this._numberOfAnimationCycles += parseInt(numberOfAnimationCycles / this._frames.length, 10);
+                    this._numberOfAnimationCycles += parseInt(numberOfAnimationCycles / this._frames.length);
 
                     //Disable the animation if we have exceed the maxiumn number of animation cycles.
                     this._enableAnimation = (this._numberOfAnimationCycles <= this.animationCycles);

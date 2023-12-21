@@ -27,7 +27,7 @@
 
 hamonengine.graphics = hamonengine.graphics || {};
 
-(function() {
+(function () {
 
     const IMAGE_STATES = {
         UNLOADED: 0,
@@ -35,12 +35,12 @@ hamonengine.graphics = hamonengine.graphics || {};
         COMPLETE: 2,
         ERROR: 3
     };
-    
+
     /**
      * This class represents an image extension wrapper that provides helper methods for handling image manipulation and canvas creation.
      */
     hamonengine.graphics.imageext = class {
-        constructor(options={}) {
+        constructor(options = {}) {
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.graphics.imageext) {
                 options = {
@@ -51,10 +51,10 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             this._image = options.image || new Image();
             this._state = IMAGE_STATES.UNLOADED;
-            
-            //Internal data.
-            this._backbufferResource = null;
-            this._backbufferCtx = null;
+
+            //Internal data buffer (canvas) that replace the _image once pixel data is manipulated since the _image is immutable a canvas must be used instead.
+            this._internalBufferResource = null;
+            this._internalBufferCtx = null;
 
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.graphics.imageext.constructor] Starting State: ${this._state}`);
         }
@@ -83,7 +83,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Returns the current image resource.
          */
         get image() {
-            return this._backbufferResource ? this._backbufferResource : this._image;
+            return this._internalBufferResource ? this._internalBufferResource : this._image;
         }
         /**
          * Returns the raw image.
@@ -102,7 +102,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         get height() {
             return this.image.height;
-        }        
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -117,8 +117,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} src url of the image.
          * @return {Object} a promise to complete loading.
          */
-        async load(src='') {
-
+        async load(src = '') {
             //Handle statically loaded image; those the DOM may have already loaded.
             if (src !== '') {
                 this._image.src = src;
@@ -161,20 +160,20 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @returns {Object} ImageData of our raw image.
          */
         getImageData(region) {
-                //Create a new canvas if this is the first time we're blending.
-                this._backbufferResource = this._backbufferResource || hamonengine.graphics.layer.createNewCanvas(this.rawImage.width, this.rawImage.height);
-                
-                //Draw the raw image to our modified canvas.
-                this._backbufferCtx = this._backbufferCtx || this._backbufferResource.getContext('2d',{
-                    willReadFrequently: true
-                });
-                this._backbufferCtx.drawImage(this.rawImage, 0, 0);
+            //Create a new canvas if this is the first time we're blending.
+            this._internalBufferResource = this._internalBufferResource || hamonengine.graphics.layer.createNewCanvas(this.rawImage.width, this.rawImage.height);
 
-                //Normalize the dimensions.
-                region = region || new hamonengine.geometry.rect();
+            //Draw the raw image to our modified canvas.
+            this._internalBufferCtx = this._internalBufferCtx || this._internalBufferResource.getContext('2d', {
+                willReadFrequently: true
+            });
+            this._internalBufferCtx.drawImage(this.rawImage, 0, 0);
 
-                //Gather the source.
-                return this._backbufferCtx.getImageData(region.x, region.y, region.width || this.rawImage.width, region.height || this.rawImage.height);
+            //Normalize the dimensions.
+            region = region || new hamonengine.geometry.rect();
+
+            //Gather the source.
+            return this._internalBufferCtx.getImageData(region.x, region.y, region.width || this.rawImage.width, region.height || this.rawImage.height);
         }
         /**
          * Blends the image with the color supplied, for the region supplied.
@@ -185,10 +184,8 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {Object} region (hamonengine.geometry.rect) dimension to blend.
          * @param {number} blendingOps (BLENDING_OPS) blending operation to perform.
          */
-        blendColorRegion(r=0, g=0, b=0, a=0, region=null, blendingOps=BLENDING_OPS.REPLACE) {
- 
+        blendColorRegion(r = 0, g = 0, b = 0, a = 0, region = null, blendingOps = BLENDING_OPS.REPLACE) {
             if (this.complete) {
-
                 //Gather the source.
                 const sourceData = this.getImageData(region);
 
@@ -223,14 +220,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Blend the colors.
                 const data = sourceData.data;
                 for (let i = 0; i < data.length; i += 4) {
-                    data[i]     = blendingMethod(r, data[i]);  //Red
-                    data[i + 1] = blendingMethod(g, data[i+1]);//Green
-                    data[i + 2] = blendingMethod(b, data[i+2]);//Blue
-                    data[i + 3] = blendingMethod(a, data[i+3]);//Alpha
+                    data[i] = blendingMethod(r, data[i]);  //Red
+                    data[i + 1] = blendingMethod(g, data[i + 1]);//Green
+                    data[i + 2] = blendingMethod(b, data[i + 2]);//Blue
+                    data[i + 3] = blendingMethod(a, data[i + 3]);//Alpha
                 }
 
                 //Render the blending into the backbuffer.
-                this._backbufferCtx.putImageData(sourceData, region.x, region.y);
+                this._internalBufferCtx.putImageData(sourceData, region.x, region.y);
             }
         }
         /**
@@ -241,24 +238,22 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} a alpha channel ranging from 0.0-1.0.
          * @param {Object} region (hamonengine.geometry.rect) dimension to blend.
          */
-        adjustColorChannel(r=1.0, g=1.0, b=1.0, a=1.0, region=null) {
- 
+        adjustColorChannel(r = 1.0, g = 1.0, b = 1.0, a = 1.0, region = null) {
             if (this.complete) {
-
                 //Gather the source.
                 const sourceData = this.getImageData(region);
 
                 //Adjust the colors.
                 const data = sourceData.data;
                 for (let i = 0; i < data.length; i += 4) {
-                    data[i]   = Math.bitRound(data[i] * r); //Red
-                    data[i+1] = Math.bitRound(data[i+1] * g); //Green
-                    data[i+2] = Math.bitRound(data[i+2] * b); //Blue
-                    data[i+3] = Math.bitRound(data[i+3] * a); //Alpha
+                    data[i] = Math.bitRound(data[i] * r); //Red
+                    data[i + 1] = Math.bitRound(data[i + 1] * g); //Green
+                    data[i + 2] = Math.bitRound(data[i + 2] * b); //Blue
+                    data[i + 3] = Math.bitRound(data[i + 3] * a); //Alpha
                 }
 
                 //Render the blending into the backbuffer.
-                this._backbufferCtx.putImageData(sourceData, region.x, region.y, region.x, region.y, region.width, region.height);
+                this._internalBufferCtx.putImageData(sourceData, region.x, region.y, region.x, region.y, region.width, region.height);
             }
         }
         /**
@@ -268,13 +263,8 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {Object} destRegion the area to bitblit onto.
          * @param {number} transparency the intensity of the pixel's transparency. 0.0 - 1.0 where 0 is transparent and 1 is opaque.
          */
-        bitblit(imageData, srcRegion, destRegion, transparency=1.0) {
-            if (this.complete) {
-
-                if (!imageData.complete) {
-                    return;
-                }
-
+        bitblit(imageData, srcRegion, destRegion, transparency = 1.0) {
+            if (this.complete && imageData.complete) {
                 //Normalize the image.
                 if (imageData instanceof hamonengine.graphics.imageext) {
                     imageData = imageData.rawImage;
@@ -298,14 +288,12 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                 //Iterate through each row, then column.
                 for (let row = 0; row < destRegion.height; row++) {
-
                     //Break bitblit if we've exceeded the source's height.
                     if (row >= srcRegion.height) {
                         break;
                     }
 
                     for (let col = 0; col < destRegion.width; col++) {
-                       
                         //Break bitblit if we've exceeded the source's width.
                         if (col >= srcRegion.width) {
                             break;
@@ -315,18 +303,18 @@ hamonengine.graphics = hamonengine.graphics || {};
                         const srcIndex = (row * srcRegion.width + col) * 4;
 
                         //Calculate the complement, as long as the alpha channel is not transparent.
-                        const transparencyComplement = (srcData[srcIndex+3] > 0) ? (1.0 - transparency) : 1.0;
+                        const transparencyComplement = (srcData[srcIndex + 3] > 0) ? (1.0 - transparency) : 1.0;
                         destData[destIndex] = Math.bitRound(destData[destIndex] * transparencyComplement + srcData[srcIndex] * transparency);
-                        destData[destIndex+1] = Math.bitRound(destData[destIndex+1] * transparencyComplement + srcData[srcIndex+1] * transparency);
-                        destData[destIndex+2] = Math.bitRound(destData[destIndex+2] * transparencyComplement + srcData[srcIndex+2] * transparency);
-                        
+                        destData[destIndex + 1] = Math.bitRound(destData[destIndex + 1] * transparencyComplement + srcData[srcIndex + 1] * transparency);
+                        destData[destIndex + 2] = Math.bitRound(destData[destIndex + 2] * transparencyComplement + srcData[srcIndex + 2] * transparency);
+
                         //Blend the alpha channel so that the source & destination's alpha channels are preserved.
                         //destData[destIndex+3] = Math.bitRound(destData[destIndex+3] * (1.0 - transparency) + srcData[srcIndex+3] * transparency);
                     }
                 }
 
                 //Render the bitblit image.
-                this._backbufferCtx.putImageData(destImageData, destRegion.x, destRegion.y);
+                this._internalBufferCtx.putImageData(destImageData, destRegion.x, destRegion.y);
             }
         }
         /**
@@ -345,13 +333,13 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Releases resources.
          */
         release() {
-            if (this._backbufferCtx) {
-                delete this._backbufferCtx;
+            if (this._internalBufferCtx) {
+                delete this._internalBufferCtx;
             }
 
-            if (this._backbufferResource) {
-                this._backbufferResource.release();
-                delete this._backbufferResource;
+            if (this._internalBufferResource) {
+                this._internalBufferResource.release();
+                delete this._internalBufferResource;
             }
 
             delete this._image;

@@ -369,7 +369,6 @@ hamonengine.audio = hamonengine.audio || {};
          */
         async play(begin, end) {
             if (!this.isPlaying) {
-
                 this._startTime = this.context.currentTime;
 
                 //Resume if the context has been suspended.
@@ -428,8 +427,6 @@ hamonengine.audio = hamonengine.audio || {};
                     else {
                         this._mediaSource.start(0, begin, end - begin);
                     }
-
-                    //return Promise.resolve();
                 }
             }
         }

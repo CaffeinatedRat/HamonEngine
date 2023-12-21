@@ -72,7 +72,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {*} spriteSheetMetadata JSON metadata or a URL
          */
         async load(spriteSheetMetadata = '') {
-
             //Handle a pre-existing URL option.
             spriteSheetMetadata = spriteSheetMetadata || this._url;
 

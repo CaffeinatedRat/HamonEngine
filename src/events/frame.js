@@ -159,7 +159,6 @@ hamonengine.events = hamonengine.events || {};
             this._loadingState = FRAME_STATE.LOADING;
             const parentFramePromise = this.onloadResources(storyboard);
             if ((parentFramePromise instanceof Promise)) {
-
                 //If the frame is a resource frame then we must wait on it to complete, as it will not run in parallel.
                 if (this.isResourceFrame) {
                     await parentFramePromise;
@@ -194,8 +193,6 @@ hamonengine.events = hamonengine.events || {};
                 this._loadingState = FRAME_STATE.LOADED;
             }
         }
-
-
         /**
          * Internal logic for clearing nodes.
          * Override this method so that we can invoke onRelease.
