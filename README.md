@@ -62,3 +62,6 @@ Change Log
 
 #### 1.0.1
 * Improved the touch click events when capturing touch events as mouse events.
+
+#### 1.0.2
+* Improved the touch click events when capturing touch events as mouse events.

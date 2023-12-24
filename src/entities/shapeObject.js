@@ -205,9 +205,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
         render(layer, elapsedTimeInMilliseconds, { lineWidth = 2, color = 'blue', drawNormals = false } = {}) {
-            if (this.shape) {
-                layer.drawShape(this.transformShape(elapsedTimeInMilliseconds), 0, 0, { lineWidth, color, drawNormals });
-            }
+            this.shape && layer.drawShape(this.transformShape(elapsedTimeInMilliseconds), 0, 0, { lineWidth, color, drawNormals });
         }
     }
 })();

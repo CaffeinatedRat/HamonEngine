@@ -52,7 +52,7 @@ hamonengine.core = hamonengine.core || {};
     }
 
     const canvas_default_name = 'canvas';
-    const VERSION = '1.0.1';
+    const VERSION = '1.0.2';
 
     hamonengine.core.engine = class {
         constructor(options = {}) {
@@ -485,13 +485,10 @@ hamonengine.core = hamonengine.core || {};
                     let track;
                     const internalDraw = () => {
                         const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
-                            
-                            const glow = 215; 
-
                             //Draw the name of the engine.
                             this.primaryLayer.beginPainting();
-                            this.primaryLayer.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${glow},0)` });
-                            this.primaryLayer.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${glow},0)` });
+                            this.primaryLayer.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
+                            this.primaryLayer.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
                             this.primaryLayer.endPainting();
 
                             //Wait for the splash screen animation & music to complete.
@@ -532,7 +529,6 @@ hamonengine.core = hamonengine.core || {};
             //e && e.preventDefault();
             this.primaryStoryboard && this.primaryStoryboard.onKeyEvent(type, keyCode, e, caller);
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
-            return this;
         }
         /**
          * Processes mouse & touch events if captureTouchAsMouseEvents is set to true.
@@ -544,7 +540,6 @@ hamonengine.core = hamonengine.core || {};
         onMouseEvent(type, v, e, caller) {
             this.primaryStoryboard && this.primaryStoryboard.onMouseEvent(type, v, e, caller);
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
-            return this;
         }
         /**
          * Processes touch events.
@@ -557,14 +552,12 @@ hamonengine.core = hamonengine.core || {};
             e && e.preventDefault();
             this.primaryStoryboard && this.primaryStoryboard.onTouchEvent(type, touches, e, caller);
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
-            return this;
         }
         /**
          * A draw loop event that is triggered once the engine starts.
          * @param {?number} timestampInMilliseconds elapsed since the origin.  See DOMHighResTimeStamp.
          */
         onDraw(timestampInMilliseconds) {
-
             //Normalize the timestamp to prevent undefined or NaN.
             timestampInMilliseconds = (timestampInMilliseconds || 0);
 
@@ -576,7 +569,6 @@ hamonengine.core = hamonengine.core || {};
             //Get the time elapsed since the engine started.
             const elapsedTimeInMilliseconds = timestampInMilliseconds - this._lastFrameTimeStamp;
 
-            //console.debug("[hamonengine.core.engine.onDraw]");
             try {
                 //Experimental processing frame.
                 let processingComplete = false;
@@ -600,8 +592,6 @@ hamonengine.core = hamonengine.core || {};
 
             //Record the timestamp of the current frame.
             this._lastFrameTimeStamp = timestampInMilliseconds;
-
-            return this;
         }
         /**
          * An onFrame event that is triggered when a single frame is being rendered to the canvas.
@@ -610,7 +600,6 @@ hamonengine.core = hamonengine.core || {};
          */
         onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
             this.primaryStoryboard && this.primaryStoryboard.onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds);
-            return this;
         }
         /**
          * An onProcessingFrame event that is triggered when a single frame is being processed before drawn.
@@ -619,7 +608,6 @@ hamonengine.core = hamonengine.core || {};
          */
         onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
             this.primaryStoryboard && this.primaryStoryboard.onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds);
-            return this;
         }
         /**
          * An event that is triggered when the engine has been stopped.
@@ -637,7 +625,6 @@ hamonengine.core = hamonengine.core || {};
                     track.load().then(() => track.play());
                 }
             }
-            return this;
         }
     }
 })();

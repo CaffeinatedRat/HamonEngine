@@ -292,49 +292,37 @@ hamonengine.entities = hamonengine.entities || {};
         /**
          * A helper method for moving the object to the left continuously.
          * This method supports chaining.
+         * @param {boolean} state if true holds the left direction.
          */
-        holdLeft() {
-            this.direction.x = -1;
+        holdLeft(state) {
+            this.direction.x = state ? -1 : 0;
             return this;
         }
         /**
          * A helper method for moving the object to the right continuously.
          * This method supports chaining.
+         * @param {boolean} state if true holds the right direction.
          */
-        holdRight() {
-            this.direction.x = 1;
+        holdRight(state) {
+            this.direction.x = state ? 1 : 0;
             return this;
         }
         /**
          * A helper method for moving the object to the up continuously.
          * This method supports chaining.
+         * @param {boolean} state if true holds the up direction.
          */
-        holdUp() {
-            this.direction.y = -1;
+        holdUp(state) {
+            this.direction.y = state ? -1 : 0;
             return this;
         }
         /**
          * A helper method for moving the object to the down continuously.
          * This method supports chaining.
+         * @param {boolean} state if true holds the down direction.
          */
-        holdDown() {
-            this.direction.y = 1;
-            return this;
-        }
-        /**
-         * A helper method for stopping horizontal movement.
-         * This method supports chaining.
-         */
-        releaseHorizontal() {
-            this.direction.x = 0;
-            return this;
-        }
-        /**
-         * A helper method for stopping vertical movement.
-         * This method supports chaining.
-         */
-        releaseVertical() {
-            this.direction.y = 0;
+        holdDown(state) {
+            this.direction.y = state ? 1 : 0;
             return this;
         }
         /**
@@ -379,7 +367,7 @@ hamonengine.entities = hamonengine.entities || {};
          * Resets the object orientation.
          */
         reset() {
-            return this.resetRotate().resetScale().releaseHorizontal().releaseVertical();
+            return this.resetRotate().resetScale().holdLeft(false).holdUp(false);
         }
         /**
          * Outputs the objects as a string.
