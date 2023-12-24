@@ -194,6 +194,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Rotates the sprite at the center.
+         * NOTE: This method is mutable!
          * @param {number} theta the angle in radians.
          */
         rotate(theta) {
@@ -202,6 +203,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Scales the sprite at the top-left corner by the x and y coordinates.
+         * NOTE: This method is mutable!
          * @param {number} x coordinate to scale.
          * @param {number} y coordinate to scale.
          */
@@ -212,6 +214,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Mirrors the sprite at the center.
+         * NOTE: This method is mutable!
          * @param {boolean} state (optional) to mirror the object
          */
         mirror(state) {
@@ -220,6 +223,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Flips the sprite at the center.
+         * NOTE: This method is mutable!
          * @param {boolean} state (optional) to flip the object
          */
         flip(state) {
@@ -228,6 +232,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Blends the sprite with the specific color with the specific blending operation.
+         * NOTE: This method is mutable!
          * @param {number} r red channel ranging from 0-255.
          * @param {number} g green channel ranging from 0-255.
          * @param {number} b blue channel ranging from 0-255.
@@ -240,6 +245,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Adjusts the channels for each color.
+         * NOTE: This method is mutable!
          * @param {number} r red channel ranging from 0.0-1.0.
          * @param {number} g green channel ranging from 0.0-1.0.
          * @param {number} b blue channel ranging from 0.0-1.0.
@@ -251,47 +257,13 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Performs a bitblit between two sprites where this is the destination and the source sprite is passed in.
+         * NOTE: This method is mutable!
          * @param {*} sprite to bitblit with.
          * @param {number} transparency the intensity of the pixel's transparency. 0.0 - 1.0 where 0 is transparent and 1 is opaque.
          */
         bitblit(sprite, transparency = 1.0) {
             this._image.bitblit(sprite._image, sprite._dimensions, this._dimensions, transparency);
             return this;
-        }
-        /**
-         * Draws the sprite at the specific location with the current width & height without any transformations applied.
-         * @param {Object} layer to draw upon.
-         * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
-         * @param {number} x coordinate to draw at.
-         * @param {number} y cooridnate to draw at.
-         * @param {number} width the optional width of the sprite to scale.
-         * @param {number} height the option height of the sprite to scale.
-         */
-        drawRaw(layer, elapsedTimeInMilliseconds, x, y, width = this._dimensions.width, height = this._dimensions.height) {
-            if (this._image.complete) {
-                if (this.showFullImage) {
-                    layer.context.drawImage(this._image.image,
-                        //Normalize x & y as integers.
-                        Math.bitRound(x),
-                        Math.bitRound(y),
-                        //Normalize the width & height;
-                        Math.bitRound(width),
-                        Math.bitRound(height));
-                }
-                else {
-                    layer.drawImage(this._image,
-                        this._dimensions.x,
-                        this._dimensions.y,
-                        this._dimensions.width,
-                        this._dimensions.height,
-                        //Normalize x & y as integers.
-                        Math.bitRound(x),
-                        Math.bitRound(y),
-                        //Normalize the width & height;
-                        Math.bitRound(width),
-                        Math.bitRound(height));
-                }
-            }
         }
         /**
          * Draws the sprite at the specific location with the current width & height.
@@ -342,11 +314,11 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Sprite wrapping relative to the local sprite's transformation not to world transformations.
             if (layer.wrapHorizontal || layer.wrapVertical) {
-                this.drawSpriteWrapping(layer, elapsedTimeInMilliseconds, x, y, width, height, xOrientation, yOrientation);
+                this.__drawSpriteWrapping(layer, elapsedTimeInMilliseconds, x, y, width, height, xOrientation, yOrientation);
             }
 
             //Draw the main sprite.
-            this.drawRaw(layer, elapsedTimeInMilliseconds, x, y, width, height);
+            this.__drawRaw(layer, elapsedTimeInMilliseconds, x, y, width, height);
 
             if (hamonengine.debug && this.showDiagnosisLines) {
                 //Find the center of the sprite.
@@ -383,10 +355,10 @@ hamonengine.graphics = hamonengine.graphics || {};
                     layer.context.lineTo(xCenterOffset, yCenterOffset - layer.viewPort.height);
                     layer.context.stroke();
 
-                    this.drawRaw(layer, elapsedTimeInMilliseconds, x + layer.viewPort.width, y, width, height);
-                    this.drawRaw(layer, elapsedTimeInMilliseconds, x - layer.viewPort.width, y, width, height);
-                    this.drawRaw(layer, elapsedTimeInMilliseconds, x, y + layer.viewPort.height, width, height);
-                    this.drawRaw(layer, elapsedTimeInMilliseconds, x, y - layer.viewPort.height, width, height);
+                    this.__drawRaw(layer, elapsedTimeInMilliseconds, x + layer.viewPort.width, y, width, height);
+                    this.__drawRaw(layer, elapsedTimeInMilliseconds, x - layer.viewPort.width, y, width, height);
+                    this.__drawRaw(layer, elapsedTimeInMilliseconds, x, y + layer.viewPort.height, width, height);
+                    this.__drawRaw(layer, elapsedTimeInMilliseconds, x, y - layer.viewPort.height, width, height);
 
                     //Draw the viewport relative to the sprite.
                     layer.context.strokeStyle = 'white';
@@ -404,6 +376,41 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Restore the previous state.
             layer.restore();
+        }        
+        /**
+         * Draws the sprite at the specific location with the current width & height without any transformations applied.
+         * @param {Object} layer to draw upon.
+         * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
+         * @param {number} x coordinate to draw at.
+         * @param {number} y cooridnate to draw at.
+         * @param {number} width the optional width of the sprite to scale.
+         * @param {number} height the option height of the sprite to scale.
+         */
+        __drawRaw(layer, elapsedTimeInMilliseconds, x, y, width = this._dimensions.width, height = this._dimensions.height) {
+            if (this._image.complete) {
+                if (this.showFullImage) {
+                    layer.context.drawImage(this._image.image,
+                        //Normalize x & y as integers.
+                        Math.bitRound(x),
+                        Math.bitRound(y),
+                        //Normalize the width & height;
+                        Math.bitRound(width),
+                        Math.bitRound(height));
+                }
+                else {
+                    layer.drawImage(this._image,
+                        this._dimensions.x,
+                        this._dimensions.y,
+                        this._dimensions.width,
+                        this._dimensions.height,
+                        //Normalize x & y as integers.
+                        Math.bitRound(x),
+                        Math.bitRound(y),
+                        //Normalize the width & height;
+                        Math.bitRound(width),
+                        Math.bitRound(height));
+                }
+            }
         }
         /**
          * Draws & handles the sprite wrapping.  This is more of an internal method.
@@ -416,7 +423,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} xOrientation the xOrientation of the sprite.
          * @param {number} yOrientation the yOrientation of the sprite.
          */
-        drawSpriteWrapping(layer, elapsedTimeInMilliseconds, x, y, width, height, xOrientation, yOrientation) {
+        __drawSpriteWrapping(layer, elapsedTimeInMilliseconds, x, y, width, height, xOrientation, yOrientation) {
             const cosAngle = Math.cos(-this.theta);
             const sinAngle = Math.sin(-this.theta);
 
@@ -443,10 +450,10 @@ hamonengine.graphics = hamonengine.graphics || {};
                     let wrapLoop = Math.abs(parseInt((x - widthScaled) / layer.viewPort.width, 10)) + 1;
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P1: Draw an orthogonally RIGHT sprite relative to the world transformation [0 radians]
-                        this.drawRaw(layer, elapsedTimeInMilliseconds, x + v1x * wrapLoop, y + v1y * wrapLoop, width, height);
+                        this.__drawRaw(layer, elapsedTimeInMilliseconds, x + v1x * wrapLoop, y + v1y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
-                            this.drawRaw(layer, elapsedTimeInMilliseconds, x + v1x * wrapLoop, y + v1y * wrapLoop, width, height);
+                            this.__drawRaw(layer, elapsedTimeInMilliseconds, x + v1x * wrapLoop, y + v1y * wrapLoop, width, height);
                         }
                     }
                 }
@@ -456,10 +463,10 @@ hamonengine.graphics = hamonengine.graphics || {};
                     //Keep wrapping until we reach the max condition.
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P3: Draw an orthogonally LEFT sprite relative to the world transformation [PI radians]
-                        this.drawRaw(layer, elapsedTimeInMilliseconds, x - v1x * wrapLoop, y - v1y * wrapLoop, width, height);
+                        this.__drawRaw(layer, elapsedTimeInMilliseconds, x - v1x * wrapLoop, y - v1y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
-                            this.drawRaw(layer, elapsedTimeInMilliseconds, x - v1x * wrapLoop, y - v1y * wrapLoop, width, height);
+                            this.__drawRaw(layer, elapsedTimeInMilliseconds, x - v1x * wrapLoop, y - v1y * wrapLoop, width, height);
                         }
                     }
                 }
@@ -482,10 +489,10 @@ hamonengine.graphics = hamonengine.graphics || {};
                     let wrapLoop = Math.abs(parseInt((y - heightScaled) / layer.viewPort.height, 10)) + 1;
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P2: Draw an orthogonally DOWN sprite relative to the world transformation [PI/2 radians] (canvas y coordinates are inverted with +y down)
-                        this.drawRaw(layer, elapsedTimeInMilliseconds, x - v2x * wrapLoop, y + v2y * wrapLoop, width, height);
+                        this.__drawRaw(layer, elapsedTimeInMilliseconds, x - v2x * wrapLoop, y + v2y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
-                            this.drawRaw(layer, elapsedTimeInMilliseconds, x - v2x * wrapLoop, y + v2y * wrapLoop, width, height);
+                            this.__drawRaw(layer, elapsedTimeInMilliseconds, x - v2x * wrapLoop, y + v2y * wrapLoop, width, height);
                         }
                     }
                 }
@@ -495,10 +502,10 @@ hamonengine.graphics = hamonengine.graphics || {};
                     //Keep wrapping until we reach the map condition.
                     if (this._maxWrapping === 0 || wrapLoop < this._maxWrapping) {
                         //P4: Draw an orthogonally UP sprite relative to the world transformation [3PI/2 radians] (canvas y coordinates are inverted with -y up)
-                        this.drawRaw(layer, elapsedTimeInMilliseconds, x + v2x * wrapLoop, y - v2y * wrapLoop, width, height);
+                        this.__drawRaw(layer, elapsedTimeInMilliseconds, x + v2x * wrapLoop, y - v2y * wrapLoop, width, height);
                         //Need to create continuous wrapping, where the sprite occupies both sides of the screen simultaneously.
                         if (--wrapLoop > 0) {
-                            this.drawRaw(layer, elapsedTimeInMilliseconds, x + v2x * wrapLoop, y - v2y * wrapLoop, width, height);
+                            this.__drawRaw(layer, elapsedTimeInMilliseconds, x + v2x * wrapLoop, y - v2y * wrapLoop, width, height);
                         }
                     }
                 }
@@ -510,7 +517,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 const yOffset = (y + wrappingDirection.y * v2y) + (wrappingDirection.x * v1y);
 
                 if (xOffset && yOffset) {
-                    this.drawRaw(layer, elapsedTimeInMilliseconds, xOffset, yOffset, width, height);
+                    this.__drawRaw(layer, elapsedTimeInMilliseconds, xOffset, yOffset, width, height);
                 }
             }
         }

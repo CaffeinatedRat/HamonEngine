@@ -177,6 +177,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Blends the image with the color supplied, for the region supplied.
+         * NOTE: This method is mutable!
          * @param {number} r red channel ranging from 0-255.
          * @param {number} g green channel ranging from 0-255.
          * @param {number} b blue channel ranging from 0-255.
@@ -232,6 +233,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Adjusts the channels for each color.
+         * NOTE: This method is mutable!
          * @param {number} r red channel ranging from 0.0-1.0.
          * @param {number} g green channel ranging from 0.0-1.0.
          * @param {number} b blue channel ranging from 0.0-1.0.
@@ -258,6 +260,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Performs a bitblit between two images where this is the destination and the source image is passed in.
+         * NOTE: This method is mutable!
          * @param {Object} imageData to bitblit with.
          * @param {Object} srcRegion the area to bitblit from.
          * @param {Object} destRegion the area to bitblit onto.

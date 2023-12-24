@@ -153,6 +153,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Blends the sprite with the specific color with the specific blending operation.
+         * NOTE: This method is mutable!
          * @param {number} r red channel ranging from 0-255.
          * @param {number} g green channel ranging from 0-255.
          * @param {number} b blue channel ranging from 0-255.
@@ -166,6 +167,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Adjusts the channels for each color.
+         * NOTE: This method is mutable!
          * @param {number} r red channel ranging from 0.0-1.0.
          * @param {number} g green channel ranging from 0.0-1.0.
          * @param {number} b blue channel ranging from 0.0-1.0.

@@ -629,7 +629,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 throw "Parameter lineSegment is not of type hamonengine.geometry.lineSegment.";
             }
 
-            this.simpleDrawCoords(lineSegment._coords, 4, lineSegment._offset, sourceX, sourceY, { lineWidth, color, normals: (drawNormals ? lineSegment.normals : []) });
+            this.__simpleDrawCoords(lineSegment._coords, 4, lineSegment._offset, sourceX, sourceY, { lineWidth, color, normals: (drawNormals ? lineSegment.normals : []) });
         }
         /**
          * A method that draws the polyChain object with no wrapping (hamonengine.geometry.polyChain) based on the dimension parameters provided.
@@ -645,7 +645,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 throw "Parameter polyChain is not of type hamonengine.geometry.polyChain.";
             }
 
-            this.simpleDrawCoords(polyChain._coords, polyChain._coords.length, 0, sourceX, sourceY, { lineWidth, color, normals: (drawNormals ? polyChain.normals : []) });
+            this.__simpleDrawCoords(polyChain._coords, polyChain._coords.length, 0, sourceX, sourceY, { lineWidth, color, normals: (drawNormals ? polyChain.normals : []) });
         }
         /**
          * A method that draws a series of coordinates of a non-closed shape with no wrapping based on the dimension parameters provided.
@@ -658,7 +658,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.color of the points.
          * @param {object} obj.normals associated with the coordinates.
          */
-        simpleDrawCoords(coordinates, length = 0, offset = 0, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', normals = [] } = {}) {
+        __simpleDrawCoords(coordinates, length = 0, offset = 0, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', normals = [] } = {}) {
             //Bail if we don't have asymmetrical coordinates, a coordinate pair (coordinates[i + 0] = x, coordinates[i + 1] = y).
             //Bail if the offset extends beyond the size of the coordinate pair (coordinates[offset + i + 0] = x, coordinates[offset + i + 1] = y).
             if ((coordinates.length % 2 != 0) || (offset + 1 > coordinates.length)) {
@@ -755,7 +755,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
          */
         drawRect(rect, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
-            this.simpleDrawRect(rect, sourceX, sourceY, { lineWidth, color, fill, fillColor });
+            this.__simpleDrawRect(rect, sourceX, sourceY, { lineWidth, color, fill, fillColor });
 
             //Retain the wrapping coordinates for the 4 wrapping shape.
             const wrappingPosition = new hamonengine.math.vector2();
@@ -766,7 +766,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the minimum vertex of a rect extends beyond the minimum edge (left side) of the viewport.
                 const xOffset = (sourceX + rect.x) - this.viewPort.x;
                 if (xOffset <= 0) {
-                    this.simpleDrawRect(rect, this.viewPort.width + xOffset, sourceY, { lineWidth, color, fill, fillColor });
+                    this.__simpleDrawRect(rect, this.viewPort.width + xOffset, sourceY, { lineWidth, color, fill, fillColor });
                     wrappingPosition.x = this.viewPort.width + xOffset;
                 }
 
@@ -774,7 +774,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the maximum vertex of a rect extends beyond the maximum edge (right side) of the viewport.
                 if (sourceX + rect.width >= this.viewPort.width) {
                     const xOffset = this.viewPort.width - (sourceX + rect.x);
-                    this.simpleDrawRect(rect, this.viewPort.x - xOffset, sourceY, { lineWidth, color, fill, fillColor });
+                    this.__simpleDrawRect(rect, this.viewPort.x - xOffset, sourceY, { lineWidth, color, fill, fillColor });
                     wrappingPosition.x = this.viewPort.x - xOffset;
                 }
             }
@@ -785,7 +785,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the minimum vertex of a rect extends beyond the minimum edge (top side) of the viewport.
                 const yOffset = (sourceY + rect.y) - this.viewPort.y;
                 if (yOffset <= 0) {
-                    this.simpleDrawRect(rect, sourceX, this.viewPort.height + yOffset, { lineWidth, color, fill, fillColor });
+                    this.__simpleDrawRect(rect, sourceX, this.viewPort.height + yOffset, { lineWidth, color, fill, fillColor });
                     wrappingPosition.y = this.viewPort.height + yOffset;
                 }
 
@@ -793,14 +793,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the maximum vertex of a rect extends beyond the maximum edge (bottom side) of the viewport.
                 if (sourceY + rect.height >= this.viewPort.height) {
                     const yOffset = this.viewPort.height - (sourceY + rect.y);
-                    this.simpleDrawRect(rect, sourceX, this.viewPort.y - yOffset, { lineWidth, color, fill, fillColor });
+                    this.__simpleDrawRect(rect, sourceX, this.viewPort.y - yOffset, { lineWidth, color, fill, fillColor });
                     wrappingPosition.y = this.viewPort.y - yOffset;
                 }
             }
 
             //Handle the corner shape if veritcal & horizontal wrapping are enabled. 
             if (this.wrapVertical && this.wrapHorizontal && wrappingPosition.x && wrappingPosition.y) {
-                this.simpleDrawRect(rect, wrappingPosition.x, wrappingPosition.y, { lineWidth, color, fill, fillColor });
+                this.__simpleDrawRect(rect, wrappingPosition.x, wrappingPosition.y, { lineWidth, color, fill, fillColor });
             }
         }
         /**
@@ -813,7 +813,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.fill determines if the rect should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
          */
-        simpleDrawRect(rect, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
+        __simpleDrawRect(rect, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
             if (!(rect instanceof hamonengine.geometry.rect)) {
                 throw "Parameter rect is not of type hamonengine.geometry.rect.";
             }
@@ -859,7 +859,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.fillColor determines the fill color of the polygon (Default is 'white').
          */
         drawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
-            this.simpleDrawPolygon(polygon, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
+            this.__simpleDrawPolygon(polygon, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
 
             //Retain the wrapping coordinates for the 4 wrapping shape.
             const wrappingPosition = new hamonengine.math.vector2();
@@ -870,7 +870,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the minimum vertex of a polygon extends beyond the minimum edge (left side) of the viewport.
                 let xOffset = sourceX - this.viewPort.x;
                 if (xOffset + polygon.min.x <= 0) {
-                    this.simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
+                    this.__simpleDrawPolygon(polygon, this.viewPort.width + xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
                     wrappingPosition.x = this.viewPort.width + xOffset;
                 }
 
@@ -878,7 +878,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (right side) of the viewport.
                 xOffset = this.viewPort.width - sourceX;
                 if (sourceX + polygon.min.x + polygon.width >= this.viewPort.width) {
-                    this.simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
+                    this.__simpleDrawPolygon(polygon, this.viewPort.x - xOffset, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
                     wrappingPosition.x = this.viewPort.x - xOffset;
                 }
             }
@@ -890,7 +890,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //const yOffset = (sourceY + polygon.min.y) - this.viewPort.y;
                 let yOffset = sourceY - this.viewPort.y;
                 if (yOffset + polygon.min.y <= 0) {
-                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, { lineWidth, color, drawNormals, fill, fillColor });
+                    this.__simpleDrawPolygon(polygon, sourceX, this.viewPort.height + yOffset, { lineWidth, color, drawNormals, fill, fillColor });
                     wrappingPosition.y = this.viewPort.height + yOffset;
                 }
 
@@ -898,14 +898,14 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Determine if the maximum vertex of a polygon extends beyond the maximum edge (bottom side) of the viewport.
                 yOffset = this.viewPort.height - sourceY;
                 if (sourceY + polygon.min.y + polygon.height >= this.viewPort.height) {
-                    this.simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, { lineWidth, color, drawNormals, fill, fillColor });
+                    this.__simpleDrawPolygon(polygon, sourceX, this.viewPort.y - yOffset, { lineWidth, color, drawNormals, fill, fillColor });
                     wrappingPosition.y = this.viewPort.y - yOffset;
                 }
             }
 
             //Handle the corner shape if veritcal & horizontal wrapping are enabled. 
             if (this.wrapVertical && this.wrapHorizontal && wrappingPosition.x && wrappingPosition.y) {
-                this.simpleDrawPolygon(polygon, wrappingPosition.x, wrappingPosition.y, { lineWidth, color, drawNormals, fill, fillColor });
+                this.__simpleDrawPolygon(polygon, wrappingPosition.x, wrappingPosition.y, { lineWidth, color, drawNormals, fill, fillColor });
             }
         }
         /**
@@ -919,7 +919,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.fill determines if the polygon should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the polygon (Default is 'white').
          */
-        simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
+        __simpleDrawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
             if (!(polygon instanceof hamonengine.geometry.polygon)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
             }
@@ -1025,7 +1025,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this.drawPolyChain(shape, sourceX, sourceY, { lineWidth, drawNormals, color });
             }
         }
-        simpleDrawEllipse(ellipse, sourceX = 0, sourceY = 0, radiusX = 1, radiusY = 1, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
+        __simpleDrawEllipse(ellipse, sourceX = 0, sourceY = 0, radiusX = 1, radiusY = 1, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
             /*
             if (!(ellipse instanceof hamonengine.geometry.ellipse)) {
                 throw "Parameter polygon is not of type hamonengine.geometry.ellipse.";

@@ -144,7 +144,7 @@ hamonengine.events = hamonengine.events || {};
          */
         async load(loadDescendantFrames, storyboard) {
             const framesToAwait = [];
-            await this._internalLoad(loadDescendantFrames, storyboard, framesToAwait);
+            await this.__internalLoad(loadDescendantFrames, storyboard, framesToAwait);
             await Promise.all(framesToAwait);
         }
         /**
@@ -155,7 +155,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {}
          * @return {object} a promise to complete resource loading.
          */
-        async _internalLoad(loadDescendantFrames, storyboard, framesToAwait = []) {
+        async __internalLoad(loadDescendantFrames, storyboard, framesToAwait = []) {
             this._loadingState = FRAME_STATE.LOADING;
             const parentFramePromise = this.onloadResources(storyboard);
             if ((parentFramePromise instanceof Promise)) {
@@ -172,7 +172,7 @@ hamonengine.events = hamonengine.events || {};
                     //Traverse all nodes and invoke the onloadResources method on all descendants waiting for this event.
                     let frame = this.first;
                     while (frame !== null) {
-                        const nodePromise = frame._internalLoad(loadDescendantFrames, storyboard, framesToAwait, false);
+                        const nodePromise = frame.__internalLoad(loadDescendantFrames, storyboard, framesToAwait, false);
                         if ((nodePromise instanceof Promise)) {
                             //If the frame is a resource frame then we must wait on it to complete, as it will not run in parallel.
                             if (frame.isResourceFrame) {
