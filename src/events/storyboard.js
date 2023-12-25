@@ -127,7 +127,7 @@ hamonengine.events = hamonengine.events || {};
             !this.currentFrame && this.goTop();
             await this.load(this._preloadAllFrames, this);
             //Start the current frame.
-            this.currentFrame.start();
+            this.currentFrame?.start();
         }
         /**
          * Stops and clears the storyboard of all resources.
@@ -148,7 +148,7 @@ hamonengine.events = hamonengine.events || {};
          * Traverses to the immediately parent frame and returns the new frame, otherwise null is returned.
          */
         goUp() {
-            if (this.currentFrame && this.currentFrame.parent) {
+            if (this.currentFrame?.parent) {
                 return this.setFrame(this.currentFrame.parent);
             }
 
@@ -158,7 +158,7 @@ hamonengine.events = hamonengine.events || {};
          * Traverses to the immediately child frame and returns the new frame, otherwise null is returned.
          */
         goDown() {
-            if (this.currentFrame && this.currentFrame.first) {
+            if (this.currentFrame?.first) {
                 return this.setFrame(this.currentFrame.first);
             }
 
@@ -236,7 +236,7 @@ hamonengine.events = hamonengine.events || {};
                     : this.currentFrame;
 
             //If allow frames to complete is true then retrieve the current frame and signal it to stop.
-            currentFrame && currentFrame.stop(!this.allowFramesToComplete);
+            currentFrame?.stop(!this.allowFramesToComplete);
 
             //Add the new frame and start it.
             this._currentFrames.push(newFrame);
@@ -261,15 +261,13 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
         onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
-            const currentFrame = this.currentFrame;
-
             //Remove stopped frame but not if it's the last one.
-            if (currentFrame && currentFrame.frameState === FRAME_STATE.STOPPED && this._currentFrames.length > 1) {
+            if (this.currentFrame?.frameState === FRAME_STATE.STOPPED && this._currentFrames.length > 1) {
                 this._currentFrames.shift();
             }
 
             //Render the proceeding frame.
-            this.currentFrame && this.currentFrame.render(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds);
+            this.currentFrame?.render(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds);
         }
         /**
          * Processes the current frame in the storyboard on an onProcessingFrame event.
@@ -277,7 +275,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
         onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
-            this.currentFrame && this.currentFrame.onProcessingFrame(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds);
+            this.currentFrame?.onProcessingFrame(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds);
         }
         /**
          * Processes keyboard events.
@@ -287,7 +285,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (see hamonengine.graphics.layer).
          */
         onKeyEvent(type, keyCode, e, caller) {
-            this.currentFrame && this.currentFrame.onKeyEvent(this, type, keyCode, e, caller);
+            this.currentFrame?.onKeyEvent(this, type, keyCode, e, caller);
         }
         /**
          * Processes mouse & touch events if captureTouchAsMouseEvents is set to true.
@@ -297,7 +295,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (see hamonengine.graphics.layer).
          */
         onMouseEvent(type, v, e, caller) {
-            this.currentFrame && this.currentFrame.onMouseEvent(this, type, v, e, caller);
+            this.currentFrame?.onMouseEvent(this, type, v, e, caller);
         }
         /**
          * Processes touch events.
@@ -307,7 +305,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (see hamonengine.graphics.layer).
          */
         onTouchEvent(type, touches, e, caller) {
-            this.currentFrame && this.currentFrame.onTouchEvent(this, type, touches, e, caller);
+            this.currentFrame?.onTouchEvent(this, type, touches, e, caller);
         }
     }
 })();

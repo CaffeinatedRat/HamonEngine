@@ -139,7 +139,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                     const handleError = (error) => {
                         this._state = IMAGE_STATES.ERROR;
-                        const imagePath = error && error.path && error.path.length > 0 && error.path[0].src || '';
+                        const imagePath = error?.path && error?.path.length > 0 && error?.path[0].src || error?.currentTarget?.src || '';
                         const errorMsg = `The image '${imagePath}' could not be loaded.`;
                         this.image.removeEventListener('error', error => handleError(error), false);
                         reject(errorMsg);

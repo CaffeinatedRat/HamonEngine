@@ -348,8 +348,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         clone(canvasId, name, elementToAttach = null) {
             //Create a new canvas element and attach it after the original.
             const newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
-            //elementToAttach = elementToAttach || this.canvas.parentNode;
-            elementToAttach && elementToAttach.insertBefore(newCanvas, null);
+            elementToAttach?.insertBefore(newCanvas, null);
 
             //Create a new canvas instance.
             const newLayer = new hamonengine.graphics.layer({

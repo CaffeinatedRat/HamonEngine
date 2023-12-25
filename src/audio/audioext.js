@@ -521,7 +521,7 @@ hamonengine.audio = hamonengine.audio || {};
             const userStopped = (e && e.currentTarget && e.currentTarget._userStopped) || false;
             if (this._playingState === AUDIO_STATES.PLAYING && !userStopped && !this.loop) {
                 this._playingState = AUDIO_STATES.STOPPED;
-                this.audioListenerDelegate && this.audioListenerDelegate.onAudioEnd && this.audioListenerDelegate.onAudioEnd();
+                this.audioListenerDelegate?.onAudioEnd && this.audioListenerDelegate.onAudioEnd();
             }
         }
     }

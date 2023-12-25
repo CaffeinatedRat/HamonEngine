@@ -422,7 +422,7 @@ hamonengine.core = hamonengine.core || {};
                                 type = (type === 'start') ? 'down' : type;
                                 type = (type === 'end') ? 'up' : type;
                                 //Capture only changedTouches as the touches collection will contain no coordinates.
-                                const v = new hamonengine.math.vector2(e.changedTouches[0].clientX - position.x, e.changedTouches[0].clientY - position.y)
+                                const v = new hamonengine.math.vector2(e.changedTouches[0].clientX - position.x, e.changedTouches[0].clientY - position.y);
 
                                 //Send both a mouse click and the original event.
                                 isClick && this.onMouseEvent('click', v, e, eventContainer);
@@ -461,7 +461,14 @@ hamonengine.core = hamonengine.core || {};
                 this.externalElements.forEach(externalElement => bindEvents(externalElement, externalElement));
 
                 // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
-                this.layers.forEach(layer => layer.allowEventBinding && bindEvents(layer.canvas, layer));
+                if (this.layers.length === 1) {
+                    this.primaryLayer.allowEventBinding && bindEvents(this.primaryLayer.canvas, this.primaryLayer);
+                }
+                else {
+                    for (let i = 0; i < this.layers.length; i++) {
+                        this.layers[i].allowEventBinding && bindEvents(this.layers[i].canvas, this.layers[i])
+                    }
+                }
             }
 
             //Handle DOM Binding regardless of the state of the DOMContent loading state.
@@ -526,8 +533,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
         onKeyEvent(type, keyCode, e, caller) {
-            //e && e.preventDefault();
-            this.primaryStoryboard && this.primaryStoryboard.onKeyEvent(type, keyCode, e, caller);
+            this.primaryStoryboard?.onKeyEvent(type, keyCode, e, caller);
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onKeyEvent] Type: '${type}' '${keyCode}'`);
         }
         /**
@@ -538,7 +544,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
          */
         onMouseEvent(type, v, e, caller) {
-            this.primaryStoryboard && this.primaryStoryboard.onMouseEvent(type, v, e, caller);
+            this.primaryStoryboard?.onMouseEvent(type, v, e, caller);
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onMouseEvent] Type: '${type}' '${v.toString()}'`);
         }
         /**
@@ -550,7 +556,7 @@ hamonengine.core = hamonengine.core || {};
          */
         onTouchEvent(type, touches, e, caller) {
             e && e.preventDefault();
-            this.primaryStoryboard && this.primaryStoryboard.onTouchEvent(type, touches, e, caller);
+            this.primaryStoryboard?.onTouchEvent(type, touches, e, caller);
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }
         /**
@@ -599,7 +605,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
         onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
-            this.primaryStoryboard && this.primaryStoryboard.onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds);
+            this.primaryStoryboard?.onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds);
         }
         /**
          * An onProcessingFrame event that is triggered when a single frame is being processed before drawn.
@@ -607,7 +613,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
         onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
-            this.primaryStoryboard && this.primaryStoryboard.onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds);
+            this.primaryStoryboard?.onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds);
         }
         /**
          * An event that is triggered when the engine has been stopped.
