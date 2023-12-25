@@ -51,7 +51,12 @@ class listenerPool {
      * @param {*} args to pass.
      */
     invoke(event, args) {
-        this._listeners.forEach(listener => listener[event] && listener[event](args));
+        if (this._listeners.length === 1) {
+            this._listeners[0][event] && this._listeners[0][event](args);
+        }
+        else {
+            this._listeners.forEach(listener => listener[event] && listener[event](args));
+        }
     }
     /**
      * Clears the listener pool.
