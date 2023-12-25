@@ -587,7 +587,7 @@ hamonengine.core = hamonengine.core || {};
                 //If this parameter is removed then the timestamp will always be zero.
                 this._animationId = window.requestAnimationFrame((scopedTimestampInMS) => {
                     this._state = ENGINE_STATES.RUNNING;
-                    (!this.syncFrames || processingComplete) && this.onFrame(elapsedTimeInMilliseconds, timestampInMilliseconds);
+                    (!this.syncFrames || processingComplete) && (this.resourcesLoaded) && this.onFrame(elapsedTimeInMilliseconds, timestampInMilliseconds);
                     this.onDraw(scopedTimestampInMS);
                 });
             }
