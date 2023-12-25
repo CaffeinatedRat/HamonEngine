@@ -96,14 +96,14 @@ hamonengine.entities = hamonengine.entities || {};
             if ((this.faceAxisOnMove & OBJECT_FACE_DIRECTION.XAXIS) === OBJECT_FACE_DIRECTION.XAXIS) {
                 if (this.direction.x !== 0) {
                     //Reset the rotation when moving left or right.
-                    this.sprite.mirror(this.direction.x === this._directionBasis.x).rotate();
+                    this.sprite?.mirror(this.direction.x === this._directionBasis.x).rotate();
                 }
             }
 
             //Rotate the sprite based on the direction so it looks like it is facing up or down.
             if ((this.faceAxisOnMove & OBJECT_FACE_DIRECTION.YAXIS) === OBJECT_FACE_DIRECTION.YAXIS) {
                 if (this.direction.y !== 0) {
-                    this.sprite.rotate(this.direction.y === this._directionBasis.y ? Math.PI_2 : -Math.PI_2);
+                    this.sprite?.rotate(this.direction.y === this._directionBasis.y ? Math.PI_2 : -Math.PI_2);
                 }
             }
 
@@ -114,7 +114,7 @@ hamonengine.entities = hamonengine.entities || {};
          */
         reset() {
             //Reset the rotation when moving left or right.
-            return this.sprite.rotate().mirror(false);
+            return this.sprite?.rotate().mirror(false);
         }
         /**
          * Determines if this sprite object collides with the other sprite object.
@@ -140,7 +140,7 @@ hamonengine.entities = hamonengine.entities || {};
          * @param {number} elapsedTimeInMilliseconds the time elapsed between frames in milliseconds. 
          */
         render(layer, elapsedTimeInMilliseconds) {
-            this.sprite && this.sprite.draw(layer, elapsedTimeInMilliseconds, this.position.x, this.position.y, this.width, this.height);
+            this.sprite?.draw(layer, elapsedTimeInMilliseconds, this.position.x, this.position.y, this.width, this.height);
         }
         /**
          * Releases resources.
