@@ -280,6 +280,17 @@ hamonengine.graphics = hamonengine.graphics || {};
             x = Math.bitRound(x);
             y = Math.bitRound(y);
 
+            //NOTE: Inverting the axes requires factoring in the dimensions of the sprite.
+            //Only the coordinates are inverted, not the objects or the canvas.
+
+            if (layer.invertYAxis) {
+                y = layer.viewPort.height - y - height;
+            }
+
+            if (layer.invertXAxis) {
+                x = layer.viewPort.width - x - width;
+            }
+
             //Find the center of the sprite.
             const xCenterOffset = Math.bitRound(width / 2) + x;
             const yCenterOffset = Math.bitRound(height / 2) + y;
@@ -376,7 +387,7 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Restore the previous state.
             layer.restore();
-        }        
+        }
         /**
          * Draws the sprite at the specific location with the current width & height without any transformations applied.
          * @param {Object} layer to draw upon.

@@ -501,6 +501,16 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.font = font;
             this.context.textBaseline = 'top';
 
+            if (this.invertYAxis) {
+                sourceY = this.viewPort.height - sourceY;
+                verticalTextOffset = verticalTextOffset === 'top' ? 'bottom' : verticalTextOffset;
+            }
+
+            if (this.invertXAxis) {
+                sourceX = this.viewPort.width - sourceX;
+                textOffset = textOffset === 'left' ? 'right' : textOffset;
+            }
+
             //Get the metrics for any offset that is not left or top.
             const metrics = (textOffset !== 'left' || verticalTextOffset !== 'top') ? this.context.measureText(text) : {};
 
@@ -603,6 +613,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (!(vector instanceof hamonengine.math.vector2)
                 && !(vector instanceof hamonengine.math.vector3)) {
                 throw "Parameter vector is not of type hamonengine.math.vector2 or of type hamonengine.math.vector3.";
+            }
+
+            if (this.invertYAxis) {
+                sourceY = this.viewPort.height - sourceY;
+            }
+
+            if (this.invertXAxis) {
+                sourceX = this.viewPort.width - sourceX;
             }
 
             this.context.lineWidth = lineWidth;
