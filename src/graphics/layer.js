@@ -501,6 +501,9 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.font = font;
             this.context.textBaseline = 'top';
 
+            //NOTE: Inverting the axes requires factoring in the length and size of the text as well.
+            //Only the coordinates are inverted, not the objects or the canvas.
+
             if (this.invertYAxis) {
                 sourceY = this.viewPort.height - sourceY;
                 verticalTextOffset = verticalTextOffset === 'top' ? 'bottom' : verticalTextOffset;
@@ -772,7 +775,22 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
          */
         drawRect(rect, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
-            this.__simpleDrawRect(rect, sourceX, sourceY, { lineWidth, color, fill, fillColor });
+            if (!(rect instanceof hamonengine.geometry.rect)) {
+                throw "Parameter rect is not of type hamonengine.geometry.rect.";
+            }
+            
+            let x = sourceX + rect.x;
+            let y = sourceY + rect.y;
+
+            if (this.invertYAxis) {
+                y = (this.viewPort.height - y - rect.height);
+            }
+
+            if (this.invertXAxis) {
+                x = (this.viewPort.width - x - rect.width);
+            }
+
+            this.__simpleDrawRect(x, y, rect.width, rect.height, { lineWidth, color, fill, fillColor });
 
             //Retain the wrapping coordinates for the 4 wrapping shape.
             const wrappingPosition = new hamonengine.math.vector2();
@@ -781,17 +799,17 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.wrapHorizontal) {
                 //DRAW RIGHT
                 //Determine if the minimum vertex of a rect extends beyond the minimum edge (left side) of the viewport.
-                const xOffset = (sourceX + rect.x) - this.viewPort.x;
+                const xOffset = x - this.viewPort.x;
                 if (xOffset <= 0) {
-                    this.__simpleDrawRect(rect, this.viewPort.width + xOffset, sourceY, { lineWidth, color, fill, fillColor });
+                    this.__simpleDrawRect(this.viewPort.width + xOffset, y, rect.width, rect.height, { lineWidth, color, fill, fillColor });
                     wrappingPosition.x = this.viewPort.width + xOffset;
                 }
 
                 //DRAW LEFT
                 //Determine if the maximum vertex of a rect extends beyond the maximum edge (right side) of the viewport.
-                if (sourceX + rect.width >= this.viewPort.width) {
-                    const xOffset = this.viewPort.width - (sourceX + rect.x);
-                    this.__simpleDrawRect(rect, this.viewPort.x - xOffset, sourceY, { lineWidth, color, fill, fillColor });
+                if (x + rect.width >= this.viewPort.width) {
+                    const xOffset = this.viewPort.width - x;
+                    this.__simpleDrawRect(this.viewPort.x - xOffset, y, rect.width, rect.height, { lineWidth, color, fill, fillColor });
                     wrappingPosition.x = this.viewPort.x - xOffset;
                 }
             }
@@ -800,66 +818,52 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.wrapVertical) {
                 //DRAW DOWN
                 //Determine if the minimum vertex of a rect extends beyond the minimum edge (top side) of the viewport.
-                const yOffset = (sourceY + rect.y) - this.viewPort.y;
+                const yOffset = y - this.viewPort.y;
                 if (yOffset <= 0) {
-                    this.__simpleDrawRect(rect, sourceX, this.viewPort.height + yOffset, { lineWidth, color, fill, fillColor });
+                    this.__simpleDrawRect(x, this.viewPort.height + yOffset, rect.width, rect.height, { lineWidth, color, fill, fillColor });
                     wrappingPosition.y = this.viewPort.height + yOffset;
                 }
 
                 //DRAW UP
                 //Determine if the maximum vertex of a rect extends beyond the maximum edge (bottom side) of the viewport.
-                if (sourceY + rect.height >= this.viewPort.height) {
-                    const yOffset = this.viewPort.height - (sourceY + rect.y);
-                    this.__simpleDrawRect(rect, sourceX, this.viewPort.y - yOffset, { lineWidth, color, fill, fillColor });
+                if (y + rect.height >= this.viewPort.height) {
+                    const yOffset = this.viewPort.height - y;
+                    this.__simpleDrawRect(x, this.viewPort.y - yOffset, rect.width, rect.height, { lineWidth, color, fill, fillColor });
                     wrappingPosition.y = this.viewPort.y - yOffset;
                 }
             }
 
             //Handle the corner shape if veritcal & horizontal wrapping are enabled. 
             if (this.wrapVertical && this.wrapHorizontal && wrappingPosition.x && wrappingPosition.y) {
-                this.__simpleDrawRect(rect, wrappingPosition.x, wrappingPosition.y, { lineWidth, color, fill, fillColor });
+                this.__simpleDrawRect(wrappingPosition.x, wrappingPosition.y, rect.width, rect.height, { lineWidth, color, fill, fillColor });
             }
         }
         /**
          * A method that draws the rect object without wrapping (hamonengine.geometry.rect) based on the dimension parameters provided.
-         * @param {object} rect object to draw.
-         * @param {number} sourceX coordinate of where to draw the rect (Optional and set to zero).
-         * @param {number} sourceY coordinate of where to draw the rect (Optional and set to zero).
+         * @param {number} x coordinate of where to draw the rect.
+         * @param {number} y coordinate of where to draw the rect.
+         * @param {number} width of the rectangle.
+         * @param {number} height of the rectangle.
          * @param {number} obj.lineWidth width of the rect's lines  (Optional and set to 1).
          * @param {string} obj.color of the rect's lines.
          * @param {boolean} obj.fill determines if the rect should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the rect (Default is 'white').
          */
-        __simpleDrawRect(rect, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
-            if (!(rect instanceof hamonengine.geometry.rect)) {
-                throw "Parameter rect is not of type hamonengine.geometry.rect.";
-            }
-
+        __simpleDrawRect(x, y, width, height, { lineWidth = 1, color = 'white', fill = false, fillColor = 'white' } = {}) {
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
             this.context.fillStyle = fillColor;
 
-            let x = rect.x + sourceX;
-            let y = rect.y + sourceY;
-
-            if (this.invertYAxis) {
-                y = this.viewPort.height - y;
-            }
-
-            if (this.invertXAxis) {
-                x = this.viewPort.width - x;
-            }
-
             this.context.beginPath();
 
             this.context.moveTo(x, y);
-            this.context.strokeRect(x, y, rect.width, rect.height);
+            this.context.strokeRect(x, y, width, height);
 
             //Complete the shape and draw the rect.
             this.context.closePath();
 
             if (fill) {
-                this.context.fillRect(x, y, rect.width, rect.height);
+                this.context.fillRect(x, y, width, height);
             }
 
             this.context.stroke();
@@ -875,7 +879,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.fill determines if the polygon should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the polygon (Default is 'white').
          */
-        drawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
+        drawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {           
             this.__simpleDrawPolygon(polygon, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
 
             //Retain the wrapping coordinates for the 4 wrapping shape.
