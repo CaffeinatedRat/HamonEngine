@@ -240,7 +240,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         * Returns true if the Y-Axis is inverted.
         */
         get invertYAxis() {
-            return this._invertYAxis;
+            return hamonengine.graphics.settings.globalInvertYAxis || this._invertYAxis;
         }
         /**
          * Inverts the Y-Axis if true.
@@ -252,7 +252,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Returns true if the X-Axis is inverted.
          */
         get invertXAxis() {
-            return this._invertXAxis;
+            return hamonengine.graphics.settings.globalInvertXAxis || this._invertXAxis;
         }
         /**
          * Inverts the X-Axis if true.
@@ -1005,15 +1005,10 @@ hamonengine.graphics = hamonengine.graphics || {};
                     const normal = polygon.normals[index];
                     const normalSize = Math.bitRound(edge.length / 2);
 
-                    if (this.invertYAxis) {
-                        normal.y = -normal.y;
-                    }
+                    let normalY = (this.invertYAxis) ? -normal.y : normal.y;
+                    let normalX = (this.invertXAxis) ? -normal.x : normal.x;
 
-                    if (this.invertXAxis) {
-                        normal.x = -normal.x;
-                    }
-
-                    this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
+                    this.context.lineTo(x + normalX * normalSize, y + normalY * normalSize);
                     this.context.stroke();
                 }
             }

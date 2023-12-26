@@ -47,3 +47,10 @@ const DIRTY_FLAG = {
     SHAPE: 3,
     ALL: 15
 }
+
+hamonengine.graphics = hamonengine.graphics || {};
+hamonengine.graphics.settings = hamonengine.graphics.settings || {
+    //Controls the global axes invert logic.
+    globalInvertYAxis: false,
+    globalInvertXAxis: false
+};
