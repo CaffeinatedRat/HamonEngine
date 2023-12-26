@@ -731,10 +731,8 @@ hamonengine.graphics = hamonengine.graphics || {};
 
                 for (let index = offset, edgeIndex = 0; index < length && edgeIndex < edges.length && edgeIndex < normals.length; index += 2, edgeIndex++) {
 
-                    //Find the coordinates to begin the normal.
-                    //The normal will start at the middle of the edge.
-                    let x = Math.bitRound(sourceX + coordinates[index] + edges[edgeIndex].x / 2);
-                    let y = Math.bitRound(sourceY + coordinates[index + 1] + edges[edgeIndex].y / 2);
+                    let x = sourceX + coordinates[index];
+                    let y = sourceY + coordinates[index + 1];
 
                     if (this.invertYAxis) {
                         y = this.viewPort.height - y;
@@ -744,6 +742,11 @@ hamonengine.graphics = hamonengine.graphics || {};
                         x = this.viewPort.width - x;
                     }
 
+                    //Find the coordinates to begin the normal.
+                    //The normal will start at the middle of the edge.
+                    x = Math.bitRound(x + (edges[edgeIndex].x / 2));
+                    y = Math.bitRound(y + (edges[edgeIndex].y / 2));
+
                     this.context.beginPath();
                     this.context.moveTo(x, y);
 
@@ -751,15 +754,10 @@ hamonengine.graphics = hamonengine.graphics || {};
                     const normal = normals[edgeIndex];
                     const normalSize = Math.bitRound(edges[edgeIndex].length / 2);
 
-                    if (this.invertYAxis) {
-                        normal.y = -normal.y;
-                    }
+                    let normalY = (this.invertYAxis) ? -normal.y : normal.y;
+                    let normalX = (this.invertXAxis) ? -normal.x : normal.x;
 
-                    if (this.invertXAxis) {
-                        normal.x = -normal.x;
-                    }
-
-                    this.context.lineTo(x + normal.x * normalSize, y + normal.y * normalSize);
+                    this.context.lineTo(x + normalX * normalSize, y + normalY * normalSize);
                     this.context.stroke();
                 }
             }
