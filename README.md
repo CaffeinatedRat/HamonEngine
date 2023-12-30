@@ -65,3 +65,6 @@ Change Log
 
 #### 1.0.2
 * Removed the release methods from the Object2d class and modified the hold methods to accept a state parameter to toggle holding a direction.
+
+#### 1.0.3
+* Added the property center to the class hamonengine.geometry.rect to allow pre-computation for things like centering drawing on the viewport.
