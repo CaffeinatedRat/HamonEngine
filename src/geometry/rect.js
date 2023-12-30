@@ -54,6 +54,12 @@ hamonengine.geometry = hamonengine.geometry || {};
         get bottom() {
             return this.y + this.height;
         }
+        /**
+         * Returns the center coordinates of the rect as a hamonengine.math.vector2.
+         */
+        get center() {
+            return new hamonengine.math.vector2((this.width - this.x) / 2, (this.height - this.y) / 2);
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
