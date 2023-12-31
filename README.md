@@ -68,3 +68,5 @@ Change Log
 
 #### 1.0.3
 * Added the property center to the class hamonengine.geometry.rect to allow pre-computation for things like centering drawing on the viewport.
+* Added logic to return and accept text metrics object from drawText to improve performance.  Text metrics can also be disabled; however, the textOffset & verticalTextOffset properties are disabled.
+* Added a helper method drawFPSCounter to the hamonengine.graphics.layer class using consistent parameters and disabled metrics.

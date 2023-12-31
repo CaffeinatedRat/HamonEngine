@@ -496,8 +496,10 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} obj.shadowXOffset horizontal coordinate of where to offset the shadow text.  By default this is 2.
          * @param {number} obj.shadowYOffset horizontal coordinate of where to offset the shadow text.  By default this is 2.
          * @param {string} obj.shadowColor of the shadow text.  By default this is 'black'.
+         * @param {object} obj.metrics that contain precomputed width & height.
+         * @param {boolean} obj.disableMetrics when set to true, internal metric gathering is disabled to improve performance; however, both textOffset & verticalTextOffset will no longer work.
          */
-        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', verticalTextOffset = 'top', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black' } = {}) {
+        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', verticalTextOffset = 'top', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black', metrics, disableMetrics = false } = {}) {
             this.context.font = font;
             this.context.textBaseline = 'top';
 
@@ -515,44 +517,54 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
 
             //Get the metrics for any offset that is not left or top.
-            const metrics = (textOffset !== 'left' || verticalTextOffset !== 'top') ? this.context.measureText(text) : {};
+            //const metrics = (textOffset !== 'left' || verticalTextOffset !== 'top') ? this.context.measureText(text) : {};
 
-            //Attempt to handle predefined text offsets.
-            switch (textOffset.toLowerCase()) {
-                case 'center':
-                    sourceX -= (metrics.width / 2);
-                    break;
+            let height = 0, width = 0;
+            //Determine if metrics are disabled for performance.
+            if (!disableMetrics) {
+                //Use the precomputed metrics if one is included, otherwise fetch new metrics.
+                metrics = (metrics?.height && metrics?.width) ? metrics : this.context.measureText(text);
+                //Use the precomputed height or compute it if one doesn't exist.
+                height = metrics.height || (metrics.fontBoundingBoxDescent - metrics.fontBoundingBoxAscent);
+                width = metrics.width;
 
-                case 'right':
-                    sourceX -= metrics.width;
-                    break;
+                //Attempt to handle predefined text offsets.
+                switch (textOffset.toLowerCase()) {
+                    case 'center':
+                        sourceX -= width / 2;
+                        break;
 
-                case 'left':
-                    break;
+                    case 'right':
+                        sourceX -= width;
+                        break;
 
-                //If the textual offsets aren't passed then try to parse the offset as an integer.
-                default:
-                    sourceX -= parseInt(textOffset);
-                    break;
-            }
+                    case 'left':
+                        break;
 
-            //Attempt to handle predefined vertical text offsets.
-            switch (verticalTextOffset.toLowerCase()) {
-                case 'center':
-                    sourceY -= ((metrics.fontBoundingBoxDescent - metrics.fontBoundingBoxAscent) / 2);
-                    break;
+                    //If the textual offsets aren't passed then try to parse the offset as an integer.
+                    default:
+                        sourceX -= parseInt(textOffset);
+                        break;
+                }
 
-                case 'bottom':
-                    sourceY -= ((metrics.fontBoundingBoxDescent - metrics.fontBoundingBoxAscent));
-                    break;
+                //Attempt to handle predefined vertical text offsets.
+                switch (verticalTextOffset.toLowerCase()) {
+                    case 'center':
+                        sourceY -= (height / 2);
+                        break;
 
-                case 'top':
-                    break;
+                    case 'bottom':
+                        sourceY -= (height);
+                        break;
 
-                //If the textual offsets aren't passed then try to parse the offset as an integer.
-                default:
-                    sourceY -= parseInt(verticalTextOffset);
-                    break;
+                    case 'top':
+                        break;
+
+                    //If the textual offsets aren't passed then try to parse the offset as an integer.
+                    default:
+                        sourceY -= parseInt(verticalTextOffset);
+                        break;
+                }
             }
 
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
@@ -576,6 +588,12 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Draw the regular text.
                 this.context.fillStyle = color;
                 this.context.fillText(text, sourceX, sourceY);
+            }
+
+            //Return text metrics & properties.
+            return {
+                width: width,
+                height: height,
             }
         }
         /**
@@ -776,7 +794,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (!(rect instanceof hamonengine.geometry.rect)) {
                 throw "Parameter rect is not of type hamonengine.geometry.rect.";
             }
-            
+
             let x = sourceX + rect.x;
             let y = sourceY + rect.y;
 
@@ -877,7 +895,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.fill determines if the polygon should be drawn filled (Default is false).
          * @param {string} obj.fillColor determines the fill color of the polygon (Default is 'white').
          */
-        drawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {           
+        drawPolygon(polygon, sourceX = 0, sourceY = 0, { lineWidth = 1, color = 'white', drawNormals = false, fill = false, fillColor = 'white' } = {}) {
             this.__simpleDrawPolygon(polygon, sourceX, sourceY, { lineWidth, color, drawNormals, fill, fillColor });
 
             //Retain the wrapping coordinates for the 4 wrapping shape.
@@ -1064,6 +1082,18 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this.context.stroke();
             }
             */
+        }
+        /**
+         * A helper method that draws the FPSCounter text to this layer.
+         * @param {object} fpsCounter to render to the layer.
+         * @param {number} sourceX coordinate of where to draw the fpsCounter (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the fpsCounter (Optional and set to zero).
+         * @param {string} font of the text.  By default this is set to '16px serif'
+         * @param {string} color of the text.  By default this is 'lime'.
+         * @param {boolean} shadow draws a shadow under the text.  By default this is false.
+         */
+        drawFPSCounter(fpsCounter, {sourceX = 0, sourceY = 0, font = '16px serif', color = 'lime', shadow = false} = {}) {
+            this.drawText(`FPS: ${fpsCounter.FPS} (${fpsCounter.minFPS} - ${fpsCounter.maxFPS})`, sourceX, sourceY, { shadow, font, color, disableMetrics: true });
         }
         /**
          * Releases resources.
