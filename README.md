@@ -72,3 +72,7 @@ Change Log
 * Added a helper method drawFPSCounter to the hamonengine.graphics.layer class using consistent parameters and disabled metrics.
 * Updated the drawText method to ignore the invert axis properties if metrics are disabled.  The text cannot be drawn properly with inverted axis if metrics cannot be retrieved.
 * Updated the beginPainting method to only call fillRect if a backgroundColor is provided.  This is to support the future screen class.
+
+#### 1.1.0
+* Added the screen class, which is an extension of a layer, to support layer chaining.  This removes the burden of layer ordering logic from the user.
+* The HamonEngine.PrimaryLayer property is now a screen and has been renamed PrimaryScreen.  All layer references in the main engine have been updated to reflect the new screen mechanism.

@@ -25,6 +25,7 @@ src/global.js
 src/graphics/type.js
 src/graphics/imageext.js
 src/graphics/layer.js
+src/graphics/screen.js
 src/graphics/sprite.js
 src/graphics/animsprite.js
 src/graphics/spritesheet.js

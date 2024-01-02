@@ -51,8 +51,8 @@ hamonengine.core = hamonengine.core || {};
         BLOCK_ARROWS_KEYS: 2
     }
 
-    const canvas_default_name = 'canvas';
-    const VERSION = '1.0.3';
+    const canvas_default_name = 'screen';
+    const VERSION = '1.1.0';
 
     hamonengine.core.engine = class {
         constructor(options = {}) {
@@ -89,8 +89,8 @@ hamonengine.core = hamonengine.core || {};
             this._processingId = 0;
             this._fpsCounter = new fpscounter();
 
-            //Add support for multiple layers that will house our canvas, and other drawing components.
-            this._layers = {};
+            //Add support for multiple screens that will house our canvas, and other drawing components.
+            this._screens = {};
 
             //Store all engine registered events for resource clean-up on stop.
             this._registeredEvents = [];
@@ -104,7 +104,7 @@ hamonengine.core = hamonengine.core || {};
                 discoveredCanvas.forEach(([key, value]) => {
                     const canvasName = value.getAttribute('name') || `${canvas_default_name}${key}`;
                     const canvasId = value.getAttribute('id') || `${canvas_default_name}${key}`;
-                    this._layers[canvasName] = new hamonengine.graphics.layer({
+                    this._screens[canvasName] = new hamonengine.graphics.screen({
                         name: canvasName,
                         canvas: value,
                         canvasId: canvasId,
@@ -121,7 +121,7 @@ hamonengine.core = hamonengine.core || {};
                 for (let i = 0; i < canvasCollection.length; i++) {
                     const canvas = canvasCollection[i];
                     const canvasName = canvas.name || `${canvas_default_name}${index++}`;
-                    this._layers[canvasName] = new hamonengine.graphics.layer({
+                    this._screens[canvasName] = new hamonengine.graphics.screen({
                         name: canvasName,
                         canvasId: canvas.id,
                         viewPort: canvas.viewPort,
@@ -154,10 +154,16 @@ hamonengine.core = hamonengine.core || {};
         // Properties
         //--------------------------------------------------------
         /**
-         * Returns the primary layer.
+         * Returns the primary screen.
+         */
+        get primaryScreen() {
+            return this._screens[`${canvas_default_name}0`];
+        }
+        /**
+         * Returns the primary layer.  Provides backwards support for previous implementations.
          */
         get primaryLayer() {
-            return this._layers[`${canvas_default_name}0`];
+            return this._screens[`${canvas_default_name}0`];
         }
         /**
          * Returns the primary storyboard.
@@ -178,10 +184,10 @@ hamonengine.core = hamonengine.core || {};
             return this._fpsCounter;
         }
         /**
-         * Returns all registered layers.
+         * Returns all registered screens.
          */
-        get layers() {
-            return Object.values(this._layers);
+        get screens() {
+            return Object.values(this._screens);
         }
         /**
          * Returns all external elements.
@@ -249,11 +255,11 @@ hamonengine.core = hamonengine.core || {};
         // Methods
         //--------------------------------------------------------
         /**
-         * Returns the layer by name.
-         * @param {string} name of the layer.
+         * Returns the screen by name.
+         * @param {string} name of the screen.
          */
-        getLayer(name) {
-            return this._layers[name];
+        getScreen(name) {
+            return this._screens[name];
         }
         /**
          * Preloads any resource loading.
@@ -356,8 +362,8 @@ hamonengine.core = hamonengine.core || {};
 
             //Clean up other resources.
             this.primaryStoryboard && this.primaryStoryboard.stop();
-            Object.values(this._layers).forEach(layer => layer && layer.release());
-            this._externalElements = this._layers = [];
+            Object.values(this._screens).forEach(screem => screem && screem.release());
+            this._externalElements = this._screens = [];
 
             this._state = ENGINE_STATES.STOPPED;
             console.log(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);
@@ -460,13 +466,13 @@ hamonengine.core = hamonengine.core || {};
                 //Allow support for external elements.
                 this.externalElements.forEach(externalElement => bindEvents(externalElement, externalElement));
 
-                // If this is moved into the layers, then it is no longer a graphics based entity, but a graphics & input entity.
-                if (this.layers.length === 1) {
-                    this.primaryLayer.allowEventBinding && bindEvents(this.primaryLayer.canvas, this.primaryLayer);
+                // If this is moved into the screens, then it is no longer a graphics based entity, but a graphics & input entity.
+                if (this.screens.length === 1) {
+                    this.primaryScreen.allowEventBinding && bindEvents(this.primaryScreen.canvas, this.primaryScreen);
                 }
                 else {
-                    for (let i = 0; i < this.layers.length; i++) {
-                        this.layers[i].allowEventBinding && bindEvents(this.layers[i].canvas, this.layers[i])
+                    for (let i = 0; i < this.screens.length; i++) {
+                        this.screens[i].allowEventBinding && bindEvents(this.screens[i].canvas, this.screens[i])
                     }
                 }
             }
@@ -484,19 +490,19 @@ hamonengine.core = hamonengine.core || {};
          * @returns 
          */
         async onShowEngineSplashScreen() {
-            if (this.primaryLayer) {
-                const xOffset = this.primaryLayer.viewPort.width / 2;
-                const yOffset = (this.primaryLayer.viewPort.height / 2) - 48;
+            if (this.primaryScreen) {
+                const xOffset = this.primaryScreen.viewPort.width / 2;
+                const yOffset = (this.primaryScreen.viewPort.height / 2) - 48;
 
                 return new Promise((resolve, reject) => {
                     let track;
                     const internalDraw = () => {
                         const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
                             //Draw the name of the engine.
-                            this.primaryLayer.beginPainting();
-                            this.primaryLayer.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
-                            this.primaryLayer.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
-                            this.primaryLayer.endPainting();
+                            this.primaryScreen.beginPainting();
+                            this.primaryScreen.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
+                            this.primaryScreen.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
+                            this.primaryScreen.endPainting();
 
                             //Wait for the splash screen animation & music to complete.
                             if (scopedTimestampInMS < 1000 || (track && track.isPlaying)) {
@@ -530,7 +536,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {string} type of keyboard event such as 'up' or 'down' for keyup and keydown.
          * @param {string} keyCode of the key (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code)
          * @param {object} e KeyboardEvent (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)
-         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
+         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a screens (canvas).
          */
         onKeyEvent(type, keyCode, e, caller) {
             this.primaryStoryboard?.onKeyEvent(type, keyCode, e, caller);
@@ -541,7 +547,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {string} type of mouse event such as: 'click', 'up', 'down', 'move', 'enter', 'leave'.
          * @param {object} v an instance of vector2 object that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e MouseEvent (see https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent)
-         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
+         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a screens (canvas).
          */
         onMouseEvent(type, v, e, caller) {
             this.primaryStoryboard?.onMouseEvent(type, v, e, caller);
@@ -552,7 +558,7 @@ hamonengine.core = hamonengine.core || {};
          * @param {string} type of touch event such as: 'start', 'move', 'end', 'cancel', 'click'.
          * @param {Array} touches an array of vector2 objects that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e TouchEvent (https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent)
-         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (canvas).
+         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a screens (canvas).
          */
         onTouchEvent(type, touches, e, caller) {
             e && e.preventDefault();
@@ -621,9 +627,9 @@ hamonengine.core = hamonengine.core || {};
          */
         onStop(reasons) {
             //Goodnight
-            if (reasons === 'Stopped By User' && this.primaryLayer) {
-                this.primaryLayer.clear();
-                this.primaryLayer.drawText('お やすみ', this.primaryLayer.viewPort.width / 2, this.primaryLayer.viewPort.height / 2, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
+            if (reasons === 'Stopped By User' && this.primaryScreen) {
+                this.primaryScreen.clear();
+                this.primaryScreen.drawText('お やすみ', this.primaryScreen.viewPort.width / 2, this.primaryScreen.viewPort.height / 2, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
                 console.log("%c[hamonengine.core.engine.onStop] お やすみ GoodBye", "color: red");
 
                 if (hamonengine.support_resources) {

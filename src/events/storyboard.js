@@ -282,7 +282,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {string} type of keyboard event such as 'up' or 'down' for keyup and keydown.
          * @param {string} keyCode of the key (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code)
          * @param {object} e KeyboardEvent (see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)
-         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (see hamonengine.graphics.layer).
+         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a screen (see hamonengine.graphics.screen).
          */
         onKeyEvent(type, keyCode, e, caller) {
             this.currentFrame?.onKeyEvent(this, type, keyCode, e, caller);
@@ -292,7 +292,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {string} type of mouse event such as: 'click', 'up', 'down', 'move', 'enter', 'leave'.
          * @param {object} v an instance of vector2 object that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e MouseEvent (see https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent)
-         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (see hamonengine.graphics.layer).
+         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a screen (see hamonengine.graphics.screen).
          */
         onMouseEvent(type, v, e, caller) {
             this.currentFrame?.onMouseEvent(this, type, v, e, caller);
@@ -302,7 +302,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {string} type of touch event such as: 'start', 'move', 'end', 'cancel', 'click'.
          * @param {Array} touches an array of vector2 objects that contain the x & y coordinates (see hamonengine.math.vector2).
          * @param {object} e TouchEvent (https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent)
-         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a layer (see hamonengine.graphics.layer).
+         * @param {object} caller that triggered the event that can be a HTMLElement, instance of the HamonEngine, or a screen (see hamonengine.graphics.screen).
          */
         onTouchEvent(type, touches, e, caller) {
             this.currentFrame?.onTouchEvent(this, type, touches, e, caller);
