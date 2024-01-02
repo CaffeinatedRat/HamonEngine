@@ -33,10 +33,51 @@ hamonengine.graphics = hamonengine.graphics || {};
      * This class represents a layer, a canvas wrapper class.
      */
     hamonengine.graphics.layer = class {
-        constructor(options = {}) {
+        constructor(options = {}, cloneProps = {}) {
 
-            this._canvasId = options.canvasId || '';
-            this._name = options.name || '';
+            //Handle copy-constructor operations.
+            if (options instanceof hamonengine.graphics.layer) {
+                options = {
+                    //Copy the new properties that should not be cloned.
+                    canvas: cloneProps.canvas,
+                    backgroundColor: cloneProps.backgroundColor,
+                    //Clone the remaining properties.
+                    canvasId: options._canvasId,
+                    alpha: options.alpha,
+                    allowEventBinding: options.allowEventBinding,
+                    wrapVertical: options.wrapVertical,
+                    wrapHorizontal: options.wrapHorizontal,
+                    clipToViewPort: options.clipToViewPort,
+                    enableImageSmoothing: options._enableImageSmoothing,
+                    invertYAxis: options.invertYAxis,
+                    invertXAxis: options.invertXAxis,
+                    allowSaveState: options.allowSaveState,
+                    borderColor: options.borderColor,
+                    viewPort: options.viewPort?.clone()
+                }
+            }
+
+            //Get the canvas is one is provided.
+            let canvas = options.canvas;
+
+            //Verify the CanvasId or Canvas exists.
+            if (!options.canvasId && !canvas) {
+                console.error(`[hamonengine.graphics.layer.constructor] Invalid canvasId '${options.canvasId}' or canvas. Unable to create the layer!`);
+                throw 'Cannot create the layer';
+            }
+
+            //Check for a canvas first before looking for one in the DOM.
+            canvas = canvas || document.getElementById(options.canvasId);
+
+            if (!canvas) {
+                console.error(`[hamonengine.graphics.layer.constructor] Invalid canvas: '${options.canvasId}' unable to create the layer!`);
+                throw 'Cannot create the layer';
+            }
+
+            //Canvas properties.
+            this._canvas = canvas;
+            this._canvasId = canvas.id;
+            this._name = options.name || canvas.getAttribute('name');
 
             this._alpha = options.alpha !== undefined ? options.alpha : false;
             this._backgroundColor = options.backgroundColor; // || 'black';
@@ -48,29 +89,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._invertYAxis = options.invertYAxis !== undefined ? options.invertYAxis : false;
             this._invertXAxis = options.invertXAxis !== undefined ? options.invertXAxis : false;
 
-            //Get the canvas is one is provided.
-            const canvas = options.canvas;
+            //By default, allows users of this layer to save the current transformation state.
+            this._allowSaveStateEnabled = options.allowSaveState !== undefined ? options.allowSaveState : true;
 
-            //Verify the CanvasId or Canvas exists.
-            if (!this._canvasId && !canvas) {
-                console.error(`[hamonengine.graphics.layer.constructor] Invalid canvasId '${this._canvasId}' or canvas. Unable to create the layer!`);
-                throw 'Cannot create the layer';
-            }
+            //Allow the viewport border to be drawn.
+            this._viewPortBorderColor = options.borderColor || '';
 
-            //Check for a canvas first before looking for one in the DOM.
-            if (canvas) {
-                this._canvas = canvas;
-                this._canvasId = canvas.id;
-                this._name = options.name || canvas.getAttribute('name');
-            }
-            else {
-                this._canvas = document.getElementById(this._canvasId);
-            }
-
-            if (!this._canvas) {
-                console.error(`[hamonengine.graphics.layer.constructor] Invalid canvas: '${this._canvasId}' unable to create the layer!`);
-                throw 'Cannot create the layer';
-            }
+            //Set the viewport to the size of the layer by default.
+            this._viewPort = options.viewPort || new hamonengine.geometry.rect(0, 0, this._canvas.width, this._canvas.height);
 
             //Try to get the 2d context.
             try {
@@ -96,17 +122,8 @@ hamonengine.graphics = hamonengine.graphics || {};
                 throw 'Cannot create the layer';
             }
 
-            //Set the viewport to the size of the layer by default.
-            this._viewPort = options.viewPort || new hamonengine.geometry.rect(0, 0, this._canvas.width, this._canvas.height);
-
             //By default, the layer was not reset.
             this._wasReset = false;
-
-            //By default, allows users of this layer to save the current transformation state.
-            this._allowSaveStateEnabled = true;
-
-            //Allow the viewport border to be drawn.
-            this._viewPortBorderColor = '';
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.graphics.layer.constructor] Canvas Id: ${this._canvasId}`);
@@ -343,33 +360,11 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Clones the current layer with a new id & name and creates a new canvas element, while retaining all other properties from the source.
          * @param {string} canvasId of the new layer.
          * @param {string} name of the new layer.
-         * @param {*} elementToAttach to attach the canvas.
          */
-        clone(canvasId, name, elementToAttach = null) {
-            //Create a new canvas element and attach it after the original.
-            const newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
-            elementToAttach?.insertBefore(newCanvas, null);
-
-            //Create a new canvas instance.
-            const newLayer = new hamonengine.graphics.layer({
-                canvasId: canvasId,
-                name: name,
-                canvas: newCanvas,
-                alpha: this.alpha,
-                allowEventBinding: this.allowEventBinding,
-                wrapVertical: this.wrapVertical,
-                wrapHorizontal: this.wrapHorizontal,
-                clipToViewPort: this.clipToViewPort,
-                enableImageSmoothing: this._enableImageSmoothing,
-                invertYAxis: this.invertYAxis,
-                invertXAxis: this.invertXAxis,
-                viewPort: this.viewPort
-            });
-
-            //Copy non-public properties.
-            newLayer._allowSaveStateEnabled = this._allowSaveStateEnabled;
-            newLayer._viewPortBorderColor = this._viewPortBorderColor;
-            return newLayer;
+        clone(canvasId, name, properties = {}) {
+            return new hamonengine.graphics.layer(this, {
+                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name) , ...properties }
+            );
         }
         /**
          * Toggles images smoothing.
@@ -1098,7 +1093,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} color of the text.  By default this is 'lime'.
          * @param {boolean} shadow draws a shadow under the text.  By default this is false.
          */
-        drawFPSCounter(fpsCounter, {sourceX = 0, sourceY = 0, font = '16px serif', color = 'lime', shadow = false} = {}) {
+        drawFPSCounter(fpsCounter, { sourceX = 0, sourceY = 0, font = '16px serif', color = 'lime', shadow = false } = {}) {
             this.drawText(`FPS: ${fpsCounter.FPS} (${fpsCounter.minFPS} - ${fpsCounter.maxFPS})`, sourceX, sourceY, { shadow, font, color, disableMetrics: true });
         }
         /**
