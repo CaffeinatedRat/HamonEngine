@@ -39,7 +39,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._name = options.name || '';
 
             this._alpha = options.alpha !== undefined ? options.alpha : false;
-            this._backgroundColor = options.backgroundColor || 'black';
+            this._backgroundColor = options.backgroundColor; // || 'black';
             this._allowEventBinding = options.allowEventBinding !== undefined ? options.allowEventBinding : false;
             this._wrapVertical = options.wrapVertical !== undefined ? options.wrapVertical : false;
             this._wrapHorizontal = options.wrapHorizontal !== undefined ? options.wrapHorizontal : false;
@@ -369,7 +369,6 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Copy non-public properties.
             newLayer._allowSaveStateEnabled = this._allowSaveStateEnabled;
             newLayer._viewPortBorderColor = this._viewPortBorderColor;
-
             return newLayer;
         }
         /**
@@ -438,8 +437,14 @@ hamonengine.graphics = hamonengine.graphics || {};
         */
         beginPainting({ x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor } = {}) {
             //Added support for resetting the background color.
-            this.context.fillStyle = backgroundColor;
-            this.context.fillRect(x, y, width, height);
+            if (backgroundColor) {
+                this.context.fillStyle = backgroundColor;
+                this.context.fillRect(x, y, width, height);
+            }
+            //No background color then just perform a normal clear.
+            else {
+                this.clear(x, y, width, height);
+            }
 
             if (this.borderColor) {
                 this.context.strokeStyle = this.borderColor;
@@ -506,12 +511,13 @@ hamonengine.graphics = hamonengine.graphics || {};
             //NOTE: Inverting the axes requires factoring in the length and size of the text as well.
             //Only the coordinates are inverted, not the objects or the canvas.
 
-            if (this.invertYAxis) {
+            //NOTE: The text cannot be properly inverted if metrics are disabled since the width of the text is unknown.
+            if (!disableMetrics && this.invertYAxis) {
                 sourceY = this.viewPort.height - sourceY;
                 verticalTextOffset = verticalTextOffset === 'top' ? 'bottom' : verticalTextOffset;
             }
 
-            if (this.invertXAxis) {
+            if (!disableMetrics && this.invertXAxis) {
                 sourceX = this.viewPort.width - sourceX;
                 textOffset = textOffset === 'left' ? 'right' : textOffset;
             }

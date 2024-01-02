@@ -70,3 +70,5 @@ Change Log
 * Added the property center to the class hamonengine.geometry.rect to allow pre-computation for things like centering drawing on the viewport.
 * Added logic to return and accept text metrics object from drawText to improve performance.  Text metrics can also be disabled; however, the textOffset & verticalTextOffset properties are disabled.
 * Added a helper method drawFPSCounter to the hamonengine.graphics.layer class using consistent parameters and disabled metrics.
+* Updated the drawText method to ignore the invert axis properties if metrics are disabled.  The text cannot be drawn properly with inverted axis if metrics cannot be retrieved.
+* Updated the beginPainting method to only call fillRect if a backgroundColor is provided.  This is to support the future screen class.
