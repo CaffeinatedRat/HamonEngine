@@ -35,7 +35,7 @@ hamonengine.graphics = hamonengine.graphics || {};
     hamonengine.graphics.screen = class extends hamonengine.graphics.layer {
         constructor(options = {}, cloneProps = {}) {
             //Default to black if one is not provided.
-        //NOTE: Screens must have a backgroundColor in order to properly refresh the screen.
+            //NOTE: Screens must have a backgroundColor in order to properly refresh the screen.
             options.backgroundColor = options.backgroundColor || 'black';
             super(options, cloneProps);
 

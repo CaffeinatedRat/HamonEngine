@@ -90,7 +90,8 @@ hamonengine.core = hamonengine.core || {};
             this._fpsCounter = new fpscounter();
 
             //Add support for multiple screens that will house our canvas, and other drawing components.
-            this._screens = {};
+            //Switching from Object properties to an array as most implementations will have only have a few screens at most and most access is linear iteration.
+            this._screens = [];
 
             //Store all engine registered events for resource clean-up on stop.
             this._registeredEvents = [];
@@ -98,37 +99,31 @@ hamonengine.core = hamonengine.core || {};
             //Try to detect all canvas if the feature is enabled and none are passsed in.
             const detectCanvas = options.detectCanvas !== undefined ? options.detectCanvas : true;
             const canvasCollection = options.canvas || [];
+
+            // Map a canvas HTMLElement to a new screen or clone a screen if screens are provided as a parameter.
+            const screenMapper = (screenOrCanvas, index) => screenOrCanvas instanceof hamonengine.graphics.screen 
+                ? screenOrCanvas
+                : new hamonengine.graphics.screen({
+                    name: (screenOrCanvas.getAttribute('name') || `${canvas_default_name}${index}`),
+                    canvasId: (screenOrCanvas.getAttribute('id') || `${canvas_default_name}${index}`),
+                    canvas: screenOrCanvas,
+                    allowEventBinding: screenOrCanvas.dataset.alloweventbinding,
+                    enableImageSmoothing: screenOrCanvas.dataset.enableimagesmoothing,
+                    clipToViewPort: screenOrCanvas.dataset.cliptoviewport
+                    });
+
             if (detectCanvas && canvasCollection.length === 0) {
                 hamonengine.debug && console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: true.  Attempting to detect all canvas.`);
                 const discoveredCanvas = Object.entries(document.getElementsByTagName('canvas'));
                 discoveredCanvas.forEach(([key, value]) => {
-                    const canvasName = value.getAttribute('name') || `${canvas_default_name}${key}`;
-                    const canvasId = value.getAttribute('id') || `${canvas_default_name}${key}`;
-                    this._screens[canvasName] = new hamonengine.graphics.screen({
-                        name: canvasName,
-                        canvas: value,
-                        canvasId: canvasId,
-                        allowEventBinding: value.dataset.alloweventbinding,
-                        enableImageSmoothing: value.dataset.enableimagesmoothing,
-                        clipToViewPort: value.dataset.cliptoviewport
-                    });
+                    this._screens.push(screenMapper(value, key));
                 });
             }
             //If a collection of canvas objects are provided then use those instead.
             else {
                 hamonengine.debug && console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: false.  Using collection of options.canvas.`);
-                let index = 0;
                 for (let i = 0; i < canvasCollection.length; i++) {
-                    const canvas = canvasCollection[i];
-                    const canvasName = canvas.name || `${canvas_default_name}${index++}`;
-                    this._screens[canvasName] = new hamonengine.graphics.screen({
-                        name: canvasName,
-                        canvasId: canvas.id,
-                        viewPort: canvas.viewPort,
-                        allowEventBinding: canvas.allowEventBinding,
-                        enableImageSmoothing: options.enableImageSmoothing,
-                        clipToViewPort: canvas.clipToViewPort
-                    });
+                    this._screens.push(screenMapper(canvasCollection[i], i));
                 };
             }
 
@@ -154,16 +149,22 @@ hamonengine.core = hamonengine.core || {};
         // Properties
         //--------------------------------------------------------
         /**
+         * Returns all registered screens.
+         */
+        get screens() {
+            return this._screens;
+        }
+        /**
          * Returns the primary screen.
          */
         get primaryScreen() {
-            return this._screens[`${canvas_default_name}0`];
+            return this.screens.length === 1 ? this.screens[0] : this.getScreen(`${canvas_default_name}0`);
         }
         /**
          * Returns the primary layer.  Provides backwards support for previous implementations.
          */
         get primaryLayer() {
-            return this._screens[`${canvas_default_name}0`];
+            return this.primaryScreen;
         }
         /**
          * Returns the primary storyboard.
@@ -182,12 +183,6 @@ hamonengine.core = hamonengine.core || {};
          */
         get fpsCounter() {
             return this._fpsCounter;
-        }
-        /**
-         * Returns all registered screens.
-         */
-        get screens() {
-            return Object.values(this._screens);
         }
         /**
          * Returns all external elements.
@@ -256,10 +251,11 @@ hamonengine.core = hamonengine.core || {};
         //--------------------------------------------------------
         /**
          * Returns the screen by name.
+         * WARNING: Undefined will be returned if no screen matches the name.
          * @param {string} name of the screen.
          */
         getScreen(name) {
-            return this._screens[name];
+            return this.screens.find(screen => screen.name.toLowerCase().trim() === name.toLowerCase().trim());
         }
         /**
          * Preloads any resource loading.
@@ -362,7 +358,7 @@ hamonengine.core = hamonengine.core || {};
 
             //Clean up other resources.
             this.primaryStoryboard && this.primaryStoryboard.stop();
-            Object.values(this._screens).forEach(screem => screem && screem.release());
+            this.screens.forEach(screem => screem && screem.release());
             this._externalElements = this._screens = [];
 
             this._state = ENGINE_STATES.STOPPED;
