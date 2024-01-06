@@ -48,7 +48,15 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Standard properties.
             //Determine if the GUI is always the top most layer.
+            this._engine = options.engine;
+            this._enableFPSCounter = options.enableFPSCounter === undefined ? true : false;
             this._guiAlwaysOnTop = options.guiAlwaysOnTop === undefined ? true : false;
+
+            //Allow for a custom FPS counter.
+            //NOTE: The class MUST support the following methods: begin & end and properties FPS, minFPS, & maxFPS.
+            this._fpsCounter = options.FPSCounter;
+            this._fpsCounterTextColor = options.fpsCounterTextColor || 'lime';
+
             this._layers = [];
 
             if (hamonengine.debug) {
@@ -58,6 +66,13 @@ hamonengine.graphics = hamonengine.graphics || {};
         //--------------------------------------------------------
         // Properties
         //--------------------------------------------------------
+        /**
+         * Gets a parental engine reference if one exists.
+         * NOTE: This can be undefined if it wasn't assigned during instantiation.
+         */
+        get engine() {
+            return this._engine;
+        }
         /**
          * Gets a collection of layers.
          */
@@ -69,6 +84,45 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         get primaryLayer() {
             return this;
+        }
+        /**
+         * Returns the enabled status of drawing FPS to the screen.
+         */
+        get enableFPSCounter() {
+            return this._enableFPSCounter;
+        }
+        /**
+         * Enables or disables drawing FPS to the screen.
+         */
+        set enableFPSCounter(v) {
+            this._enableFPSCounter = v;
+        }
+        /**
+         * Returns the current FPSCounter.
+         * If none was assigned then the engine's default one is used.
+         * NOTE: The class MUST support the following methods: begin & end and properties FPS, minFPS, & maxFPS.
+         */
+        get fpsCounter() {
+            return this._fpsCounter || this.engine?.fpsCounter;
+        }
+        /**
+         * Assigns a custom FPSCounter.
+         * NOTE: The class MUST support the following methods: begin & end and properties FPS, minFPS, & maxFPS.
+         */
+        set fpsCounter(v) {
+            this._fpsCounter = v;
+        }
+        /**
+         * Returns the fpsCounter text color.
+         */
+        get fpsCounterTextColor() {
+            return this._fpsCounterTextColor;
+        }
+        /**
+         * Sets the fpsCounter text color.
+         */
+        set fpsCounterTextColor(v) {
+            this._fpsCounterTextColor = v;
         }
         /**
          * Returns true if wrapping horizontally is enabled on all layers.
@@ -226,6 +280,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
         }
         /**
+         * Starts pre-drawing logic.
+         */
+        begin() {
+            if (this.enableFPSCounter) {
+                this.fpsCounter?.begin();
+            }
+        }
+        /**
          * Draws all layers onto the screen.
          */
         draw() {
@@ -234,6 +296,29 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this._layers[i] && this.drawLayer(this.layers[i]);
             }
             this.endPainting();
+        }
+        /**
+         * Ends the screen with some post drawing method.
+         */
+        end() {
+            if (this.enableFPSCounter) {
+                if (this.fpsCounter) {
+                    this.fpsCounter.end();
+                    this.drawFPSCounter(0, 0, {color: this.fpsCounterTextColor, shadow: true, shadowXOffset: 1, shadowYOffset: 1});
+                }
+            }
+        }
+        /**
+         * A helper method that draws the FPSCounter text to this screen.
+         * @param {object} fpsCounter to render to the layer.
+         * @param {number} sourceX coordinate of where to draw the fpsCounter (Optional and set to zero).
+         * @param {number} sourceY coordinate of where to draw the fpsCounter (Optional and set to zero).
+         * @param {string} font of the text.  By default this is set to '16px serif'
+         * @param {string} color of the text.  By default this is 'lime'.
+         * @param {boolean} shadow draws a shadow under the text.  By default this is false.
+         */
+        drawFPSCounter(sourceX = 0, sourceY = 0, options = { color: 'lime', shadow: false}) {
+            this.drawText(`FPS: ${this.fpsCounter.FPS} (${this.fpsCounter.minFPS} - ${this.fpsCounter.maxFPS})`, sourceX, sourceY, { ...options, ...{disableMetrics: true} });
         }
         /**
          * Releases resources.

@@ -1086,18 +1086,6 @@ hamonengine.graphics = hamonengine.graphics || {};
             */
         }
         /**
-         * A helper method that draws the FPSCounter text to this layer.
-         * @param {object} fpsCounter to render to the layer.
-         * @param {number} sourceX coordinate of where to draw the fpsCounter (Optional and set to zero).
-         * @param {number} sourceY coordinate of where to draw the fpsCounter (Optional and set to zero).
-         * @param {string} font of the text.  By default this is set to '16px serif'
-         * @param {string} color of the text.  By default this is 'lime'.
-         * @param {boolean} shadow draws a shadow under the text.  By default this is false.
-         */
-        drawFPSCounter(fpsCounter, { sourceX = 0, sourceY = 0, font = '16px serif', color = 'lime', shadow = false } = {}) {
-            this.drawText(`FPS: ${fpsCounter.FPS} (${fpsCounter.minFPS} - ${fpsCounter.maxFPS})`, sourceX, sourceY, { shadow, font, color, disableMetrics: true });
-        }
-        /**
          * Releases resources.
          */
         release() {

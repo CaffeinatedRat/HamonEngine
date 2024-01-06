@@ -104,6 +104,7 @@ hamonengine.core = hamonengine.core || {};
             const screenMapper = (screenOrCanvas, index) => screenOrCanvas instanceof hamonengine.graphics.screen 
                 ? screenOrCanvas
                 : new hamonengine.graphics.screen({
+                    engine: this,
                     name: (screenOrCanvas.getAttribute('name') || `${canvas_default_name}${index}`),
                     canvasId: (screenOrCanvas.getAttribute('id') || `${canvas_default_name}${index}`),
                     canvas: screenOrCanvas,
