@@ -363,7 +363,8 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         clone(canvasId, name, properties = {}) {
             return new hamonengine.graphics.layer(this, {
-                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name) , ...properties }
+                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name), ...properties
+            }
             );
         }
         /**
@@ -396,10 +397,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Resets the transformation.
          */
         reset() {
-            if (!this._wasReset) {
-                this.context.resetTransform();
-                this._wasReset = true;
-            }
+            this.context.resetTransform();
         }
         /**
          * Saves the current transformation state.
@@ -461,7 +459,10 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Ends default painting on this layer.
         */
         endPainting() {
-            this.reset();
+            if (!this._wasReset) {
+                this.reset();
+                this._wasReset = true;
+            }
         }
         /**
          * Draws another layer onto this layer.
