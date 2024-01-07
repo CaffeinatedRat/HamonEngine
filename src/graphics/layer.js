@@ -53,7 +53,9 @@ hamonengine.graphics = hamonengine.graphics || {};
                     invertXAxis: options.invertXAxis,
                     allowSaveState: options.allowSaveState,
                     borderColor: options.borderColor,
-                    viewPort: options.viewPort?.clone()
+                    viewPort: options.viewPort?.clone(),
+                    //Internal variables
+                    metaProperties: {...options.metaProperties}
                 }
             }
 
@@ -88,6 +90,11 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._enableImageSmoothing = options.enableImageSmoothing !== undefined ? options.enableImageSmoothing : true;
             this._invertYAxis = options.invertYAxis !== undefined ? options.invertYAxis : false;
             this._invertXAxis = options.invertXAxis !== undefined ? options.invertXAxis : false;
+
+            //Allow other objects to set metaproperties on the layer.
+            this._metaProperties = options.metaProperties || {
+                visible: options.visible !== undefined ? options.visible : true
+            };
 
             //By default, allows users of this layer to save the current transformation state.
             this._allowSaveStateEnabled = options.allowSaveState !== undefined ? options.allowSaveState : true;
@@ -337,6 +344,28 @@ hamonengine.graphics = hamonengine.graphics || {};
         set depthIndex(v) {
             this.canvas.style.zIndex = v;
         }
+        /**
+         * Returns the metaproperties on this layer.
+         * Meta-properites allow external logic to ascribe their own information onto the layer.
+         * COUPLING WARNING: Meta-properties couple this object to another object and can bring about conflict if multiple external sources manipulate the same properties.
+         */
+        get metaProperties() {
+            return this._metaProperties;
+        }
+        /**
+         * Returns true if the layer is visible.
+         * This property is mostly a meta-property used by external logic.
+         */
+        get visible() {
+            return this.metaProperties.visible;
+        }
+        /**
+         * Assigns the visibility of the layer.
+         * This property is mostly a meta-property used by external logic.
+         */
+        set visible(v) {
+            this.metaProperties.visible = v;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -363,9 +392,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         clone(canvasId, name, properties = {}) {
             return new hamonengine.graphics.layer(this, {
-                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name), ...properties
-            }
-            );
+                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name),
+                ...properties
+            });
         }
         /**
          * Toggles images smoothing.
@@ -421,7 +450,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.drawImage(image, x, y, this.viewPort.width, this.viewPort.height);
         }
         /**
-         * Fills the layer with the specified color.
+         * Fills (paints) the layer with the specified color.
          * @param {string} color to fill the canvas.
          * @param {number} x location to start painting.  By default this is set to the this.viewPort.x;
          * @param {number} y location to start painting.  By default this is set to the this.viewPort.y;
