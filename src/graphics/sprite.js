@@ -44,7 +44,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (options instanceof hamonengine.graphics.sprite) {
                 options = {
                     image: options._image && options._image.clone(),
-                    dimensions: options._dimensions,
+                    dimensions: options._dimensions?.clone(),
                     theta: options.theta
                 }
             }
