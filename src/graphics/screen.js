@@ -233,6 +233,16 @@ hamonengine.graphics = hamonengine.graphics || {};
             return index;
         }
         /**
+         * Removes all layers.
+         */
+        removeLayers() {
+            for (let i = 0; i < this.layers.length; i++) {
+                this._layers[i] && this._layers[i].release();
+            }
+
+            this._layers = [];
+        }
+        /**
          * Clones the current layer with a new id & name and creates a new canvas element, while retaining all other properties from the source.
          * @param {string} canvasId of the new layer.
          * @param {string} name of the new layer.
@@ -286,16 +296,15 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.enableFPSCounter) {
                 this.fpsCounter?.begin();
             }
+            this.beginPainting();
         }
         /**
          * Draws all layers onto the screen.
          */
         draw() {
-            this.beginPainting();
             for (let i = 0; i < this.layers.length; i++) {
                 this._layers[i] && this.drawLayer(this.layers[i]);
             }
-            this.endPainting();
         }
         /**
          * Ends the screen with some post drawing method.
@@ -307,6 +316,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     this.drawFPSCounter(0, 0, {color: this.fpsCounterTextColor, shadow: true, shadowXOffset: 1, shadowYOffset: 1});
                 }
             }
+            this.endPainting();
         }
         /**
          * A helper method that draws the FPSCounter text to this screen.
@@ -325,11 +335,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         release() {
             super.release();
-            for (let i = 0; i < this.layers.length; i++) {
-                this._layers[i] && this._layers[i].release();
-            }
-
-            this._layers = [];
+            this.removeLayers();
         }
     }
 })();
