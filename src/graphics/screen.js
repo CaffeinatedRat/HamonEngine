@@ -196,6 +196,26 @@ hamonengine.graphics = hamonengine.graphics || {};
         // Methods
         //--------------------------------------------------------
         /**
+         * Clones the current layer with a new id & name and creates a new canvas element, while retaining all other properties from the source.
+         * @param {string} canvasId of the new layer.
+         * @param {string} name of the new layer.
+         * @param {*} elementToAttach to attach the canvas.
+         */
+        clone(canvasId, name, elementToAttach = null) {
+            //Create a new canvas element and attach it after the original.
+            const newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
+            //Layers can no longer be attached to an element, as this is reserved for screens.
+            elementToAttach?.insertBefore(newCanvas, null);
+
+            //Create a new canvas instance.
+            return new hamonengine.graphics.screen(this, {
+                canvas: newCanvas
+            });
+        }
+        //--------------------------------------------------------
+        // Layer Methods
+        //--------------------------------------------------------        
+        /**
          * Returns a layer by its name.
          * @param {string} name of the layer to return.
          */
@@ -226,11 +246,13 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @returns {object} layer that is being removed from the screen.
          */
         removeLayer(name) {
+            let layerToReturn;
             const index = this.getLayerIndex(name);
             if (index > -1 && index < this.layers.length) {
+                layerToReturn = this.layers[index];
                 this.layers[index] = null;
             }
-            return index;
+            return layerToReturn;
         }
         /**
          * Removes all layers.
@@ -243,22 +265,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._layers = [];
         }
         /**
-         * Clones the current layer with a new id & name and creates a new canvas element, while retaining all other properties from the source.
-         * @param {string} canvasId of the new layer.
-         * @param {string} name of the new layer.
-         * @param {*} elementToAttach to attach the canvas.
+         * Reverses all layers.
          */
-        clone(canvasId, name, elementToAttach = null) {
-            //Create a new canvas element and attach it after the original.
-            const newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
-            //Layers can no longer be attached to an element, as this is reserved for screens.
-            elementToAttach?.insertBefore(newCanvas, null);
-
-            //Create a new canvas instance.
-            return new hamonengine.graphics.screen(this, {
-                canvas: newCanvas
-            });
+        reverseLayers() {
+            this._layers.reverse();
         }
+        //--------------------------------------------------------
+        // Drawing Methods
+        //--------------------------------------------------------
         /**
          * Toggles global images smoothing for all layers.
          * @param {boolean} enable true to enable.
@@ -303,7 +317,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         draw() {
             for (let i = 0; i < this.layers.length; i++) {
-                this._layers[i] && this.drawLayer(this.layers[i]);
+                this._layers[i] && this._layers[i]?.visible && this.drawLayer(this.layers[i]);
             }
         }
         /**
