@@ -421,6 +421,18 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.drawImage(image, x, y, this.viewPort.width, this.viewPort.height);
         }
         /**
+         * Fills the layer with the specified color.
+         * @param {string} color to fill the canvas.
+         * @param {number} x location to start painting.  By default this is set to the this.viewPort.x;
+         * @param {number} y location to start painting.  By default this is set to the this.viewPort.y;
+         * @param {number} width to start painting.  By default this is set to the this.viewPort.width;
+         * @param {number} height to start painting.  By default this is set to the this.viewPort.height;
+        */
+        fillLayerColor(color, x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height) {
+            this.context.fillStyle = color;
+            this.context.fillRect(x, y, width, height);
+        }
+        /**
          * Begins default painting on this layer with varoius options
          * @param {number} obj.x location to start painting.  By default this is set to the this.viewPort.x;
          * @param {number} obj.y location to start painting.  By default this is set to the this.viewPort.y;
@@ -431,8 +443,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         beginPainting({ x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor } = {}) {
             //Added support for resetting the background color.
             if (backgroundColor) {
-                this.context.fillStyle = backgroundColor;
-                this.context.fillRect(x, y, width, height);
+                this.fillLayerColor(backgroundColor, x, y, width, height);
             }
             //No background color then just perform a normal clear.
             else {

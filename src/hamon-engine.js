@@ -624,8 +624,8 @@ hamonengine.core = hamonengine.core || {};
          */
         onStop(reasons) {
             //Goodnight
-            if (reasons === 'Stopped By User' && this.primaryScreen) {
-                this.primaryScreen.clear();
+            if (this._showEngineSplashScreen && reasons === 'Stopped By User' && this.primaryScreen) {
+                this.primaryScreen.fillLayerColor('#000000DD');
                 this.primaryScreen.drawText('お やすみ', this.primaryScreen.viewPort.width / 2, this.primaryScreen.viewPort.height / 2, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: 'gold' });
                 console.log("%c[hamonengine.core.engine.onStop] お やすみ GoodBye", "color: red");
 
