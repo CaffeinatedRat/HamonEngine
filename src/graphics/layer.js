@@ -55,7 +55,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     borderColor: options.borderColor,
                     viewPort: options.viewPort?.clone(),
                     //Internal variables
-                    metaProperties: {...options.metaProperties}
+                    metaProperties: { ...options.metaProperties }
                 }
             }
 
@@ -460,6 +460,23 @@ hamonengine.graphics = hamonengine.graphics || {};
         fillLayerColor(color, x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height) {
             this.context.fillStyle = color;
             this.context.fillRect(x, y, width, height);
+        }
+        /**
+         * Returns an instance of hamonengine.geometry.rect that contains the computed dimensions of the provided text.
+         * @param {string} text to compute the rect.
+         * @param {number} obj.sourceX x coordinate.
+         * @param {number} obj.sourceY y coordinate.
+         * @param {string} obj.font of the text.  By default this is set to '16px serif'
+         * @return {object} an instance of hamonengine.geometry.rect.
+         */
+        getTextRect(text, { sourceX = 0, sourceY = 0, font = '16px serif' } = {}) {
+            this.context.font = font;
+            this.context.textBaseline = 'top';
+
+            //Use the precomputed height or compute it if one doesn't exist.
+            const metrics = this.context.measureText(text);
+            const height = metrics.fontBoundingBoxDescent - metrics.fontBoundingBoxAscent;
+            return new hamonengine.geometry.rect(sourceX, sourceY, metrics.width, height);
         }
         /**
          * Begins default painting on this layer with varoius options
