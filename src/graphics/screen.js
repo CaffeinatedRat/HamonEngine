@@ -42,7 +42,12 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Handle copy-constructor operations.
             if (options instanceof hamonengine.graphics.screen) {
                 options = {
-                    guiAlwaysOnTop: options.guiAlwaysOnTop,
+                    guiAlwaysOnTop: options._guiAlwaysOnTop,
+                    layers: options.layers.map(layer => layer.clone(layer.id, layer.name)),
+                    engine: options.engine,
+                    enableFPSCounter: options.enableFPSCounter,
+                    fpsCounterTextColor: options.fpsCounterTextColor,
+                    fpsCounter: options.fpsCounter
                 }
             }
 
@@ -54,10 +59,10 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Allow for a custom FPS counter.
             //NOTE: The class MUST support the following methods: begin & end and properties FPS, minFPS, & maxFPS.
-            this._fpsCounter = options.FPSCounter;
+            this._fpsCounter = options.fpsCounter;
             this._fpsCounterTextColor = options.fpsCounterTextColor || 'lime';
 
-            this._layers = [];
+            this._layers = options.layers || [];
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.graphics.screen.constructor] Name: ${this._name}`);
@@ -214,7 +219,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         //--------------------------------------------------------
         // Layer Methods
-        //--------------------------------------------------------        
+        //--------------------------------------------------------
         /**
          * Returns a layer by its name.
          * @param {string} name of the layer to return.
