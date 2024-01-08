@@ -201,6 +201,21 @@ hamonengine.graphics = hamonengine.graphics || {};
         // Methods
         //--------------------------------------------------------
         /**
+         * Converts the screen to a new hamonengine.graphics.layer.
+         * @param {string} canvasId of the new layer.
+         * @param {string} name of the new layer.
+         * @param {*} elementToAttach to attach the canvas.
+         */
+        toLayer(canvasId, name) {
+            canvasId = canvasId || this.id;
+            name = name || this.name;
+            const newLayer = new hamonengine.graphics.layer(this, {
+                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name)
+            });
+            newLayer.drawLayer(this);
+            return newLayer;
+        }
+        /**
          * Clones the current layer with a new id & name and creates a new canvas element, while retaining all other properties from the source.
          * @param {string} canvasId of the new layer.
          * @param {string} name of the new layer.
