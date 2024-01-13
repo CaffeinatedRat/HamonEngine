@@ -35,18 +35,30 @@ hamonengine.events = hamonengine.events || {};
         constructor(options = {}) {
             super(options);
 
+            //Handle copy-constructor operations.
+            if (options instanceof hamonengine.events.frame) {
+                options = {
+                    name: options._name,
+                    resourceFrame: options._resourceFrame,
+                    loop: options._loop,
+                };
+            }
+            else {
+                //Append any frames only a new object creation.
+                //The cloning operation will take care of appending new frames.
+                if (options.frames) {
+                    for (let i = 0; i < options.frames.length; i++) {
+                        this.append(options.frames[i]);
+                    }
+                }
+            }
+
             this._name = options.name || '';
             this._resourceFrame = options.resourceFrame !== undefined ? options.resourceFrame : false;
+
             this._frameState = FRAME_STATE.STOPPED;
             this._loadingState = FRAME_STATE.STOPPED;
             this._startFrameTime = 0;
-
-            //Append any frames
-            if (options.frames) {
-                for (let i = 0; i < options.frames.length; i++) {
-                    this.append(options.frames[i]);
-                }
-            }
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.events.frame.constructor] Name: ${this._name}`);

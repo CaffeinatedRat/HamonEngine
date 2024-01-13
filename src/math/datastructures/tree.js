@@ -35,27 +35,28 @@ hamonengine.math.datastructures = hamonengine.math.datastructures || {};
     hamonengine.math.datastructures.tree = class {
         constructor(options = {}) {
 
+            //Normalize these values to null rather than undefined.
+            //Assign the top property for both clone and new object logic.
+            this._top = options.top ?? null;
+
             //Handle copy-constructor (clone) operations.
             if (options instanceof hamonengine.math.datastructures.tree) {
-
-                //Find the top node.
-                options.top = options.top ?? options.parent;
-
                 //Clone all the descendants
-                let node = options.first
+                let node = options.first ?? null;
                 while (node != null) {
                     this.append(node.clone());
                     node = node.next;
                 }
             }
-
-            //Normalize these values to null rather than undefined.
-            this._top = options.top || null;
-            this._parent = options.parent || null;
-            this._first = options.first || null;
-            this._last = options.last || null;
-            this._next = null;
-            this._prev = null;
+            else {
+                //Normalize these values to null rather than undefined.
+                //Only set these node references for a new object and not one that is being cloned.
+                this._parent = options.parent ?? null;
+                this._first = options.first ?? null;
+                this._last = options.last ?? null;
+                this._next = null;
+                this._prev = null;
+            }
         }
         //--------------------------------------------------------
         // Properties
