@@ -277,7 +277,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * Removes all layers.
          */
-        removeLayers() {
+        removeAllLayers() {
             for (let i = 0; i < this.layers.length; i++) {
                 this._layers[i] && this._layers[i].release();
             }
@@ -326,11 +326,11 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * Starts pre-drawing logic.
          */
-        begin() {
+        beginPainting() {
             if (this.enableFPSCounter) {
                 this.fpsCounter?.begin();
             }
-            this.beginPainting();
+            super.beginPainting();
         }
         /**
          * Draws all layers onto the screen.
@@ -343,14 +343,14 @@ hamonengine.graphics = hamonengine.graphics || {};
         /**
          * Ends the screen with some post drawing method.
          */
-        end() {
+        endPainting() {
             if (this.enableFPSCounter) {
                 if (this.fpsCounter) {
                     this.fpsCounter.end();
                     this.drawFPSCounter(0, 0, {color: this.fpsCounterTextColor, shadow: true, shadowXOffset: 1, shadowYOffset: 1});
                 }
             }
-            this.endPainting();
+            super.endPainting();
         }
         /**
          * A helper method that draws the FPSCounter text to this screen.
@@ -369,7 +369,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         release() {
             super.release();
-            this.removeLayers();
+            this.removeAllLayers();
         }
     }
 })();
