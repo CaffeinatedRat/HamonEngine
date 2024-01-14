@@ -237,28 +237,29 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} elapsedTimeInMilliseconds since the last frame.
          * @param {object} storyboard used to invoke this onFrame event.
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        render(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+        render(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame) {
             switch (this.frameState) {
                 case FRAME_STATE.STARTING:
                     //Run frame initiating once and only once.
                     if (!this._frameHasInitiated) {
-                        this.onFrameInitiating(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds);
+                        this.onFrameInitiating(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame);
                         this._frameHasInitiated = true;
                     }
 
                     if (this._startFrameTime === 0) {
                         this._startFrameTime = totalTimeInMilliseconds;
                     }
-                    this.onFrameStarting(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds);
+                    this.onFrameStarting(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame);
                     break;
 
                 case FRAME_STATE.RUNNING:
-                    this.onFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds);
+                    this.onFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame);
                     break;
 
                 case FRAME_STATE.STOPPING:
-                    this.onFrameStopping(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds);
+                    this.onFrameStopping(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame);
                     break;
 
                 //NOTE: The Stopped/Cancelled event will not occur here since the Storyboard has stopped rendering the frame.
@@ -280,16 +281,18 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} elapsedTimeInMilliseconds since the last frame.
          * @param {object} storyboard used to invoke this onFrame event.
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onFrameInitiating(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+        onFrameInitiating(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
         }
         /**
          * An onFrameStarting event that is triggered when frame is starting.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
          * @param {object} storyboard used to invoke this onFrame event.
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onFrameStarting(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+        onFrameStarting(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
             //Unless overridden skip the starting frame.
             this.frameState = FRAME_STATE.RUNNING;
         }
@@ -298,16 +301,18 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} elapsedTimeInMilliseconds since the last frame.
          * @param {object} storyboard used to invoke this onFrame event.
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+        onFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
         }
         /**
          * An onFrameStopping event that is triggered when frame is stop.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
          * @param {object} storyboard used to invoke this onFrame event.
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onFrameStopping(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+        onFrameStopping(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
             //Unless overridden skip the stopping frame.
             this.frameState = FRAME_STATE.STOPPED;
         }
@@ -316,8 +321,9 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} elapsedTimeInMilliseconds since the last frame.
          * @param {object} storyboard used to invoke this onFrame event.
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onProcessingFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
+        onProcessingFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
         }
         /**
          * An onRelease event that is triggered when a frame needs to release resources.

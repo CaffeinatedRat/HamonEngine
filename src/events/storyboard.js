@@ -52,6 +52,8 @@ hamonengine.events = hamonengine.events || {};
             this._allowFramesToComplete = options.allowFramesToComplete !== undefined ? options.allowFramesToComplete : true;
 
             this._currentFrames = options._currentFrames || [];
+            //Retain the last frame before transitioning to the next.
+            this._lastFrame = null;
         }
         //--------------------------------------------------------
         // Properties
@@ -263,11 +265,11 @@ hamonengine.events = hamonengine.events || {};
         onFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
             //Remove stopped frame but not if it's the last one.
             if (this.currentFrame?.frameState === FRAME_STATE.STOPPED && this._currentFrames.length > 1) {
-                this._currentFrames.shift();
+                this._lastFrame = this._currentFrames.shift();
             }
 
             //Render the proceeding frame.
-            this.currentFrame?.render(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds);
+            this.currentFrame?.render(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds, this._lastFrame);
         }
         /**
          * Processes the current frame in the storyboard on an onProcessingFrame event.
@@ -275,7 +277,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          */
         onProcessingFrame(elapsedTimeInMilliseconds, totalTimeInMilliseconds) {
-            this.currentFrame?.onProcessingFrame(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds);
+            this.currentFrame?.onProcessingFrame(elapsedTimeInMilliseconds, this, totalTimeInMilliseconds, this._lastFrame);
         }
         /**
          * Processes keyboard events.
