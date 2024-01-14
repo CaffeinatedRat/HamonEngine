@@ -58,6 +58,7 @@ hamonengine.events = hamonengine.events || {};
 
             this._frameState = FRAME_STATE.STOPPED;
             this._loadingState = FRAME_STATE.STOPPED;
+            this._frameHasInitiated = false;
             this._startFrameTime = 0;
 
             if (hamonengine.debug) {
@@ -240,6 +241,12 @@ hamonengine.events = hamonengine.events || {};
         render(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
             switch (this.frameState) {
                 case FRAME_STATE.STARTING:
+                    //Run frame initiating once and only once.
+                    if (!this._frameHasInitiated) {
+                        this.onFrameInitiating(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds);
+                        this._frameHasInitiated = true;
+                    }
+
                     if (this._startFrameTime === 0) {
                         this._startFrameTime = totalTimeInMilliseconds;
                     }
@@ -266,6 +273,15 @@ hamonengine.events = hamonengine.events || {};
          * @return {Object} a promise that the resource has loaded successfully.
          */
         async onloadResources(storyboard) {
+        }
+        /**
+         * An onFrameInitiating event that is triggered when frame is starting for the 1st time.
+         * This event occurs only once.
+         * @param {number} elapsedTimeInMilliseconds since the last frame.
+         * @param {object} storyboard used to invoke this onFrame event.
+         * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
+         */
+        onFrameInitiating(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds) {
         }
         /**
          * An onFrameStarting event that is triggered when frame is starting.
