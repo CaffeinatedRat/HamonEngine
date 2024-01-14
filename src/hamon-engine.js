@@ -65,6 +65,7 @@ hamonengine.core = hamonengine.core || {};
             this._splashScreenWait = options.splashScreenWait !== undefined ? options.splashScreenWait : 500;
             this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
             this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
+            this._awaitFontResources = options.awaitFontResources !== undefined ? options.awaitFontResources : true;
             this._storyboard = options.storyboard;
 
             //Assign the engine if this one is not assigned.
@@ -74,9 +75,8 @@ hamonengine.core = hamonengine.core || {};
 
             //Determines the prevent default & event propagation states.
             const blockArrowKeys = options.blockArrowKeys !== undefined ? options.blockArrowKeys : true;
-            this._preventDefaultState = 0;
-            this._preventDefaultState = this._preventDefaultState | (options.blockAllKeys ? PREVENT_DEFAULT_STATES.BLOCK_ALL_KEYS : PREVENT_DEFAULT_STATES.NONE);
-            this._preventDefaultState = this._preventDefaultState | (blockArrowKeys ? PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS : PREVENT_DEFAULT_STATES.NONE);
+            const blockAllKeys = options.blockAllKeys !== undefined ? options.blockAllKeys : false;
+            this._preventDefaultState = 0 | (blockAllKeys ? PREVENT_DEFAULT_STATES.BLOCK_ALL_KEYS : PREVENT_DEFAULT_STATES.NONE) | (blockArrowKeys ? PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS : PREVENT_DEFAULT_STATES.NONE);
 
             //Add support for external elements.
             this._externalElements = options.externalElements || [];
@@ -132,11 +132,16 @@ hamonengine.core = hamonengine.core || {};
 
             //Log initialization values
             if (hamonengine.debug) {
-                console.debug(`[hamonengine.core.engine.constructor] MovementRate: ${this._movementRate}`);
                 console.debug(`[hamonengine.core.engine.constructor] State: ${ENGINE_STATES_NAMES[this._state]}`);
                 console.debug(`[hamonengine.core.engine.constructor] SyncFrames: ${this.syncFrames ? 'Enabled' : 'Disabled'}`);
-                console.debug(`[hamonengine.core.engine.constructor] Splash screen Wait Time: ${this._splashScreenWait} milliseconds.`);
                 console.debug(`[hamonengine.core.engine.constructor] Engine splash screen: ${this._showEngineSplashScreen ? 'Enabled' : 'Disabled'}`);
+                console.debug(`[hamonengine.core.engine.constructor] Splash screen wait time: ${this._splashScreenWait} milliseconds.`);
+                console.debug(`[hamonengine.core.engine.constructor] Allow document event binding: ${this.allowDocumentEventBinding ? 'Enabled' : 'Disabled'}`);
+                console.debug(`[hamonengine.core.engine.constructor] Capture touch as mouse events: ${this.captureTouchAsMouseEvents ? 'Enabled' : 'Disabled'}`);
+                console.debug(`[hamonengine.core.engine.constructor] Block all default keys: ${this.blockByDefaultAllKeys ? 'Enabled' : 'Disabled'}`);
+                console.debug(`[hamonengine.core.engine.constructor] Block arrow keys: ${this.blockByDefaultArrowKeys ? 'Enabled' : 'Disabled'}`);
+
+                console.debug(`[hamonengine.core.engine.constructor] Await for font resources to complete loading: ${this._awaitFontResources ? 'Enabled' : 'Disabled'}`);
 
                 this._storyboard && console.debug(`[hamonengine.core.engine.constructor] Storyboard Added: ${this._storyboard.name}`);
 
@@ -144,6 +149,8 @@ hamonengine.core = hamonengine.core || {};
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.floor: ${hamonengine.geometry.settings.collisionDetection.floor}`);
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.limit: ${hamonengine.geometry.settings.collisionDetection.limit}`);
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.coordinateSystem: ${hamonengine.geometry.settings.coordinateSystem}`);
+                console.debug(`[hamonengine.core.engine.constructor] hamonengine.graphics.settings.globalInvertYAxis: ${hamonengine.graphics.settings.globalInvertYAxis ? 'true' : 'false'}`);
+                console.debug(`[hamonengine.core.engine.constructor] hamonengine.graphics.settings.globalInvertXAxis: ${hamonengine.graphics.settings.globalInvertXAxis ? 'true' : 'false'}`);
             }
         }
         //--------------------------------------------------------
@@ -301,6 +308,9 @@ hamonengine.core = hamonengine.core || {};
                     }
                     loadingResourcePromises.push(storyboardResource);
                 }
+
+                //Await for font resources but only if enabled.
+                this._awaitFontResources && loadingResourcePromises.push(document.fonts.ready);
 
                 console.log("%c[hamonengine.core.engine.load] Engine is paused, waiting for resources to resolve...", "color: yellow");
                 await Promise.all(loadingResourcePromises);
