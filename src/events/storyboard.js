@@ -231,7 +231,7 @@ hamonengine.events = hamonengine.events || {};
          */
         setFrame(newFrame) {
             //When setting a new frame if allow frames to complete is false or the frame state is STOPPED and is not the last one, then remove the frame instantly.
-            const currentFrame = (!this.allowFramesToComplete || (this.currentFrame && (this.currentFrame.frameState === FRAME_STATE.STOPPED) || this._currentFrames.length > 1))
+            const currentFrame = (!this.allowFramesToComplete || (this.currentFrame?.frameState === FRAME_STATE.STOPPED) || this._currentFrames.length > 1)
                 ? this._currentFrames.shift()
                     : this.currentFrame;
 
