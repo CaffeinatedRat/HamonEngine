@@ -467,15 +467,66 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} obj.sourceX x coordinate.
          * @param {number} obj.sourceY y coordinate.
          * @param {string} obj.font of the text.  By default this is set to '16px serif'
+         * @param {number} obj.textOffset horizontal starting coordinate of where to offset the text. By default this is left. The values are left, center, right.
+         * @param {number} obj.verticalTextOffset vertical starting coordinate of where to offset the text. By default this is left. The values are top, center, bottom.
          * @return {object} an instance of hamonengine.geometry.rect.
          */
-        getTextRect(text, { sourceX = 0, sourceY = 0, font = '16px serif' } = {}) {
+        getTextRect(text, { sourceX = 0, sourceY = 0, font = '16px serif', textOffset = 'left', verticalTextOffset = 'top', } = {}) {
             this.context.font = font;
             this.context.textBaseline = 'top';
+
+            //NOTE: The text cannot be properly inverted if metrics are disabled since the width of the text is unknown.
+            if (this.invertYAxis) {
+                sourceY = this.viewPort.height - sourceY;
+                verticalTextOffset = verticalTextOffset === 'top' ? 'bottom' : verticalTextOffset;
+            }
+
+            if (this.invertXAxis) {
+                sourceX = this.viewPort.width - sourceX;
+                textOffset = textOffset === 'left' ? 'right' : textOffset;
+            }
 
             //Use the precomputed height or compute it if one doesn't exist.
             const metrics = this.context.measureText(text);
             const height = metrics.fontBoundingBoxDescent - metrics.fontBoundingBoxAscent;
+            //Attempt to handle predefined text offsets.
+            switch (textOffset.toLowerCase()) {
+                case 'center':
+                    sourceX -= metrics.width / 2;
+                    break;
+
+                case 'right':
+                    sourceX -= metrics.width;
+                    break;
+
+                case 'left':
+                    break;
+
+                //If the textual offsets aren't passed then try to parse the offset as an integer.
+                default:
+                    sourceX -= parseInt(textOffset);
+                    break;
+            }
+
+            //Attempt to handle predefined vertical text offsets.
+            switch (verticalTextOffset.toLowerCase()) {
+                case 'center':
+                    sourceY -= (height / 2);
+                    break;
+
+                case 'bottom':
+                    sourceY -= (height);
+                    break;
+
+                case 'top':
+                    break;
+
+                //If the textual offsets aren't passed then try to parse the offset as an integer.
+                default:
+                    sourceY -= parseInt(verticalTextOffset);
+                    break;
+            }
+
             return new hamonengine.geometry.rect(sourceX, sourceY, metrics.width, height);
         }
         /**
