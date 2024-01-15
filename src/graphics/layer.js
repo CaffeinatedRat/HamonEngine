@@ -475,6 +475,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this.context.font = font;
             this.context.textBaseline = 'top';
 
+            //Only the coordinates are inverted, not the objects or the canvas.
             //NOTE: The text cannot be properly inverted if metrics are disabled since the width of the text is unknown.
             if (this.invertYAxis) {
                 sourceY = this.viewPort.height - sourceY;
@@ -607,104 +608,46 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.shadowColor of the shadow text.  By default this is 'black'.
          * @param {object} obj.metrics that contain precomputed width & height.
          * @param {boolean} obj.disableMetrics when set to true, internal metric gathering is disabled to improve performance; however, both textOffset & verticalTextOffset will no longer work.
+         * @returns {object} metrics in the form of hamonengine.geometry.rect.
          */
         drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', verticalTextOffset = 'top', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black', metrics, disableMetrics = false } = {}) {
-            this.context.font = font;
-            this.context.textBaseline = 'top';
-
-            //NOTE: Inverting the axes requires factoring in the length and size of the text as well.
-            //Only the coordinates are inverted, not the objects or the canvas.
-
-            //NOTE: The text cannot be properly inverted if metrics are disabled since the width of the text is unknown.
-            if (!disableMetrics && this.invertYAxis) {
-                sourceY = this.viewPort.height - sourceY;
-                verticalTextOffset = verticalTextOffset === 'top' ? 'bottom' : verticalTextOffset;
+            
+            //If metrics are disabled then set the context and create a metric set that only contains the source coordinates, since width & height cannot be inferred.
+            if (disableMetrics) {
+                metrics = new hamonengine.geometry.rect(sourceX, sourceY, 0, 0);
+                this.context.font = font;
+                this.context.textBaseline = 'top';
             }
-
-            if (!disableMetrics && this.invertXAxis) {
-                sourceX = this.viewPort.width - sourceX;
-                textOffset = textOffset === 'left' ? 'right' : textOffset;
+            //If metrics are enabled then use the supplied metrics and if nothing is supplied then fetch the info.
+            else {
+                metrics = metrics ?? this.getTextRect(text, {sourceX, sourceY, font, textOffset, verticalTextOffset});
             }
-
-            //Get the metrics for any offset that is not left or top.
-            //const metrics = (textOffset !== 'left' || verticalTextOffset !== 'top') ? this.context.measureText(text) : {};
-
-            let height = 0, width = 0;
-            //Determine if metrics are disabled for performance.
-            if (!disableMetrics) {
-                //Use the precomputed metrics if one is included, otherwise fetch new metrics.
-                metrics = (metrics?.height && metrics?.width) ? metrics : this.context.measureText(text);
-                //Use the precomputed height or compute it if one doesn't exist.
-                height = metrics.height || (metrics.fontBoundingBoxDescent - metrics.fontBoundingBoxAscent);
-                width = metrics.width;
-
-                //Attempt to handle predefined text offsets.
-                switch (textOffset.toLowerCase()) {
-                    case 'center':
-                        sourceX -= width / 2;
-                        break;
-
-                    case 'right':
-                        sourceX -= width;
-                        break;
-
-                    case 'left':
-                        break;
-
-                    //If the textual offsets aren't passed then try to parse the offset as an integer.
-                    default:
-                        sourceX -= parseInt(textOffset);
-                        break;
-                }
-
-                //Attempt to handle predefined vertical text offsets.
-                switch (verticalTextOffset.toLowerCase()) {
-                    case 'center':
-                        sourceY -= (height / 2);
-                        break;
-
-                    case 'bottom':
-                        sourceY -= (height);
-                        break;
-
-                    case 'top':
-                        break;
-
-                    //If the textual offsets aren't passed then try to parse the offset as an integer.
-                    default:
-                        sourceY -= parseInt(verticalTextOffset);
-                        break;
-                }
-            }
-
+            
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
                 //Draw the shadow text.
                 if (shadow) {
                     this.context.strokeStyle = shadowColor;
-                    this.context.strokeText(text, sourceX + shadowXOffset, sourceY + shadowYOffset);
+                    this.context.strokeText(text, metrics.x + shadowXOffset, metrics.y + shadowYOffset);
                 }
 
                 //Draw the regular text.
                 this.context.strokeStyle = color;
-                this.context.strokeText(text, sourceX, sourceY);
+                this.context.strokeText(text, metrics.x, metrics.y);
             }
             else {
                 //Draw the shadow text.
                 if (shadow) {
                     this.context.fillStyle = shadowColor;
-                    this.context.fillText(text, sourceX + shadowXOffset, sourceY + shadowYOffset);
+                    this.context.fillText(text, metrics.x + shadowXOffset, metrics.y + shadowYOffset);
                 }
 
                 //Draw the regular text.
                 this.context.fillStyle = color;
-                this.context.fillText(text, sourceX, sourceY);
+                this.context.fillText(text, metrics.x, metrics.y);
             }
 
             //Return text metrics & properties.
-            return {
-                width: width,
-                height: height,
-            }
+            return metrics;
         }
         /**
          * A wrapper method that draws the image (where the image can be a CanvasImageSource derived class or a hamonengine.graphics.imageext) based on the dimension parameters provided.
