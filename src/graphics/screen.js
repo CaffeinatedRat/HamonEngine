@@ -331,10 +331,10 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Starts pre-drawing logic.
-         * @param {boolean} enableFPSCounter overrides the this.enableFPSCounter property and determines if the FPSCounter should be shown.  By default this is true.
+         * @param {boolean} enableFPSCounter overrides the this.enableFPSCounter property and determines if the FPSCounter should be shown.
          */
-        beginPainting(enableFPSCounter = true) {
-            if (enableFPSCounter || this.enableFPSCounter) {
+        beginPainting({enableFPSCounter} = {}) {
+            if (enableFPSCounter ?? this.enableFPSCounter) {
                 this.fpsCounter?.begin();
             }
             super.beginPainting();
@@ -349,9 +349,10 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Ends the screen with some post drawing method.
+         * @param {boolean} enableFPSCounter overrides the this.enableFPSCounter property and determines if the FPSCounter should be shown.
          */
-        endPainting() {
-            if (this.enableFPSCounter) {
+        endPainting({enableFPSCounter} = {}) {
+            if (enableFPSCounter ?? this.enableFPSCounter) {
                 if (this.fpsCounter) {
                     this.fpsCounter.end();
                     this.drawFPSCounter(0, 0, {color: this.fpsCounterTextColor, shadow: true, shadowXOffset: 1, shadowYOffset: 1});
