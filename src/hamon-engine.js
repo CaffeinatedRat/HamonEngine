@@ -100,7 +100,7 @@ hamonengine.core = hamonengine.core || {};
             const canvasCollection = options.canvas ?? [];
 
             // Map a canvas HTMLElement to a new screen or clone a screen if screens are provided as a parameter.
-            const screenMapper = (screenOrCanvas, index) => screenOrCanvas instanceof hamonengine.graphics.screen 
+            const screenMapper = (screenOrCanvas, index) => screenOrCanvas instanceof hamonengine.graphics.screen
                 ? screenOrCanvas
                 : new hamonengine.graphics.screen({
                     engine: this,
@@ -110,7 +110,7 @@ hamonengine.core = hamonengine.core || {};
                     allowEventBinding: screenOrCanvas.dataset.alloweventbinding,
                     enableImageSmoothing: screenOrCanvas.dataset.enableimagesmoothing,
                     clipToViewPort: screenOrCanvas.dataset.cliptoviewport
-                    });
+                });
 
             if (detectCanvas && canvasCollection.length === 0) {
                 hamonengine.debug && console.debug(`[hamonengine.core.engine.constructor] DetectCanvas: true.  Attempting to detect all canvas.`);
@@ -336,7 +336,7 @@ hamonengine.core = hamonengine.core || {};
                 console.log(`[hamonengine.core.engine.start] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
                 //Start each available screen.
-                for(let i = 0; i < this.screens.length; i++) {
+                for (let i = 0; i < this.screens.length; i++) {
                     this.screens[i].start();
                 }
 
@@ -503,10 +503,10 @@ hamonengine.core = hamonengine.core || {};
                     const internalDraw = () => {
                         const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
                             //Draw the name of the engine.
-                            this.primaryScreen.beginPainting();
+                            this.primaryScreen.beginPainting({enableFPSCounter: false});
                             this.primaryScreen.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
                             this.primaryScreen.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
-                            this.primaryScreen.endPainting();
+                            this.primaryScreen.endPainting({enableFPSCounter: false});
 
                             //Wait for the splash screen animation & music to complete.
                             if (scopedTimestampInMS < 1000 || (track?.isPlaying)) {
