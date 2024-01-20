@@ -366,7 +366,7 @@ hamonengine.core = hamonengine.core || {};
 
             //Clean up other resources.
             this.primaryStoryboard && this.primaryStoryboard.stop();
-            this.screens.forEach(screan => screan && screem.release());
+            this.screens.forEach(screan => screan && screan.release());
             this._externalElements = this._screens = [];
 
             this._state = ENGINE_STATES.STOPPED;
