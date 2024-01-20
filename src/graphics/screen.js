@@ -267,6 +267,20 @@ hamonengine.graphics = hamonengine.graphics || {};
             return newLayer;
         }
         /**
+         * Swaps the two layers by their name.
+         * @param {string} source name of the layer to swap.
+         * @param {string} target name of the layer to swap.
+         */
+        swapLayer(source, target) {
+            const sourceIndex = this.getLayerIndex(source);
+            const targetIndex = this.getLayerIndex(target);
+            if (sourceIndex > -1 && targetIndex > -1) {
+                const swap = this.layers[sourceIndex];
+                this.layers[sourceIndex] = this.layers[targetIndex];
+                this.layers[targetIndex] = swap;
+            }
+        }
+        /**
          * Removes a layer by its name.
          * @param {string} name of the new layer.
          * @returns {object} layer that is being removed from the screen.
@@ -291,7 +305,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._layers = [];
         }
         /**
+         * Rebuilds the layers array by removing dead/deleted layers.
+         */
+        pruneLayers() {
+            this._layers = this._layers.filter(layer => layer);
+        }
+        /**
          * Reverses all layers.
+         * WARNING: This is a mutable change.
          */
         reverseLayers() {
             this._layers.reverse();
