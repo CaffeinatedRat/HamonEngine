@@ -87,7 +87,6 @@ hamonengine.core = hamonengine.core || {};
             this._lastFrameTimeStamp = 0;
             this._animationId = 0;
             this._processingId = 0;
-            this._fpsCounter = new fpscounter();
 
             //Add support for multiple screens that will house our canvas, and other drawing components.
             //Switching from Object properties to an array as most implementations will have only have a few screens at most and most access is linear iteration.
@@ -185,12 +184,6 @@ hamonengine.core = hamonengine.core || {};
          */
         get resourcesLoaded() {
             return this._resourcesLoaded;
-        }
-        /**
-         * Returns the primrary FPS counter for the engine.
-         */
-        get fpsCounter() {
-            return this._fpsCounter;
         }
         /**
          * Returns all external elements.
@@ -342,7 +335,11 @@ hamonengine.core = hamonengine.core || {};
                 this._state = ENGINE_STATES.STARTED;
                 console.log(`[hamonengine.core.engine.start] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
-                this.fpsCounter.start();
+                //Start each available screen.
+                for(let i = 0; i < this.screens.length; i++) {
+                    this.screens[i].start();
+                }
+
                 this.onDraw(0);
             }
 
@@ -369,7 +366,7 @@ hamonengine.core = hamonengine.core || {};
 
             //Clean up other resources.
             this.primaryStoryboard && this.primaryStoryboard.stop();
-            this.screens.forEach(screem => screem && screem.release());
+            this.screens.forEach(screan => screan && screem.release());
             this._externalElements = this._screens = [];
 
             this._state = ENGINE_STATES.STOPPED;
