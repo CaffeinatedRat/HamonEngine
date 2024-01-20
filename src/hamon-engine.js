@@ -52,7 +52,7 @@ hamonengine.core = hamonengine.core || {};
     }
 
     const canvas_default_name = 'screen';
-    const VERSION = '1.1.0';
+    const VERSION = '1.1.1';
 
     hamonengine.core.engine = class {
         constructor(options = {}) {
@@ -366,7 +366,7 @@ hamonengine.core = hamonengine.core || {};
 
             //Clean up other resources.
             this.primaryStoryboard?.stop();
-            this.screens.forEach(screan => screan?.release());
+            this.screens.forEach(screen => screen?.release());
             this._externalElements = this._screens = [];
 
             this._state = ENGINE_STATES.STOPPED;

@@ -76,3 +76,24 @@ Change Log
 #### 1.1.0
 * Added the screen class, which is an extension of a layer, to support layer chaining.  This removes the burden of layer ordering logic from the user.
 * The HamonEngine.PrimaryLayer property is now a screen and has been renamed PrimaryScreen.  All layer references in the main engine have been updated to reflect the new screen mechanism.
+
+#### 1.1.1
+Screen class
+* Added several new screen class methods such toLayer, removeLayers, swapLayers, & pruneLayers.
+* Added additional parameters, such as disabling the FPSCounter, to the screen class methods beginPainting & endPainting.
+
+Frame class
+* Added an additional event onFrameInitiating to the frame class for one time initialization of that frame.
+* Added the parameter lastFrame to retrieve the last active frame for the frame events onFrameInitiating, onFrameStarting, onFrame, onFrameStopping, & onProcessingFrame.
+
+Main Engine Class
+* Added logic to await on webfont resources.
+
+Layer Class
+* Added the layer method fillLayerColor.
+* Added the layer method getTextRect to retrieve text metrics in the form of a rect object.
+* Added metaproperties for other classes to store their specific information in a layer, unfortunately, coupling the classes.
+
+Misc
+* Fixed a deep cloning issue with the frame, tree, storyboard & screen classes.
+* Fixed an issue with the sprite dimensions during cloning.
