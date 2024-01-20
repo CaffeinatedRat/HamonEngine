@@ -28,9 +28,17 @@
 const MILLISECONDS = 1000;
 
 class fpscounter {
-    constructor(options={}) {
-        this._globalStartTime = 0;
+    constructor(options={}) {      
+        //-------------------------
+        //Internal state variables.
+        //-------------------------
+
+        //Contains the time value between the last time the end method was called.
+        this._lastEndFrameTime = 0;
+
+        //Contains the number of frames that were counted before a second has elasped.
         this._frameCounter=0;
+
         this._fps = 0;
         this._spf = 0;
         this._minFPS = MILLISECONDS;
@@ -64,7 +72,7 @@ class fpscounter {
      * Starts/Restarts the FPS counter.
      */
     start() {
-        this._globalStartTime = Date.now();
+        this._lastEndFrameTime = performance.now();
         this._frameCounter=0;
         this._fps = 0;
         this._spf = 0;
@@ -76,17 +84,17 @@ class fpscounter {
      * This is not required for calculating FPS only SFP.
      */
     begin () {
-        this._frameStartTime = Date.now();
+        this._frameStartTime = performance.now();
     }
     /**
      * Ends the recording of the SPF & FPS.
      */
     end () {
-        if (this._startTime === 0) {
+        if (this._frameStartTime === 0) {
             throw "[fpscounter.end] Begin was not called before end.";
         }
 
-        const frameEndTime = Date.now();
+        const frameEndTime = performance.now();
 
         //Increment the frame counter.
         this._frameCounter++;
@@ -98,13 +106,13 @@ class fpscounter {
         // a) Get the FPS.
         // b) Get the minimum FPS.
         // c) Get the maximum FPS.
-        // d) Reset the global start time.
+        // d) Reset the last time the end frame was captured.
         // e) Reset the frame counter.
-        if (frameEndTime > this._globalStartTime + MILLISECONDS) {
-            this._fps = Math.round(MILLISECONDS * this._frameCounter / (frameEndTime - this._globalStartTime)),
+        if (frameEndTime > this._lastEndFrameTime + MILLISECONDS) {
+            this._fps = Math.round(MILLISECONDS * this._frameCounter / (frameEndTime - this._lastEndFrameTime)),
             this._minFPS = Math.min(this._minFPS, this._fps); 
             this._maxFPS = Math.max(this._maxFPS, this._fps);
-            this._globalStartTime = frameEndTime;
+            this._lastEndFrameTime = frameEndTime;
             this._frameCounter = 0;
         }
     }
