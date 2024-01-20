@@ -249,12 +249,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             return this.layers.find(layer => (layer?.name || '').toLowerCase().trim() === (name || '').toLowerCase().trim());
         }
         /**
-         * Returns the index of the layer by its name.
-         * @param {string} name of the layer to return.
+         * Returns the index of the layer by its instance or name.
+         * @param {string} layertoFind of the layer to return.
          * @returns {number} index of the layer.
          */
-        getLayerIndex(name) {
-            return this.layers.findIndex(layer => (layer?.name || '').toLowerCase().trim() === (name || '').toLowerCase().trim());
+        getLayerIndex(layertoFind) {
+            return layertoFind instanceof hamonengine.graphics.layer 
+                ? this.layers.findIndex(layer => layer === layertoFind)
+                : this.layers.findIndex(layer => (layer?.name || '').toLowerCase().trim() === (layertoFind || '').toLowerCase().trim());
         }
         /**
          * Adds a new layer to the screen.
@@ -267,7 +269,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             return newLayer;
         }
         /**
-         * Swaps the two layers by their name.
+         * Swaps the two layers by their name or instance.
          * @param {string} source name of the layer to swap.
          * @param {string} target name of the layer to swap.
          */
@@ -281,13 +283,13 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
         }
         /**
-         * Removes a layer by its name.
-         * @param {string} name of the new layer.
+         * Removes a layer by its instance or by name.
+         * @param {string} layerToRemove of the new layer.
          * @returns {object} layer that is being removed from the screen.
          */
-        removeLayer(name) {
+        removeLayer(layerToRemove) {
             let layerToReturn;
-            const index = this.getLayerIndex(name);
+            const index = this.getLayerIndex(layerToRemove);
             if (index > -1 && index < this.layers.length) {
                 layerToReturn = this.layers[index];
                 this.layers[index] = null;
