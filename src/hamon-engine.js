@@ -79,7 +79,7 @@ hamonengine.core = hamonengine.core || {};
             this._preventDefaultState = 0 | (blockAllKeys ? PREVENT_DEFAULT_STATES.BLOCK_ALL_KEYS : PREVENT_DEFAULT_STATES.NONE) | (blockArrowKeys ? PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS : PREVENT_DEFAULT_STATES.NONE);
 
             //Add support for external elements.
-            this._externalElements = options.externalElements || [];
+            this._externalElements = options.externalElements ?? [];
 
             //Initialize internal states 
             this._state = ENGINE_STATES.STOPPED;
@@ -97,15 +97,15 @@ hamonengine.core = hamonengine.core || {};
 
             //Try to detect all canvas if the feature is enabled and none are passsed in.
             const detectCanvas = options.detectCanvas !== undefined ? options.detectCanvas : true;
-            const canvasCollection = options.canvas || [];
+            const canvasCollection = options.canvas ?? [];
 
             // Map a canvas HTMLElement to a new screen or clone a screen if screens are provided as a parameter.
             const screenMapper = (screenOrCanvas, index) => screenOrCanvas instanceof hamonengine.graphics.screen 
                 ? screenOrCanvas
                 : new hamonengine.graphics.screen({
                     engine: this,
-                    name: (screenOrCanvas.getAttribute('name') || `${canvas_default_name}${index}`),
-                    canvasId: (screenOrCanvas.getAttribute('id') || `${canvas_default_name}${index}`),
+                    name: (screenOrCanvas.getAttribute('name') ?? `${canvas_default_name}${index}`),
+                    canvasId: (screenOrCanvas.getAttribute('id') ?? `${canvas_default_name}${index}`),
                     canvas: screenOrCanvas,
                     allowEventBinding: screenOrCanvas.dataset.alloweventbinding,
                     enableImageSmoothing: screenOrCanvas.dataset.enableimagesmoothing,
@@ -365,8 +365,8 @@ hamonengine.core = hamonengine.core || {};
             this._registeredEvents = [];
 
             //Clean up other resources.
-            this.primaryStoryboard && this.primaryStoryboard.stop();
-            this.screens.forEach(screan => screan && screan.release());
+            this.primaryStoryboard?.stop();
+            this.screens.forEach(screan => screan?.release());
             this._externalElements = this._screens = [];
 
             this._state = ENGINE_STATES.STOPPED;
@@ -509,11 +509,11 @@ hamonengine.core = hamonengine.core || {};
                             this.primaryScreen.endPainting();
 
                             //Wait for the splash screen animation & music to complete.
-                            if (scopedTimestampInMS < 1000 || (track && track.isPlaying)) {
+                            if (scopedTimestampInMS < 1000 || (track?.isPlaying)) {
                                 internalDraw();
                             }
                             else {
-                                track && track.release();
+                                track?.release();
                                 window.cancelAnimationFrame(animationId);
                                 resolve();
                             }
@@ -575,7 +575,7 @@ hamonengine.core = hamonengine.core || {};
          */
         onDraw(timestampInMilliseconds) {
             //Normalize the timestamp to prevent undefined or NaN.
-            timestampInMilliseconds = (timestampInMilliseconds || 0);
+            timestampInMilliseconds = (timestampInMilliseconds ?? 0);
 
             //Set the start timestamp when the engine first starts up.
             if (!this._startTimeStamp) {
