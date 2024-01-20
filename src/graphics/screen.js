@@ -36,7 +36,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         constructor(options = {}, cloneProps = {}) {
             //Default to black if one is not provided.
             //NOTE: Screens must have a backgroundColor in order to properly refresh the screen.
-            options.backgroundColor = options.backgroundColor || 'black';
+            options.backgroundColor = options.backgroundColor ?? 'black';
             super(options, cloneProps);
 
             //Handle copy-constructor operations.
@@ -59,10 +59,10 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Allow for a custom FPS counter.
             //NOTE: The class MUST support the following methods: begin & end and properties FPS, minFPS, & maxFPS.
-            this._fpsCounter = options.fpsCounter;
-            this._fpsCounterTextColor = options.fpsCounterTextColor || 'lime';
+            this._fpsCounter = options.fpsCounter ?? new fpscounter();
+            this._fpsCounterTextColor = options.fpsCounterTextColor ?? 'lime';
 
-            this._layers = options.layers || [];
+            this._layers = options.layers ?? [];
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.graphics.screen.constructor] Name: ${this._name}`);
@@ -232,6 +232,12 @@ hamonengine.graphics = hamonengine.graphics || {};
                 canvas: newCanvas
             });
         }
+        /**
+         * A start method that handles any pre-work a screen must do before working.
+         */
+        start() {
+            this.fpsCounter.start();
+        }
         //--------------------------------------------------------
         // Layer Methods
         //--------------------------------------------------------
@@ -325,9 +331,10 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Starts pre-drawing logic.
+         * @param {boolean} enableFPSCounter overrides the this.enableFPSCounter property and determines if the FPSCounter should be shown.  By default this is true.
          */
-        beginPainting() {
-            if (this.enableFPSCounter) {
+        beginPainting(enableFPSCounter = true) {
+            if (enableFPSCounter || this.enableFPSCounter) {
                 this.fpsCounter?.begin();
             }
             super.beginPainting();
