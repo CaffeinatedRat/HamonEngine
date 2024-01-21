@@ -131,6 +131,8 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //By default, the layer was not reset.
             this._wasReset = false;
+            //Determine if clipping has occurred so we can restore the canvas state afterwards.
+            this._hasClipped = false;
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.graphics.layer.constructor] Canvas Id: ${this._canvasId}`);
@@ -557,12 +559,12 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (this.clipToViewPort) {
                 //Broken up for readability
                 //Only perform additional clip operations if the canvas & the viewport are not the same size.
-                if (this.viewPort.x !== 0 || this.viewPort.y !== 0 || this.viewPort.width !== this.width || this.viewPort.height !== this.height) {
+                if ((this.viewPort.x !== 0 || this.viewPort.y !== 0 || this.viewPort.width !== this.width || this.viewPort.height !== this.height)) {
+                    this._hasClipped = true;
                     this.save();
                     this.context.beginPath();
                     this.context.rect(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
                     this.context.clip();
-                    this.restore();
                 }
             }
         }
@@ -573,6 +575,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (!this._wasReset) {
                 this.reset();
                 this._wasReset = true;
+            }
+
+            if (this._hasClipped) {
+                this.restore();
             }
         }
         /**
