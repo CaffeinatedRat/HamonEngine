@@ -260,20 +260,20 @@ hamonengine.geometry = hamonengine.geometry || {};
             const xOffset = position.x + rect.x;
             const yOffset = position.y + rect.y;
             if (xOffset < this.x) {
-                hamonengine.debug && console.debug(`[hamonengine.geometry.rect.isContained] Outside -x: (${xOffset}, ${yOffset})`);
+                hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.geometry.rect.isContained] Outside -x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = -1;
             }
             else if (position.x + rect.right > this.right) {
-                hamonengine.debug && console.debug(`[hamonengine.geometry.rect.isContained] Outside +x: (${xOffset}, ${yOffset})`);
+                hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.geometry.rect.isContained] Outside +x: (${xOffset}, ${yOffset})`);
                 outsideDirection.x = 1;
             }
 
             if (yOffset < this.y) {
-                hamonengine.debug && console.debug(`[hamonengine.geometry.rect.isContained] Outside -y: (${xOffset}, ${yOffset})`);
+                hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.geometry.rect.isContained] Outside -y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = -1;
             }
             else if (position.y + rect.bottom > this.bottom) {
-                hamonengine.debug && console.debug(`[hamonengine.geometry.rect.isContained] Outside +y: (${xOffset}, ${yOffset})`);
+                hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.geometry.rect.isContained] Outside +y: (${xOffset}, ${yOffset})`);
                 outsideDirection.y = 1;
             }
 
