@@ -254,7 +254,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @returns {number} index of the layer.
          */
         getLayerIndex(layertoFind) {
-            return layertoFind instanceof hamonengine.graphics.layer 
+            return layertoFind instanceof hamonengine.graphics.layer
                 ? this.layers.findIndex(layer => layer === layertoFind)
                 : this.layers.findIndex(layer => (layer?.name || '').toLowerCase().trim() === (layertoFind || '').toLowerCase().trim());
         }
@@ -354,12 +354,18 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Starts pre-drawing logic.
+         * @param {number} x location to start painting.  By default this is set to the this.viewPort.x;
+         * @param {number} y location to start painting.  By default this is set to the this.viewPort.y;
+         * @param {number} width to start painting.  By default this is set to the this.viewPort.width;
+         * @param {number} height to start painting.  By default this is set to the this.viewPort.height;
+         * @param {string} backgroundColor to fill the canvas.  By default this is this.backgroundColor.
          * @param {boolean} enableFPSCounter overrides the this.enableFPSCounter property and determines if the FPSCounter should be shown.
          */
-        beginPainting({enableFPSCounter} = {}) {
+        beginPainting({ x, y, width, height, backgroundColor, enableFPSCounter } = {}) {
             if (enableFPSCounter ?? this.enableFPSCounter) {
-                this.fpsCounter?.begin();
+                this.fpsCounter?.begin({ x, y, width, height, backgroundColor });
             }
+
             super.beginPainting();
         }
         /**
@@ -374,11 +380,11 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Ends the screen with some post drawing method.
          * @param {boolean} enableFPSCounter overrides the this.enableFPSCounter property and determines if the FPSCounter should be shown.
          */
-        endPainting({enableFPSCounter} = {}) {
+        endPainting({ enableFPSCounter } = {}) {
             if (enableFPSCounter ?? this.enableFPSCounter) {
                 if (this.fpsCounter) {
                     this.fpsCounter.end();
-                    this.drawFPSCounter(0, 0, {color: this.fpsCounterTextColor, shadow: true, shadowXOffset: 1, shadowYOffset: 1});
+                    this.drawFPSCounter(0, 0, { color: this.fpsCounterTextColor, shadow: true, shadowXOffset: 1, shadowYOffset: 1 });
                 }
             }
             super.endPainting();
@@ -392,8 +398,8 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} color of the text.  By default this is 'lime'.
          * @param {boolean} shadow draws a shadow under the text.  By default this is false.
          */
-        drawFPSCounter(sourceX = 0, sourceY = 0, options = { color: 'lime', shadow: false}) {
-            this.drawText(`FPS: ${this.fpsCounter.FPS} (${this.fpsCounter.minFPS} - ${this.fpsCounter.maxFPS})`, sourceX, sourceY, { ...options, ...{disableMetrics: true} });
+        drawFPSCounter(sourceX = 0, sourceY = 0, options = { color: 'lime', shadow: false }) {
+            this.drawText(`FPS: ${this.fpsCounter.FPS} (${this.fpsCounter.minFPS} - ${this.fpsCounter.maxFPS})`, sourceX, sourceY, { ...options, ...{ disableMetrics: true } });
         }
         /**
          * Releases resources.
