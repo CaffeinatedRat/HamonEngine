@@ -363,10 +363,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         beginPainting({ x, y, width, height, backgroundColor, enableFPSCounter } = {}) {
             if (enableFPSCounter ?? this.enableFPSCounter) {
-                this.fpsCounter?.begin({ x, y, width, height, backgroundColor });
+                this.fpsCounter?.begin();
             }
 
-            super.beginPainting();
+            //Always clear the entire screen.
+            //this.context.clearRect(x, y, this.width, this.height);
+            super.beginPainting({ x, y, width, height, backgroundColor });
         }
         /**
          * Draws all layers onto the screen.
