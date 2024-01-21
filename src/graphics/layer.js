@@ -541,11 +541,11 @@ hamonengine.graphics = hamonengine.graphics || {};
         beginPainting({ x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor } = {}) {
             //Added support for resetting the background color.
             if (backgroundColor) {
-                this.fillLayerColor(backgroundColor, x, y, width, height);
+                this.fillLayerColor(backgroundColor, x, y, this.width, this.height);
             }
             //No background color then just perform a normal clear.
             else {
-                this.clear(x, y, width, height);
+                this.clear(x, y, this.width, this.height);
             }
 
             if (this.borderColor) {
@@ -558,9 +558,11 @@ hamonengine.graphics = hamonengine.graphics || {};
                 //Broken up for readability
                 //Only perform additional clip operations if the canvas & the viewport are not the same size.
                 if (this.viewPort.x !== 0 || this.viewPort.y !== 0 || this.viewPort.width !== this.width || this.viewPort.height !== this.height) {
+                    this.save();
                     this.context.beginPath();
                     this.context.rect(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
                     this.context.clip();
+                    this.restore();
                 }
             }
         }
@@ -611,7 +613,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @returns {object} metrics in the form of hamonengine.geometry.rect.
          */
         drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', verticalTextOffset = 'top', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black', metrics, disableMetrics = false } = {}) {
-            
+
             //If metrics are disabled then set the context and create a metric set that only contains the source coordinates, since width & height cannot be inferred.
             if (disableMetrics) {
                 metrics = new hamonengine.geometry.rect(sourceX, sourceY, 0, 0);
@@ -620,9 +622,9 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
             //If metrics are enabled then use the supplied metrics and if nothing is supplied then fetch the info.
             else {
-                metrics = metrics ?? this.getTextRect(text, {sourceX, sourceY, font, textOffset, verticalTextOffset});
+                metrics = metrics ?? this.getTextRect(text, { sourceX, sourceY, font, textOffset, verticalTextOffset });
             }
-            
+
             if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
                 //Draw the shadow text.
                 if (shadow) {
