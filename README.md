@@ -56,7 +56,7 @@ Change Log
 
 #### 1.1.2
 * Added onScreenResize event that is triggered when the screen (canvas element) changes size. This resize event is now propagated to all layers within the screen and all frames within the storyboard.
-* Added onUpdateEvent added to the frame class to support generic update events.
+* Added onUpdateEvent to the frame class to support generic update events.
 
 #### 1.1.1
 Screen class
