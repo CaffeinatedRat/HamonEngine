@@ -410,5 +410,22 @@ hamonengine.graphics = hamonengine.graphics || {};
             super.release();
             this.removeAllLayers();
         }
+        //--------------------------------------------------------
+        // Events
+        //--------------------------------------------------------
+        /**
+         * An event that is triggered when a screen (canvas) is resized.
+         * @param {object} rect (hamonengine.geometry.rect) of the new screen dimensions.
+         */
+        onScreenResize(rect) {
+            super.onScreenResize(rect);
+            //Propagate the changes to all the layers.
+            for (let i = 0; i < this.layers.length; i++) {
+                this.layers[i].onScreenResize(rect);
+                //Need to reset the layer's canvas sizes as well since only the parent canvas has been updated.
+                this.layers[i].canvas.width = rect.width;
+                this.layers[i].canvas.height = rect.height;
+            }
+        }
     }
 })();

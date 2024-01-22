@@ -52,7 +52,7 @@ hamonengine.core = hamonengine.core || {};
     }
 
     const canvas_default_name = 'screen';
-    const VERSION = '1.1.1';
+    const VERSION = '1.1.2';
 
     hamonengine.core.engine = class {
         constructor(options = {}) {
@@ -66,6 +66,7 @@ hamonengine.core = hamonengine.core || {};
             this._allowDocumentEventBinding = options.allowDocumentEventBinding !== undefined ? options.allowDocumentEventBinding : false;
             this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
             this._awaitFontResources = options.awaitFontResources !== undefined ? options.awaitFontResources : true;
+            this._handleResizingEvents = options.handleResizingEvents !== undefined ? options.handleResizingEvents : true;
             this._storyboard = options.storyboard;
 
             //Assign the engine if this one is not assigned.
@@ -128,6 +129,7 @@ hamonengine.core = hamonengine.core || {};
             }
 
             this._resourcesLoaded = false;
+            this._resizeObserver = null;
 
             //Log initialization values
             if (hamonengine.debug) {
@@ -192,13 +194,6 @@ hamonengine.core = hamonengine.core || {};
             return this._externalElements;
         }
         /**
-         * Returns true if the processing & drawing frames are sync'ed.
-         * Warning: When enabled this can impact FPS performance.
-         */
-        get syncFrames() {
-            return this._syncFrames;
-        }
-        /**
          * Returns true if document event binding is allowed.
          */
         get allowDocumentEventBinding() {
@@ -241,11 +236,24 @@ hamonengine.core = hamonengine.core || {};
             this._preventDefaultState = v ? (this._preventDefaultState | PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS) : (this._preventDefaultState ^ PREVENT_DEFAULT_STATES.BLOCK_ARROWS_KEYS);
         }
         /**
+         * Returns true if the processing & drawing frames are sync'ed.
+         * Warning: When enabled this can impact FPS performance.
+         */
+        get syncFrames() {
+            return this._syncFrames;
+        }
+        /**
          * Assigns the sync value for processing & drawing frames together.
          * Warning: When enabled this can impact FPS performance.
          */
         set syncFrames(v) {
             this._syncFrames = v;
+        }
+        /**
+         * Determines if the engine responds to an screen (canvas) resize event.
+         */
+        get handleResizingEvents() {
+            return this._handleResizingEvents;
         }
         //--------------------------------------------------------
         // Methods
@@ -366,10 +374,14 @@ hamonengine.core = hamonengine.core || {};
 
             //Clean up other resources.
             this.primaryStoryboard?.stop();
-            this.screens.forEach(screen => screen?.release());
+            this.screens.forEach(screen => {
+                this.handleResizingEvents && screen && this._resizeObserver?.unobserve(screen?.canvas);
+                screen?.release();
+            });
             this._externalElements = this._screens = [];
 
             this._state = ENGINE_STATES.STOPPED;
+            delete this._resizeObserver;
             console.log(`[hamonengine.core.engine.stop] State: ${ENGINE_STATES_NAMES[this._state]}`);
 
             //Allow chaining.
@@ -470,13 +482,20 @@ hamonengine.core = hamonengine.core || {};
                 //Allow support for external elements.
                 this.externalElements.forEach(externalElement => bindEvents(externalElement, externalElement));
 
+                //Determine if we're handling resizing events.
+                if (this.handleResizingEvents) {
+                    this._resizeObserver = new ResizeObserver(e => this.onScreenResize(this, e));
+                }
+
                 // If this is moved into the screens, then it is no longer a graphics based entity, but a graphics & input entity.
                 if (this.screens.length === 1) {
                     this.primaryScreen.allowEventBinding && bindEvents(this.primaryScreen.canvas, this.primaryScreen);
+                    this.handleResizingEvents && this._resizeObserver?.observe(this.primaryScreen.canvas);
                 }
                 else {
                     for (let i = 0; i < this.screens.length; i++) {
-                        this.screens[i].allowEventBinding && bindEvents(this.screens[i].canvas, this.screens[i])
+                        this.screens[i].allowEventBinding && bindEvents(this.screens[i].canvas, this.screens[i]);
+                        this.handleResizingEvents && this._resizeObserver?.observe(this.screens[i].canvas);
                     }
                 }
             }
@@ -503,10 +522,10 @@ hamonengine.core = hamonengine.core || {};
                     const internalDraw = () => {
                         const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
                             //Draw the name of the engine.
-                            this.primaryScreen.beginPainting({enableFPSCounter: false});
+                            this.primaryScreen.beginPainting({ enableFPSCounter: false });
                             this.primaryScreen.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
                             this.primaryScreen.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
-                            this.primaryScreen.endPainting({enableFPSCounter: false});
+                            this.primaryScreen.endPainting({ enableFPSCounter: false });
 
                             //Wait for the splash screen animation & music to complete.
                             if (scopedTimestampInMS < 1000 || (track?.isPlaying)) {
@@ -568,6 +587,24 @@ hamonengine.core = hamonengine.core || {};
             e && e.preventDefault();
             this.primaryStoryboard?.onTouchEvent(type, touches, e, caller);
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
+        }
+        /**
+         * An event that is triggered when a screen (canvas) is resized.
+         * @param {object} parent this always contains an instance of this engine.
+         * @param {object} entries contains a reference to the ResizeObserverEntry object (https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserverEntry).
+         */
+        async onScreenResize(parent, entries) {
+            for (let i = 0; i < entries.length; i++) {
+                const screen = parent.screens.find(screen => screen.canvas === entries[i].target);
+                if (screen) {
+                    const newRect = new hamonengine.geometry.rect(entries[i].contentRect.x, entries[i].contentRect.y, entries[i].contentRect.width, entries[i].contentRect.height);
+                    //Only spawn these events on dimension changes.
+                    if (screen.viewPort.width !== newRect.width || screen.viewPort.height !== newRect.height) {
+                        screen?.onScreenResize(newRect);
+                        await parent.primaryStoryboard?.onScreenResize(newRect);
+                    }
+                }
+            }
         }
         /**
          * A draw loop event that is triggered once the engine starts.

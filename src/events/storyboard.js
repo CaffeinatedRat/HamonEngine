@@ -258,6 +258,16 @@ hamonengine.events = hamonengine.events || {};
             hamonengine.debug && console.debug("[hamonengine.events.storyboard.onloadResources]");
         }
         /**
+         * An event that occurs when an update event has occurred.
+         * @param {object} storyboard calling the load operation.
+         * @param {string} eventName of the update event.
+         * @param {object} updateParams associated with the update event.
+         * @return {Object} a promise that the resource has loaded successfully.
+         */
+        async onUpdateEvent(storyboard, eventName, updateParams) {
+            hamonengine.debug && console.debug(`[hamonengine.events.storyboard.onUpdateEvent] eventName: '${eventName}'`);
+        }
+        /**
          * Processes the current frame in the storyboard on an onFrame event.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
@@ -308,6 +318,16 @@ hamonengine.events = hamonengine.events || {};
          */
         onTouchEvent(type, touches, e, caller) {
             this.currentFrame?.onTouchEvent(this, type, touches, e, caller);
+        }
+        /**
+         * An event that is triggered when a screen (canvas) is resized.
+         * @param {object} rect (hamonengine.geometry.rect) of the new screen dimensions.
+         */
+        async onScreenResize(rect) {
+            if (hamonengine.debug && hamonengine.verbose) {
+                console.debug(`[hamonengine.events.storyboard.onScreenResize] Name: '${this.name}', Dimensions: {${rect.toString()}}`);
+            }
+            await this.update(true, this, 'screenResize', {rect});
         }
     }
 })();

@@ -165,7 +165,6 @@ hamonengine.events = hamonengine.events || {};
          * @param {boolean} loadDescendantFrames determines if the child frames should load resources at the same time.
          * @param {object} storyboard calling the load operation.
          * @param {Array} framesToAwait an internal parameter used to gather all nodes and promises that will be awaited in parallel.  Resource Frame nodes will not be included in this array and will be awaited instantly.
-         * @param {}
          * @return {object} a promise to complete resource loading.
          */
         async __internalLoad(loadDescendantFrames, storyboard, framesToAwait = []) {
@@ -185,7 +184,7 @@ hamonengine.events = hamonengine.events || {};
                     //Traverse all nodes and invoke the onloadResources method on all descendants waiting for this event.
                     let frame = this.first;
                     while (frame !== null) {
-                        const nodePromise = frame.__internalLoad(loadDescendantFrames, storyboard, framesToAwait, false);
+                        const nodePromise = frame.__internalLoad(loadDescendantFrames, storyboard, framesToAwait);
                         if ((nodePromise instanceof Promise)) {
                             //If the frame is a resource frame then we must wait on it to complete, as it will not run in parallel.
                             if (frame.isResourceFrame) {
@@ -204,6 +203,47 @@ hamonengine.events = hamonengine.events || {};
                 //NOTE: This state will be delayed until the entire load method is completed.
                 //This is due to the fact that this flag is set early, for frames that are loaded in parallel and have not been awaited yet.
                 this._loadingState = FRAME_STATE.LOADED;
+            }
+        }
+        /**
+         * Preloads any resource loading.
+         * @param {boolean} loadDescendantFrames determines if the child frames should load resources at the same time.
+         * @param {object} storyboard calling the load operation.
+         * @param {string} eventName of the update event.
+         * @param {object} updateParams associated with the update event.
+         * @return {object} a promise to complete resource loading.
+         */
+        async update(loadDescendantFrames, storyboard, eventName, updateParams) {
+            const framesToAwait = [];
+            await this.__internalUpdate(loadDescendantFrames, storyboard, eventName, updateParams, framesToAwait);
+            await Promise.all(framesToAwait);
+        }
+        /**
+         * An internal method for recurisvely loading resources.
+         * @param {boolean} loadDescendantFrames determines if the child frames should load resources at the same time.
+         * @param {object} storyboard calling the load operation.
+         * @param {string} eventName of the update event.
+         * @param {object} updateParams associated with the update event.
+         * @param {Array} framesToAwait an internal parameter used to gather all nodes and promises that will be awaited in parallel.  Resource Frame nodes will not be included in this array and will be awaited instantly.
+         * @return {object} a promise to complete resource loading.
+         */
+        async __internalUpdate(loadDescendantFrames, storyboard, eventName, updateParams, framesToAwait = []) {
+            const parentFramePromise = this.onUpdateEvent(storyboard, eventName, updateParams);
+            if ((parentFramePromise instanceof Promise)) {
+                framesToAwait.push(parentFramePromise);
+
+                if (loadDescendantFrames) {
+                    //Traverse all nodes and invoke the onloadResources method on all descendants waiting for this event.
+                    let frame = this.first;
+                    while (frame !== null) {
+                        const nodePromise = frame.__internalUpdate(loadDescendantFrames, storyboard, eventName, updateParams, framesToAwait);
+                        if ((nodePromise instanceof Promise)) {
+                            framesToAwait.push(nodePromise);
+                        }
+
+                        frame = frame.next;
+                    }
+                }
             }
         }
         /**
@@ -276,6 +316,15 @@ hamonengine.events = hamonengine.events || {};
         async onloadResources(storyboard) {
         }
         /**
+         * An event that occurs when an update event has occurred.
+         * @param {object} storyboard calling the load operation.
+         * @param {string} eventName of the update event.
+         * @param {object} updateParams associated with the update event.
+         * @return {Object} a promise that the resource has loaded successfully.
+         */
+        async onUpdateEvent(storyboard, eventName, updateParams) {
+        }
+        /**
          * An onFrameInitiating event that is triggered when frame is starting for the 1st time.
          * This event occurs only once.
          * @param {number} elapsedTimeInMilliseconds since the last frame.
@@ -283,7 +332,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onFrameInitiating(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
+        onFrameInitiating(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame) {
         }
         /**
          * An onFrameStarting event that is triggered when frame is starting.
@@ -292,7 +341,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onFrameStarting(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
+        onFrameStarting(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame) {
             //Unless overridden skip the starting frame.
             this.frameState = FRAME_STATE.RUNNING;
         }
@@ -303,7 +352,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
+        onFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame) {
         }
         /**
          * An onFrameStopping event that is triggered when frame is stop.
@@ -312,7 +361,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onFrameStopping(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
+        onFrameStopping(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame) {
             //Unless overridden skip the stopping frame.
             this.frameState = FRAME_STATE.STOPPED;
         }
@@ -323,7 +372,7 @@ hamonengine.events = hamonengine.events || {};
          * @param {number} totalTimeInMilliseconds is the total time that has elapsed since the engine has started.
          * @param {object} lastFrame contains the last frame before transitioning to this one.  NOTE: This can be null or undefined.
          */
-        onProcessingFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds,lastFrame) {
+        onProcessingFrame(elapsedTimeInMilliseconds, storyboard, totalTimeInMilliseconds, lastFrame) {
         }
         /**
          * An onRelease event that is triggered when a frame needs to release resources.

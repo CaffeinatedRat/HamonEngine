@@ -1152,5 +1152,19 @@ hamonengine.graphics = hamonengine.graphics || {};
             delete this._canvas;
             delete this._canvasContext;
         }
+        //--------------------------------------------------------
+        // Events
+        //--------------------------------------------------------
+        /**
+         * An event that is triggered when a screen (canvas) is resized.
+         * @param {object} rect (hamonengine.geometry.rect) of the new screen dimensions.
+         */
+        onScreenResize(rect) {
+            if (hamonengine.debug && hamonengine.verbose) {
+                console.debug(`[hamonengine.graphics.layer.onScreenResize] Name: '${this.name}', Dimensions: {${rect.toString()}}`);
+            }
+            
+            this._viewPort = rect;
+        }
     }
 })();
