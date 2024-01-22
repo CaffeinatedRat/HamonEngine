@@ -598,8 +598,8 @@ hamonengine.core = hamonengine.core || {};
                 const screen = parent.screens.find(screen => screen.canvas === entries[i].target);
                 if (screen) {
                     const newRect = new hamonengine.geometry.rect(entries[i].contentRect.x, entries[i].contentRect.y, entries[i].contentRect.width, entries[i].contentRect.height);
-                    //Only spawn these events on dimension changes.
-                    if (screen.viewPort.width !== newRect.width || screen.viewPort.height !== newRect.height) {
+                    //Only spawn these events on dimension changes and when the element is not hidden (width & height = 0).
+                    if (newRect.height > 0 && newRect.width > 0 && (screen.viewPort.width !== newRect.width || screen.viewPort.height !== newRect.height)) {
                         screen?.onScreenResize(newRect);
                         await parent.primaryStoryboard?.onScreenResize(newRect);
                     }
