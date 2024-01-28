@@ -362,14 +362,17 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} width to start painting.  By default this is set to the this.viewPort.width;
          * @param {number} height to start painting.  By default this is set to the this.viewPort.height;
          * @param {string} backgroundColor to fill the canvas.  By default this is this.backgroundColor.
+         * @param {string} backgroundColor to fill the canvas.  By default this is this.backgroundColor.
+         * @param {string} borderColor to color the border.  By default this is this.borderColor.
+         * @param {boolean} clipToViewPort determines if the layer should clip to the viewport.  By default this is this.clipToViewPort.
          * @param {boolean} enableFPSCounter overrides the this.enableFPSCounter property and determines if the FPSCounter should be shown.
          */
-        beginPainting({ x, y, width, height, backgroundColor, enableFPSCounter } = {}) {
+        beginPainting({ x, y, width, height, backgroundColor, borderColor, clipToViewPort, enableFPSCounter } = {}) {
             if (enableFPSCounter ?? this.enableFPSCounter) {
                 this.fpsCounter?.begin();
             }
 
-            super.beginPainting({ x, y, width, height, backgroundColor });
+            super.beginPainting({ x, y, width, height, backgroundColor, borderColor, clipToViewPort });
         }
         /**
          * Draws all layers onto the screen.

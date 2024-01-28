@@ -518,15 +518,15 @@ hamonengine.core = hamonengine.core || {};
          */
         async onShowEngineSplashScreen() {
             if (this.primaryScreen) {
-                const xOffset = this.primaryScreen.viewPort.width / 2;
-                const yOffset = (this.primaryScreen.viewPort.height / 2) - 48;
+                const xOffset = this.primaryScreen.width / 2;
+                const yOffset = (this.primaryScreen.height / 2) - 48;
 
                 return new Promise((resolve, reject) => {
                     let track;
                     const internalDraw = () => {
                         const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
                             //Draw the name of the engine.
-                            this.primaryScreen.beginPainting({ enableFPSCounter: false });
+                            this.primaryScreen.beginPainting({ x: 0, y: 0, width:  this.primaryScreen.width, height: this.primaryScreen.height, enableFPSCounter: false, clipToViewPort: false, backgroundColor: 'black', borderColor: '' });
                             this.primaryScreen.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
                             this.primaryScreen.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
                             this.primaryScreen.endPainting({ enableFPSCounter: false });

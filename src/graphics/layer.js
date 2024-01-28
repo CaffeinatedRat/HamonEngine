@@ -552,10 +552,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} obj.width to start painting.  By default this is set to the this.viewPort.width;
          * @param {number} obj.height to start painting.  By default this is set to the this.viewPort.height;
          * @param {string} obj.backgroundColor to fill the canvas.  By default this is this.backgroundColor.
+         * @param {string} obj.borderColor to color the border.  By default this is this.borderColor.
+         * @param {boolean} obj.clipToViewPort determines if the layer should clip to the viewport.  By default this is this.clipToViewPort.
         */
-        beginPainting({ x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor } = {}) {
+        beginPainting({ x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor, borderColor = this.borderColor, clipToViewPort = this.clipToViewPort } = {}) {
             //Determine if viewport clipping is enabled.
-            if (this.clipToViewPort) {
+            if (clipToViewPort) {
                 //Broken up for readability
                 //Only perform additional clip operations if the canvas & the viewport are not the same size.
                 if ((this.viewPort.x !== 0 || this.viewPort.y !== 0 || this.viewPort.width !== this.width || this.viewPort.height !== this.height)) {
@@ -582,7 +584,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
 
             if (this.borderColor) {
-                this.context.strokeStyle = this.borderColor;
+                this.context.strokeStyle = borderColor;
                 this.context.strokeRect(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
             }
         }
