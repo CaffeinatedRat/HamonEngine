@@ -103,7 +103,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._viewPortBorderColor = options.borderColor || '';
 
             //Set the viewport to the size of the layer by default.
-            this._viewPort = options.viewPort || new hamonengine.geometry.rect(0, 0, this._canvas.width, this._canvas.height);
+            this.viewPort = options.viewPort || new hamonengine.geometry.rect(0, 0, this._canvas.width, this._canvas.height);
 
             //Try to get the 2d context.
             try {
@@ -213,6 +213,19 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         get viewPort() {
             return this._viewPort;
+        }
+        /**
+         * Sets the viewport.
+         */
+        set viewPort(v) {
+            //Clamp the viewport to the dimensions of the canvas.
+            v.x = v.x < 0 ? 0 : v.x;
+            v.y = v.y < 0 ? 0 : v.y;
+            v.width = v.width > this.width ? this.width : v.width;
+            v.height = v.height > this.height ? this.height : v.height;
+
+            //Store the assigned viewport & a baseline viewport which is used in calculating the viewport ratio during a system resize event.
+            this._viewPort = this._baselineViewPort = v;
         }
         /**
          * Returns true if wrapping horizontally is enabled.
