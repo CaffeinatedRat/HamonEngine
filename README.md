@@ -54,6 +54,9 @@ A set of standards I borrowed from the [https://github.com/Bukkit/CraftBukkit] (
 Change Log
 -----------
 
+#### 1.1.3
+* Fixed a lot of issues with the viewport logic, which was incomplete in some areas.
+
 #### 1.1.2
 * Added onScreenResize event that is triggered when the screen (canvas element) changes size. This resize event is now propagated to all layers within the screen and all frames within the storyboard.
 * Added onUpdateEvent to the frame class to support generic update events.
