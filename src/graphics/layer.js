@@ -554,20 +554,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} obj.backgroundColor to fill the canvas.  By default this is this.backgroundColor.
         */
         beginPainting({ x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height, backgroundColor = this.backgroundColor } = {}) {
-            //Added support for resetting the background color.
-            if (backgroundColor) {
-                this.fillLayerColor(backgroundColor, x, y, this.width, this.height);
-            }
-            //No background color then just perform a normal clear.
-            else {
-                this.clear(x, y, this.width, this.height);
-            }
-
-            if (this.borderColor) {
-                this.context.strokeStyle = this.borderColor;
-                this.context.strokeRect(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
-            }
-
             //Determine if viewport clipping is enabled.
             if (this.clipToViewPort) {
                 //Broken up for readability
@@ -575,23 +561,42 @@ hamonengine.graphics = hamonengine.graphics || {};
                 if ((this.viewPort.x !== 0 || this.viewPort.y !== 0 || this.viewPort.width !== this.width || this.viewPort.height !== this.height)) {
                     this._hasClipped = true;
                     this.save();
+                    this.context.clearRect(0, 0, this.width, this.height);
                     this.context.beginPath();
                     this.context.rect(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
                     this.context.clip();
                 }
+                else {
+                    this._hasClipped = false;
+                }
+            }
+
+            //Added support for resetting the background color.
+            if (backgroundColor) {
+                this.fillLayerColor(backgroundColor, x, y, width, height);
+            }
+            //No background color then just perform a normal clear.
+            else {
+                //NOTE: Clear has already been called if clipping is has occurred.
+                !this._hasClipped && this.context.clearRect(x, y, this.width, this.height);
+            }
+
+            if (this.borderColor) {
+                this.context.strokeStyle = this.borderColor;
+                this.context.strokeRect(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
             }
         }
         /**
          * Ends default painting on this layer.
         */
         endPainting() {
+            if (this._hasClipped) {
+                this.restore();
+            }
+
             if (!this._wasReset) {
                 this.reset();
                 this._wasReset = true;
-            }
-
-            if (this._hasClipped) {
-                this.restore();
             }
         }
         /**
