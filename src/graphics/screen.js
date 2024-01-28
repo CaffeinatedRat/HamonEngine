@@ -65,7 +65,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._layers = options.layers ?? [];
 
             //Capture the original canvas size, which is used to determine when an element resize has happened.
-            this._previousCanvasSize = new hamonengine.math.vector2(this.width, this.height);
+            this._previousCanvasSize = { width: this.width, height: this.height };
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.graphics.screen.constructor] Name: ${this._name}`);
@@ -423,20 +423,18 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @returns {boolean} true if a size change has occurred for this screen.
          */
         onScreenResize(newRect) {
-
             //Determine if the canvas size has changed.
-            //NOTE: We store the width & height in a vector to save space, so we x = width & x = height.
-            if (newRect.height > 0 && newRect.width > 0 && (this._previousCanvasSize.x !== newRect.width || this._previousCanvasSize.y !== newRect.height)) {
+            if (newRect.height > 0 && newRect.width > 0 && (this._previousCanvasSize.width !== newRect.width || this._previousCanvasSize.height !== newRect.height)) {
 
                 //Calculate the resize ratio.
-                const widthRatio = newRect.width / this._previousCanvasSize.x;
-                const heightRatio = newRect.height / this._previousCanvasSize.y;
+                const widthRatio = newRect.width / this._previousCanvasSize.width;
+                const heightRatio = newRect.height / this._previousCanvasSize.height;
 
                 //Calculate a new viewport based on the original baseline set by the user and the screen size changes.
                 this.viewPort = new hamonengine.geometry.rect(this._baselineViewPort.x * widthRatio, this._baselineViewPort.y * heightRatio, this._baselineViewPort.width * widthRatio, this._baselineViewPort.height * heightRatio);
 
                 //Re-capture the previous canvas size.
-                this._previousCanvasSize = new hamonengine.math.vector2(newRect.width, newRect.height);
+                this._previousCanvasSize = { width: newRect.width, height: newRect.height };
 
                 //Propagate the changes to all the layers.
                 for (let i = 0; i < this.layers.length; i++) {
