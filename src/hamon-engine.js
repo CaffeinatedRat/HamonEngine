@@ -490,12 +490,16 @@ hamonengine.core = hamonengine.core || {};
                 // If this is moved into the screens, then it is no longer a graphics based entity, but a graphics & input entity.
                 if (this.screens.length === 1) {
                     this.primaryScreen.allowEventBinding && bindEvents(this.primaryScreen.canvas, this.primaryScreen);
-                    this.handleResizingEvents && this._resizeObserver?.observe(this.primaryScreen.canvas);
+                    if (this.handleResizingEvents) {
+                        this._resizeObserver?.observe(this.primaryScreen.canvas);
+                    }
                 }
                 else {
                     for (let i = 0; i < this.screens.length; i++) {
                         this.screens[i].allowEventBinding && bindEvents(this.screens[i].canvas, this.screens[i]);
-                        this.handleResizingEvents && this._resizeObserver?.observe(this.screens[i].canvas);
+                        if (this.handleResizingEvents) {
+                            this._resizeObserver?.observe(this.screens[i].canvas);
+                        }
                     }
                 }
             }
@@ -599,8 +603,7 @@ hamonengine.core = hamonengine.core || {};
                 if (screen) {
                     const newRect = new hamonengine.geometry.rect(entries[i].contentRect.x, entries[i].contentRect.y, entries[i].contentRect.width, entries[i].contentRect.height);
                     //Only spawn these events on dimension changes and when the element is not hidden (width & height = 0).
-                    if (newRect.height > 0 && newRect.width > 0 && (screen.viewPort.width !== newRect.width || screen.viewPort.height !== newRect.height)) {
-                        screen?.onScreenResize(newRect);
+                    if (screen.onScreenResize(newRect)) {
                         await parent.primaryStoryboard?.onScreenResize(newRect);
                     }
                 }

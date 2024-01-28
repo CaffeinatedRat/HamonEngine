@@ -36,7 +36,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         constructor(options = {}, cloneProps = {}) {
             //Default to black if one is not provided.
             //NOTE: Screens must have a backgroundColor in order to properly refresh the screen.
-            options.backgroundColor = options.backgroundColor ?? 'black';
+            options.backgroundColor = options.backgroundColor; //?? 'black';
             super(options, cloneProps);
 
             //Handle copy-constructor operations.
@@ -63,6 +63,9 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._fpsCounterTextColor = options.fpsCounterTextColor ?? 'lime';
 
             this._layers = options.layers ?? [];
+
+            //Capture the original canvas size, which is used to determine when an element resize has happened.
+            this._previousCanvasSize = new hamonengine.math.vector2(this.width, this.height);
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.graphics.screen.constructor] Name: ${this._name}`);
@@ -366,8 +369,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                 this.fpsCounter?.begin();
             }
 
-            //Always clear the entire screen.
-            //this.context.clearRect(x, y, this.width, this.height);
             super.beginPainting({ x, y, width, height, backgroundColor });
         }
         /**
@@ -415,17 +416,36 @@ hamonengine.graphics = hamonengine.graphics || {};
         //--------------------------------------------------------
         /**
          * An event that is triggered when a screen (canvas) is resized.
-         * @param {object} rect (hamonengine.geometry.rect) of the new screen dimensions.
+         * @param {object} newRect (hamonengine.geometry.rect) of the new screen dimensions.
+         * @returns {boolean} true if a size change has occurred for this screen.
          */
-        onScreenResize(rect) {
-            super.onScreenResize(rect);
-            //Propagate the changes to all the layers.
-            for (let i = 0; i < this.layers.length; i++) {
-                this.layers[i].onScreenResize(rect);
-                //Need to reset the layer's canvas sizes as well since only the parent canvas has been updated.
-                this.layers[i].canvas.width = rect.width;
-                this.layers[i].canvas.height = rect.height;
+        onScreenResize(newRect) {
+
+            //Determine if the canvas size has changed.
+            //NOTE: We store the width & height in a vector to save space, so we x = width & x = height.
+            if (newRect.height > 0 && newRect.width > 0 && (this._previousCanvasSize.x !== newRect.width || this._previousCanvasSize.y !== newRect.height)) {
+
+                //Calculate the resize ratio.
+                const widthRatio = newRect.width / this._previousCanvasSize.x;
+                const heightRatio = newRect.height / this._previousCanvasSize.y;
+
+                //Calculate a new viewport based on the original baseline set by the user and the screen size changes.
+                this.viewPort = new hamonengine.geometry.rect(this._baselineViewPort.x * widthRatio, this._baselineViewPort.y * heightRatio, this._baselineViewPort.width * widthRatio, this._baselineViewPort.height * heightRatio);
+
+                //Re-capture the previous canvas size.
+                this._previousCanvasSize = new hamonengine.math.vector2(newRect.width, newRect.height);
+
+                //Propagate the changes to all the layers.
+                for (let i = 0; i < this.layers.length; i++) {
+                    this.layers[i].canvas.width = newRect.width;
+                    this.layers[i].canvas.height = newRect.height;
+                    this.layers[i].viewPort = new hamonengine.geometry.rect(this.layers[i]._baselineViewPort.x * widthRatio, this.layers[i]._baselineViewPort.y * heightRatio, this.layers[i]._baselineViewPort.width * widthRatio, this.layers[i]._baselineViewPort.height * heightRatio);
+                }
+
+                return true;
             }
+
+            return false;
         }
     }
 })();
