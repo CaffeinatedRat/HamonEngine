@@ -372,7 +372,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * This property is mostly a meta-property used by external logic.
          */
         get visible() {
-            return this.metaProperties.visible;
+            return this.metaProperties.visible ?? false;
         }
         /**
          * Assigns the visibility of the layer.
@@ -428,12 +428,12 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Clears the layer
-         * @param {*} x coordinate to clear, set to viewport by default.
-         * @param {*} y coordinate to clear, set to viewport by default.
-         * @param {*} width to clear, set to viewport by default.
-         * @param {*} height to clear, set to viewport by default.
+         * @param {*} x coordinate to clear, set to 0 by default.
+         * @param {*} y coordinate to clear, set to 0 by default.
+         * @param {*} width to clear, set to the width of the layer by default.
+         * @param {*} height to clear, set to the height of the layer by default.
          */
-        clear(x = this.viewPort.x, y = this.viewPort.y, width = this.viewPort.width, height = this.viewPort.height) {
+        clear(x = 0, y = 0, width = this.width, height = this.height) {
             this._wasReset = false;
             this.context.clearRect(x, y, width, height);
         }
@@ -1169,20 +1169,6 @@ hamonengine.graphics = hamonengine.graphics || {};
             delete this._canvasId;
             delete this._canvas;
             delete this._canvasContext;
-        }
-        //--------------------------------------------------------
-        // Events
-        //--------------------------------------------------------
-        /**
-         * An event that is triggered when a screen (canvas) is resized.
-         * @param {object} rect (hamonengine.geometry.rect) of the new screen dimensions.
-         */
-        onScreenResize(rect) {
-            if (hamonengine.debug && hamonengine.verbose) {
-                console.debug(`[hamonengine.graphics.layer.onScreenResize] Name: '${this.name}', Dimensions: {${rect.toString()}}`);
-            }
-            
-            this._viewPort = rect;
         }
     }
 })();
