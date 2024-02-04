@@ -158,13 +158,13 @@ hamonengine.core = hamonengine.core || {};
         // Properties
         //--------------------------------------------------------
         /**
-         * Returns all registered screens.
+         * Returns all registered screens [hamonengine.graphics.screen] (canvas).
          */
         get screens() {
             return this._screens;
         }
         /**
-         * Returns the primary screen.
+         * Returns the primary screen [hamonengine.graphics.screen] (canvas).
          */
         get primaryScreen() {
             return this.screens.length === 1 ? this.screens[0] : this.getScreen(`${canvas_default_name}0`);
@@ -484,7 +484,7 @@ hamonengine.core = hamonengine.core || {};
 
                 //Determine if we're handling resizing events.
                 if (this.handleResizingEvents) {
-                    this._resizeObserver = new ResizeObserver(e => this.onScreenResize(this, e));
+                    this._resizeObserver = new ResizeObserver(e => this.__onScreenResizeObserver(this, e));
                 }
 
                 // If this is moved into the screens, then it is no longer a graphics based entity, but a graphics & input entity.
@@ -514,7 +514,7 @@ hamonengine.core = hamonengine.core || {};
         }
         /**
          * Shows the engine's splash screen.
-         * @returns 
+         * @returns a promise to complete showing the splash screen.
          */
         async onShowEngineSplashScreen() {
             if (this.primaryScreen) {
@@ -526,7 +526,7 @@ hamonengine.core = hamonengine.core || {};
                     const internalDraw = () => {
                         const animationId = window.requestAnimationFrame(scopedTimestampInMS => {
                             //Draw the name of the engine.
-                            this.primaryScreen.beginPainting({ x: 0, y: 0, width:  this.primaryScreen.width, height: this.primaryScreen.height, enableFPSCounter: false, clipToViewPort: false, backgroundColor: 'black', borderColor: '' });
+                            this.primaryScreen.beginPainting({ x: 0, y: 0, width: this.primaryScreen.width, height: this.primaryScreen.height, enableFPSCounter: false, clipToViewPort: false, backgroundColor: 'black', borderColor: '' });
                             this.primaryScreen.drawText(`波紋`, xOffset, yOffset, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
                             this.primaryScreen.drawText(`Hamon`, xOffset, yOffset + 48, { font: 'bold 48px serif', textOffset: 'center', shadow: true, color: `rgb(255,${215},0)` });
                             this.primaryScreen.endPainting({ enableFPSCounter: false });
@@ -546,7 +546,7 @@ hamonengine.core = hamonengine.core || {};
                     //Only attempt to play music if it is supported.
                     if (hamonengine.support_resources) {
                         track = new hamonengine.audio.track({ src: hamonengine.resources.audio3 });
-                        track.load().then(t => t.play());
+                        track.load().then(t => t?.play());
                         internalDraw();
                     }
                     else {
@@ -593,21 +593,31 @@ hamonengine.core = hamonengine.core || {};
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }
         /**
-         * An event that is triggered when a screen (canvas) is resized.
+         * An internal  event that is triggered when one or more screens (canvas) resize event is fired off by the resize observer.
+         * NOTE: This event should NOT be overridden, use onScreenResize instead.
          * @param {object} parent this always contains an instance of this engine.
          * @param {object} entries contains a reference to the ResizeObserverEntry object (https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserverEntry).
          */
-        async onScreenResize(parent, entries) {
+        async __onScreenResizeObserver(parent, entries) {
             for (let i = 0; i < entries.length; i++) {
                 const screen = parent.screens.find(screen => screen.canvas === entries[i].target);
-                if (screen) {
-                    const newRect = new hamonengine.geometry.rect(entries[i].contentRect.x, entries[i].contentRect.y, entries[i].contentRect.width, entries[i].contentRect.height);
-                    //Only spawn these events on dimension changes and when the element is not hidden (width & height = 0).
-                    if (screen.onScreenResize(newRect)) {
-                        await parent.primaryStoryboard?.onScreenResize(newRect);
-                    }
-                }
+                screen && parent.onScreenResize(screen, new hamonengine.geometry.rect(entries[i].contentRect.x, entries[i].contentRect.y, entries[i].contentRect.width, entries[i].contentRect.height));
             }
+        }
+        /**
+         * An event that is triggered when a screen [hamonengine.graphics.screen] (canvas) is resized.
+         * @param {object} screen that is being resized.
+         * @param {object} newRect (hamonengine.geometry.rect) of the new screen dimensions.
+         * @returns {boolean} true if screen handled the resizing event.
+         */
+        async onScreenResize(screen, newRect) {
+            //Only spawn these events on dimension changes and when the element is not hidden (width & height = 0).
+            if (screen.onScreenResize(newRect)) {
+                await this.primaryStoryboard?.onScreenResize(newRect);
+                return true;
+            }
+
+            return false;
         }
         /**
          * A draw loop event that is triggered once the engine starts.
