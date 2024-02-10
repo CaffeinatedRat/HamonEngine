@@ -377,6 +377,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         //--------------------------------------------------------
         /**
          * Creates a new canvas.
+         * NOTE: This is an expensive operation.
          * @param {number} width of the new canvas.
          * @param {number} height of the new canvas.
          * @param {string} id of the new canvas.
@@ -393,6 +394,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         }
         /**
          * Clones the current layer with a new id & name and creates a new canvas element, while retaining all other properties from the source.
+         * NOTE: This is an expensive operation.
          * @param {string} canvasId of the new layer.
          * @param {string} name of the new layer.
          */
@@ -642,25 +644,18 @@ hamonengine.graphics = hamonengine.graphics || {};
                 metrics = metrics ?? this.getTextRect(text, { sourceX, sourceY, font, textOffset, verticalTextOffset });
             }
 
-            if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
-                //Draw the shadow text.
-                if (shadow) {
-                    this.context.strokeStyle = shadowColor;
-                    this.context.strokeText(text, metrics.x + shadowXOffset, metrics.y + shadowYOffset);
-                }
+            //Add shadow properties.
+            if (shadow) {
+                this.context.shadowColor = shadowColor;
+                this.context.shadowOffsetX = shadowXOffset;
+                this.context.shadowOffsetY = shadowYOffset;
+            }
 
-                //Draw the regular text.
+            if (textDrawType === TEXT_DRAW_TYPE.STROKE) {
                 this.context.strokeStyle = color;
                 this.context.strokeText(text, metrics.x, metrics.y);
             }
             else {
-                //Draw the shadow text.
-                if (shadow) {
-                    this.context.fillStyle = shadowColor;
-                    this.context.fillText(text, metrics.x + shadowXOffset, metrics.y + shadowYOffset);
-                }
-
-                //Draw the regular text.
                 this.context.fillStyle = color;
                 this.context.fillText(text, metrics.x, metrics.y);
             }
