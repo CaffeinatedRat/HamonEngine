@@ -45,6 +45,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     guiAlwaysOnTop: options._guiAlwaysOnTop,
                     layers: options.layers.map(layer => layer.clone(layer.id, layer.name)),
                     engine: options.engine,
+                    allowEventBinding: options.allowEventBinding,
                     enableFPSCounter: options.enableFPSCounter,
                     fpsCounterTextColor: options.fpsCounterTextColor,
                     fpsCounter: options.fpsCounter
@@ -52,9 +53,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
 
             //Standard properties.
-            //Determine if the GUI is always the top most layer.
             this._engine = options.engine;
+            this._allowEventBinding = options.allowEventBinding !== undefined ? options.allowEventBinding : false;
             this._enableFPSCounter = options.enableFPSCounter === undefined ? true : false;
+            //Determine if the GUI is always the top most layer.
             this._guiAlwaysOnTop = options.guiAlwaysOnTop === undefined ? true : false;
 
             //Allow for a custom FPS counter.
@@ -69,6 +71,8 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.graphics.screen.constructor] Name: ${this._name}`);
+                console.debug(`[hamonengine.graphics.screen.constructor] AllowEventBinding: ${this._allowEventBinding}`);
+                console.debug(`[hamonengine.graphics.screen.constructor] EnableFPSCounter: ${this._enableFPSCounter}`);
             }
         }
         //--------------------------------------------------------
@@ -80,6 +84,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         get engine() {
             return this._engine;
+        }
+        /**
+         * Returns true if the layer allows binding.
+         */
+        get allowEventBinding() {
+            return this._allowEventBinding;
         }
         /**
          * Gets a collection of layers.

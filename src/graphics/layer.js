@@ -44,7 +44,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                     //Clone the remaining properties.
                     canvasId: options._canvasId,
                     alpha: options.alpha,
-                    allowEventBinding: options.allowEventBinding,
                     wrapVertical: options.wrapVertical,
                     wrapHorizontal: options.wrapHorizontal,
                     clipToViewPort: options.clipToViewPort,
@@ -83,7 +82,6 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             this._alpha = options.alpha !== undefined ? options.alpha : false;
             this._backgroundColor = options.backgroundColor; // || 'black';
-            this._allowEventBinding = options.allowEventBinding !== undefined ? options.allowEventBinding : false;
             this._wrapVertical = options.wrapVertical !== undefined ? options.wrapVertical : false;
             this._wrapHorizontal = options.wrapHorizontal !== undefined ? options.wrapHorizontal : false;
             this._clipToViewPort = options.clipToViewPort !== undefined ? options.clipToViewPort : true;
@@ -138,7 +136,6 @@ hamonengine.graphics = hamonengine.graphics || {};
                 console.debug(`[hamonengine.graphics.layer.constructor] Canvas Id: ${this._canvasId}`);
                 console.debug(`[hamonengine.graphics.layer.constructor] Name: ${this._name}`);
                 console.debug(`[hamonengine.graphics.layer.constructor] Alpha: ${this._alpha}`);
-                console.debug(`[hamonengine.graphics.layer.constructor] AllowEventBinding: ${this._allowEventBinding}`);
                 console.debug(`[hamonengine.graphics.layer.constructor] WrapVertical: ${this._wrapVertical}`);
                 console.debug(`[hamonengine.graphics.layer.constructor] WrapHorizontal: ${this._wrapHorizontal}`);
                 console.debug(`[hamonengine.graphics.layer.constructor] ClipToViewPort: ${this._clipToViewPort}`);
@@ -152,12 +149,6 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         get name() {
             return this._name;
-        }
-        /**
-         * Returns true if the layer allows binding.
-         */
-        get allowEventBinding() {
-            return this._allowEventBinding;
         }
         /**
          * Get the context.
