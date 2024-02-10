@@ -645,6 +645,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
 
             //Add shadow properties.
+            const originalShadowState = this.context.shadowColor;
             if (shadow) {
                 this.context.shadowColor = shadowColor;
                 this.context.shadowOffsetX = shadowXOffset;
@@ -658,6 +659,11 @@ hamonengine.graphics = hamonengine.graphics || {};
             else {
                 this.context.fillStyle = color;
                 this.context.fillText(text, metrics.x, metrics.y);
+            }
+
+            //Remove shadow properties or it will be applied to all objects painted on the canvas.
+            if (shadow) {
+                this.context.shadowColor = originalShadowState;
             }
 
             //Return text metrics & properties.
