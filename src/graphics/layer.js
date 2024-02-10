@@ -627,11 +627,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} obj.shadowXOffset horizontal coordinate of where to offset the shadow text.  By default this is 2.
          * @param {number} obj.shadowYOffset horizontal coordinate of where to offset the shadow text.  By default this is 2.
          * @param {string} obj.shadowColor of the shadow text.  By default this is 'black'.
+         * @param {number} obj.shadowBlur of the shadow text.  By default this is zero.
          * @param {object} obj.metrics that contain precomputed width & height.
          * @param {boolean} obj.disableMetrics when set to true, internal metric gathering is disabled to improve performance; however, both textOffset & verticalTextOffset will no longer work.
          * @returns {object} metrics in the form of hamonengine.geometry.rect.
          */
-        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', verticalTextOffset = 'top', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black', metrics, disableMetrics = false } = {}) {
+        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', verticalTextOffset = 'top', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black', shadowBlur  = 0, metrics, disableMetrics = false } = {}) {
 
             //If metrics are disabled then set the context and create a metric set that only contains the source coordinates, since width & height cannot be inferred.
             if (disableMetrics) {
@@ -648,6 +649,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             const originalShadowState = this.context.shadowColor;
             if (shadow) {
                 this.context.shadowColor = shadowColor;
+                this.context.shadowBlur = shadowBlur;
                 this.context.shadowOffsetX = shadowXOffset;
                 this.context.shadowOffsetY = shadowYOffset;
             }
