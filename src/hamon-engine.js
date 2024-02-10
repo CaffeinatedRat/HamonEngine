@@ -150,8 +150,10 @@ hamonengine.core = hamonengine.core || {};
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.floor: ${hamonengine.geometry.settings.collisionDetection.floor}`);
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.collisionDetection.limit: ${hamonengine.geometry.settings.collisionDetection.limit}`);
                 console.debug(`[hamonengine.core.engine.constructor] hamonengine.geometry.settings.coordinateSystem: ${hamonengine.geometry.settings.coordinateSystem}`);
-                console.debug(`[hamonengine.core.engine.constructor] hamonengine.graphics.settings.globalInvertYAxis: ${hamonengine.graphics.settings.globalInvertYAxis ? 'true' : 'false'}`);
-                console.debug(`[hamonengine.core.engine.constructor] hamonengine.graphics.settings.globalInvertXAxis: ${hamonengine.graphics.settings.globalInvertXAxis ? 'true' : 'false'}`);
+                console.debug(`[hamonengine.core.engine.constructor] hamonengine.graphics.settings.invertYAxis: ${hamonengine.graphics.settings.invertYAxis ?? 'off'}`);
+                console.debug(`[hamonengine.core.engine.constructor] hamonengine.graphics.settings.invertXAxis: ${hamonengine.graphics.settings.invertXAxis ?? 'off'}`);
+                console.debug(`[hamonengine.core.engine.constructor] hamonengine.graphics.settings.wrapVertical: ${hamonengine.graphics.settings.wrapVertical ?? 'off'}`);
+                console.debug(`[hamonengine.core.engine.constructor] hamonengine.graphics.settings.wrapHorizontal: ${hamonengine.graphics.settings.wrapHorizontal ?? 'off'}`);
             }
         }
         //--------------------------------------------------------
