@@ -222,7 +222,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Returns true if wrapping horizontally is enabled.
          */
         get wrapHorizontal() {
-            return this._wrapHorizontal;
+            return hamonengine.graphics.settings.wrapHorizontal ?? this._wrapHorizontal;
         }
         /**
          * Enables or disables horizontal wrapping.
@@ -234,7 +234,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Returns true if wrapping vertically is enabled.
          */
         get wrapVertical() {
-            return this._wrapVertical;
+            return hamonengine.graphics.settings.wrapVertical ?? this._wrapVertical;
         }
         /**
          * Enables or disables veritcal wrapping.
@@ -270,7 +270,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         * Returns true if the Y-Axis is inverted.
         */
         get invertYAxis() {
-            return hamonengine.graphics.settings.globalInvertYAxis || this._invertYAxis;
+            return hamonengine.graphics.settings.invertYAxis ?? this._invertYAxis;
         }
         /**
          * Inverts the Y-Axis if true.
@@ -282,7 +282,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Returns true if the X-Axis is inverted.
          */
         get invertXAxis() {
-            return hamonengine.graphics.settings.globalInvertXAxis || this._invertXAxis;
+            return hamonengine.graphics.settings.invertXAxis ?? this._invertXAxis;
         }
         /**
          * Inverts the X-Axis if true.

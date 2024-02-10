@@ -51,6 +51,9 @@ const DIRTY_FLAG = {
 hamonengine.graphics = hamonengine.graphics || {};
 hamonengine.graphics.settings = hamonengine.graphics.settings || {
     //Controls the global axes invert logic.
-    globalInvertYAxis: false,
-    globalInvertXAxis: false
+    invertYAxis: null,
+    invertXAxis: null,
+     //Controls the global wrapping logic.
+    wrapVertical: null,
+    wrapHorizontal: null
 };
