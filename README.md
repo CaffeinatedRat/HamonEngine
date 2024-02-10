@@ -54,6 +54,14 @@ A set of standards I borrowed from the [https://github.com/Bukkit/CraftBukkit] (
 Change Log
 -----------
 
+#### 1.2.0
+* Moved all sprite classes (sprite, animsprite, spritesheet) to the sprites folder/namespace.
+* Moved the allowEventBinding property to the screen class.
+* Refactored the drawText method to use the native API for shadow logic and added shadowBlur as an option.
+* Renamed globalInvertXAxis & globalInvertYAxis to invertXAxis & invertYAxis.
+* Promoted invertXAxis & invertXAxis to truly global settings.
+* Added wrapHorizontal & wrapVertical as global settings.
+
 #### 1.1.3
 * Fixed a lot of issues with the viewport logic, which was incomplete in some areas.
 

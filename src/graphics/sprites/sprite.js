@@ -26,6 +26,7 @@
 'use strict';
 
 hamonengine.graphics = hamonengine.graphics || {};
+hamonengine.graphics.sprites = hamonengine.graphics.sprites || {};
 
 (function () {
 
@@ -38,10 +39,10 @@ hamonengine.graphics = hamonengine.graphics || {};
     /**
      * This class represents a graphical sprite object.
      */
-    hamonengine.graphics.sprite = class {
+    hamonengine.graphics.sprites.sprite = class {
         constructor(options = {}) {
             //Handle copy-constructor operations.
-            if (options instanceof hamonengine.graphics.sprite) {
+            if (options instanceof hamonengine.graphics.sprites.sprite) {
                 options = {
                     image: options._image && options._image.clone(),
                     dimensions: options._dimensions?.clone(),
@@ -77,10 +78,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._maxWrapping = 0;
 
             if (hamonengine.debug && hamonengine.verbose) {
-                console.debug(`[hamonengine.graphics.sprite.constructor] Starting Dimensions: {${this._dimensions.toString()}}`);
-                console.debug(`[hamonengine.graphics.sprite.constructor] Name: '${this._name}'`);
-                console.debug(`[hamonengine.graphics.sprite.constructor] Theta: ${this._theta}`);
-                console.debug(`[hamonengine.graphics.sprite.constructor] ScaleVector: {${this._scaleVector.toString()}}`);
+                console.debug(`[hamonengine.graphics.sprites.sprite.constructor] Starting Dimensions: {${this._dimensions.toString()}}`);
+                console.debug(`[hamonengine.graphics.sprites.sprite.constructor] Name: '${this._name}'`);
+                console.debug(`[hamonengine.graphics.sprites.sprite.constructor] Theta: ${this._theta}`);
+                console.debug(`[hamonengine.graphics.sprites.sprite.constructor] ScaleVector: {${this._scaleVector.toString()}}`);
             }
         }
         //--------------------------------------------------------
@@ -173,7 +174,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Makes a clone of the sprite.
          */
         clone() {
-            return new hamonengine.graphics.sprite(this);
+            return new hamonengine.graphics.sprites.sprite(this);
         }
         /**
          * Attempts to load the sprite.

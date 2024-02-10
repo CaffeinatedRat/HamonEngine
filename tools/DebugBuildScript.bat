@@ -9,7 +9,8 @@ java -jar "tools/closure-compiler-v20231112.jar" --output_manifest "build/manife
  --js="src/math/*.js" --js="src/math/datastructures/*.js"^
  --js="src/geometry/*.js"^
  --js="src/audio/*.js"^
- --js="src/graphics/type.js" --js="src/graphics/imageext.js" --js="src/graphics/layer.js" --js="src/graphics/screen.js" --js="src/graphics/sprite.js" --js="src/graphics/animsprite.js" --js="src/graphics/spritesheet.js"^
+ --js="src/graphics/type.js" --js="src/graphics/imageext.js" --js="src/graphics/layer.js" --js="src/graphics/screen.js"^
+ --js="src/graphics/sprites/sprite.js" --js="src/graphics/sprites/animsprite.js" --js="src/graphics/sprites/spritesheet.js"^
  --js="src/entities/type.js" --js="src/entities/object2d.js" --js="src/entities/spriteObject.js" --js="src/entities/shapeObject.js" --js="src/entities/cell.js"^
  --js="src/events/*.js"^
  --js="src/resources/splashscreen.js"^

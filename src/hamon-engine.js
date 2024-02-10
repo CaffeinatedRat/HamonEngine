@@ -52,7 +52,7 @@ hamonengine.core = hamonengine.core || {};
     }
 
     const canvas_default_name = 'screen';
-    const VERSION = '1.1.3';
+    const VERSION = '1.2.0';
 
     hamonengine.core.engine = class {
         constructor(options = {}) {

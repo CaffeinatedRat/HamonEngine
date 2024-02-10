@@ -26,17 +26,18 @@
 'use strict';
 
 hamonengine.graphics = hamonengine.graphics || {};
+hamonengine.graphics.sprites = hamonengine.graphics.sprites || {};
 
 (function () {
 
     /**
      * This class represents a graphical animated sprite object.
      */
-    hamonengine.graphics.animsprite = class extends hamonengine.graphics.sprite {
+    hamonengine.graphics.sprites.animsprite = class extends hamonengine.graphics.sprites.sprite {
         constructor(options = {}) {
             super(options);
             //Handle copy-constructor operations.
-            if (options instanceof hamonengine.graphics.animsprite) {
+            if (options instanceof hamonengine.graphics.sprites.animsprite) {
                 options = {
                     //Make sure to copy the frames otherwise the old references will linger.
                     frames: options._frames.map(frame => frame.clone()),
@@ -55,10 +56,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._enableAnimation = true;
 
             if (hamonengine.debug) {
-                console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Rate: ${this._animationRate}`);
-                console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Animation Cycle: ${this._animationCycles}`);
-                console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Index: ${this._index}`);
-                console.debug(`[hamonengine.graphics.animsprite.constructor] Starting Enable Animation: ${this._enableAnimation}`);
+                console.debug(`[hamonengine.graphics.sprites.animsprite.constructor] Starting Animation Rate: ${this._animationRate}`);
+                console.debug(`[hamonengine.graphics.sprites.animsprite.constructor] Starting Animation Cycle: ${this._animationCycles}`);
+                console.debug(`[hamonengine.graphics.sprites.animsprite.constructor] Starting Index: ${this._index}`);
+                console.debug(`[hamonengine.graphics.sprites.animsprite.constructor] Starting Enable Animation: ${this._enableAnimation}`);
             }
         }
         //--------------------------------------------------------
@@ -109,7 +110,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Makes a clone of the sprite.
          */
         clone() {
-            return new hamonengine.graphics.animsprite(this);
+            return new hamonengine.graphics.sprites.animsprite(this);
         }
         /**
          * Starts the animation cycle.
@@ -148,7 +149,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {Object} frame to add.
          */
         addFrame(frame) {
-            hamonengine.debug && console.debug("[hamonengine.graphics.animsprite.animsprite.addFrame]");
+            hamonengine.debug && console.debug("[hamonengine.graphics.sprites.animsprite.animsprite.addFrame]");
             this._frames.push(frame);
         }
         /**

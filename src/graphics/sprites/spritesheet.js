@@ -26,13 +26,14 @@
 'use strict';
 
 hamonengine.graphics = hamonengine.graphics || {};
+hamonengine.graphics.sprites = hamonengine.graphics.sprites || {};
 
 (function () {
 
     /**
      * This class represents a spritesheet.
      */
-    hamonengine.graphics.spritesheet = class {
+    hamonengine.graphics.sprites.spritesheet = class {
         constructor(options = {}) {
             //Sprites sheet and sprites.
             this._imageResource = new hamonengine.graphics.imageext();
@@ -42,8 +43,8 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._name = options.name || '';
 
             if (hamonengine.debug) {
-                console.debug(`[hamonengine.audio.album.constructor] Name: '${this._name}'`);
-                console.debug(`[hamonengine.graphics.spritesheet.constructor] Url: '${this._url}''`);
+                console.debug(`[hamonengine.graphics.sprites.spritesheet.constructor] Name: '${this._name}'`);
+                console.debug(`[hamonengine.graphics.sprites.spritesheet.constructor] Url: '${this._url}''`);
             }
         }
         /**
@@ -97,7 +98,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     const spriteMetadata = spriteSheetMetadata.sprites[i];
                     const spriteName = spriteMetadata.name.toLowerCase();
                     this._spriteIndex.push(spriteName);
-                    this._sprites[spriteName] = new hamonengine.graphics.sprite({
+                    this._sprites[spriteName] = new hamonengine.graphics.sprites.sprite({
                         image: this._imageResource,
                         name: spriteMetadata.name,
                         dimensions: new hamonengine.geometry.rect(
@@ -114,14 +115,14 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (spriteSheetMetadata.animSprites) {
                 for (let i = 0; i < spriteSheetMetadata.animSprites.length; i++) {
                     const animSpriteMetadata = spriteSheetMetadata.animSprites[i];
-                    const animatedSprite = new hamonengine.graphics.animsprite({
+                    const animatedSprite = new hamonengine.graphics.sprites.animsprite({
                         animationRate: animSpriteMetadata.animationRate,
                     });
 
                     //Load all of the frames from this animated sprite.
                     for (let j = 0; j < animSpriteMetadata.frames.length; j++) {
                         const frameMetadata = animSpriteMetadata.frames[j];
-                        animatedSprite.addFrame(new hamonengine.graphics.sprite({
+                        animatedSprite.addFrame(new hamonengine.graphics.sprites.sprite({
                             image: this._imageResource,
                             name: frameMetadata.name,
                             dimensions: new hamonengine.geometry.rect(
