@@ -420,6 +420,16 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
         }
         /**
+         * Resizes the layer (canvas) HTML element to the dimensions specified in the rect.
+         * @param {object} rect to resize the layer (canvas) to.
+         */
+        resize(rect) {
+            this.canvas.style.left = rect.x;
+            this.canvas.style.top = rect.y;
+            this.canvas.width = rect.width;
+            this.canvas.height = rect.height;
+        }
+        /**
          * Clears the layer
          * @param {*} x coordinate to clear, set to 0 by default.
          * @param {*} y coordinate to clear, set to 0 by default.

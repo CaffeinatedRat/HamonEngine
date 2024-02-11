@@ -35,8 +35,7 @@ hamonengine.graphics = hamonengine.graphics || {};
     hamonengine.graphics.screen = class extends hamonengine.graphics.layer {
         constructor(options = {}, cloneProps = {}) {
             //Default to black if one is not provided.
-            //NOTE: Screens must have a backgroundColor in order to properly refresh the screen.
-            options.backgroundColor = options.backgroundColor; //?? 'black';
+            options.backgroundColor = options.backgroundColor;
             super(options, cloneProps);
 
             //Handle copy-constructor operations.
@@ -46,6 +45,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                     layers: options.layers.map(layer => layer.clone(layer.id, layer.name)),
                     engine: options.engine,
                     allowEventBinding: options.allowEventBinding,
+                    fullscreen: options.fullscreen,
                     enableFPSCounter: options.enableFPSCounter,
                     fpsCounterTextColor: options.fpsCounterTextColor,
                     fpsCounter: options.fpsCounter
@@ -55,6 +55,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Standard properties.
             this._engine = options.engine;
             this._allowEventBinding = options.allowEventBinding !== undefined ? options.allowEventBinding : false;
+            this._fullscreen = options.fullscreen !== undefined ? options.fullscreen : false;
             this._enableFPSCounter = options.enableFPSCounter === undefined ? true : false;
             //Determine if the GUI is always the top most layer.
             this._guiAlwaysOnTop = options.guiAlwaysOnTop === undefined ? true : false;
@@ -69,9 +70,13 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Capture the original canvas size, which is used to determine when an element resize has happened.
             this._previousCanvasSize = { width: this.width, height: this.height };
 
+            //Capture the original windowed state.
+            this._lastWindowedState = {};
+
             if (hamonengine.debug) {
                 console.debug(`[hamonengine.graphics.screen.constructor] Name: ${this._name}`);
                 console.debug(`[hamonengine.graphics.screen.constructor] AllowEventBinding: ${this._allowEventBinding}`);
+                console.debug(`[hamonengine.graphics.screen.constructor] Fullscreen: ${this._fullscreen}`);
                 console.debug(`[hamonengine.graphics.screen.constructor] EnableFPSCounter: ${this._enableFPSCounter}`);
             }
         }
@@ -210,6 +215,30 @@ hamonengine.graphics = hamonengine.graphics || {};
                 }
             }
         }
+        /**
+         * Returns true if the screen is in fullscreen mode.
+         */
+        get fullscreen() {
+            return this._fullscreen;
+        }
+        /**
+         * Toggles the screen between fullscreen & windowed modes.
+         */
+        set fullscreen(v) {
+            //Ignore non-state changes.
+            if (this._fullscreen !== v) {
+                if (this._fullscreen = v) {
+                    //Capture the last windowed state.
+                    this._lastWindowedState = {
+                        position: this.canvas.style.position,
+                        rect: new hamonengine.geometry.rect(this.canvas.style.left, this.canvas.style.top, this.canvas.width, this.canvas.height)
+                    };
+                }
+    
+                //Handle the fullscreen & windowed mode toggling and resizing the screen.
+                this.rescale();
+            }
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -335,6 +364,15 @@ hamonengine.graphics = hamonengine.graphics || {};
         //--------------------------------------------------------
         // Drawing Methods
         //--------------------------------------------------------
+        /**
+         * Rescales/sizes the current screen based on the 
+         */
+        rescale() {
+            //Toggle between fullscreen & windowed mode, as well as rescale the display.
+            this.canvas.style.position = this._fullscreen ? 'fixed' : this._lastWindowedState.position;
+            var rect = this._fullscreen  ? new hamonengine.geometry.rect(0, 0, visualViewport.width, visualViewport.height) : this._lastWindowedState.rect;
+            rect && this.resize(rect);
+        }
         /**
          * Toggles global images smoothing for all layers.
          * @param {boolean} enable true to enable.
