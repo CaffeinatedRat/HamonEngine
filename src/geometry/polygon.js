@@ -42,7 +42,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             }
 
             //Internally use a vector2 object to hold our vertex and to utilize the various built-in helper methods.
-            this._vertices = options.vertices || [];
+            this._vertices = options.vertices ?? [];
             this._edges = [];
             this._normals = [];
             this._dimensions = {
@@ -236,10 +236,13 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         translate(translateVector) {
             //Normalize the translateVector.
-            translateVector = translateVector || new hamonengine.math.vector2(0, 0);
+            translateVector = translateVector ?? new hamonengine.math.vector2(0, 0);
+
+            //Length caching for possible performance.
+            const length = this.vertices.length;
 
             const newVertices = [];
-            for (let i = 0; i < this.vertices.length; i++) {
+            for (let i = 0; i < length; i++) {
                 newVertices.push(this.vertices[i].add(translateVector));
             };
 
@@ -256,14 +259,17 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         rotate(theta, offsetVector) {
             //Normalize
-            theta = theta || 0.0;
-            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+            theta = theta ?? 0.0;
+            offsetVector = offsetVector ?? new hamonengine.math.vector2(0, 0);
+
+            //Length caching for possible performance.
+            const length = this.vertices.length;
 
             //Precalculate the sin & cos values of theta.
             const sinTheta = Math.sin(theta), cosTheta = Math.cos(theta);
 
             const newVertices = [];
-            for (let i = 0; i < this.vertices.length; i++) {
+            for (let i = 0; i < length; i++) {
                 //Adjust/translate the vertex based on the offset.
                 const xOffset = this.vertices[i].x - offsetVector.x;
                 const yOffset = this.vertices[i].y - offsetVector.y;
@@ -309,8 +315,11 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         scale(scaleVector, offsetVector) {
             //Normalize.
-            scaleVector = scaleVector || new hamonengine.math.vector2(0, 0);
-            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+            scaleVector = scaleVector ?? new hamonengine.math.vector2(0, 0);
+            offsetVector = offsetVector ?? new hamonengine.math.vector2(0, 0);
+
+            //Length caching for possible performance.
+            const length = this.vertices.length;
 
             //If the x-axis (exclusively) or the y-axis is being flipped then reverse the order of vertices so the normals are generated correctly.
             const xFlipped = scaleVector.x < 0;
@@ -318,13 +327,13 @@ hamonengine.geometry = hamonengine.geometry || {};
             
             const newVertices = [];
             if (!xFlipped && yFlipped || xFlipped & !yFlipped) {
-                for (let i = this.vertices.length - 1; i >= 0; i--) {
+                for (let i = length- 1; i >= 0; i--) {
                     newVertices.push(this.vertices[i].multiplyVector(scaleVector).add(offsetVector));
                 };
             }
             //Handle vertices normal for all other conditions.
             else {
-                for (let i = 0; i < this.vertices.length; i++) {
+                for (let i = 0; i < length; i++) {
                     newVertices.push(this.vertices[i].multiplyVector(scaleVector).add(offsetVector));
                 };
             }
@@ -396,10 +405,13 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             let mnimumOverlappingLength = NaN;
             let mtvAxis;
+            //Length caching for possible performance.
+            let length;
 
             //Test the Other Polygon: Iterate through each normal, which will act as an axis to project upon.
             let axes = polygon.normals;
-            for (let i = 0; i < axes.length; i++) {
+            length = axes.length;
+            for (let i = 0; i < length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
                 const thisProjection = this.project(axes[i]);
                 const otherProjection = polygon.project(axes[i]);
@@ -428,7 +440,8 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             //Test This Polygon: Iterate through each normal, which will act as an axis to project upon.
             axes = this.normals;
-            for (let i = 0; i < axes.length; i++) {
+            length = axes.length;
+            for (let i = 0; i < length; i++) {
                 //Project this polygon and the target polygon onto this axis normal.
                 const thisProjection = this.project(axes[i]);
                 const otherProjection = polygon.project(axes[i]);
@@ -484,9 +497,11 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         project(unitVector) {
             let min = 0, max = 0;
-            if (this.vertices.length > 0) {
+            //Length caching for possible performance.
+            const length = this.vertices.length;
+            if (length > 0) {
                 max = min = unitVector.dot(this.vertices[0]);
-                for (let i = 1; i < this.vertices.length; i++) {
+                for (let i = 1; i < length; i++) {
                     const projection = unitVector.dot(this.vertices[i]);
                     if (projection < min) {
                         min = projection;
@@ -507,8 +522,10 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         static calcEdges(vertices = []) {
             const edges = [];
-            for (let i = 0; i < vertices.length; i++) {
-                const destination = vertices[(i + 1) % vertices.length];
+            //Length caching for possible performance.
+            const length = vertices.length;
+            for (let i = 0; i < length; i++) {
+                const destination = vertices[(i + 1) % length];
                 edges.push(destination.subtract(vertices[i]));
             }
 
@@ -536,7 +553,9 @@ hamonengine.geometry = hamonengine.geometry || {};
             let minVertex = null, maxVertex = null;
             let xMax = NaN, xMin = NaN;
             let yMax = NaN, yMin = NaN;
-            for (let i = 0; i < vertices.length; i++) {
+            //Length caching for possible performance.
+            const length = vertices.length;
+            for (let i = 0; i < length; i++) {
                 xMax = xMax > vertices[i].x ? xMax : vertices[i].x;
                 xMin = xMin < vertices[i].x ? xMin : vertices[i].x;
                 yMax = yMax > vertices[i].y ? yMax : vertices[i].y;
@@ -566,13 +585,15 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         static calcShapeType(vertices = []) {
             let signCounter = 0;
-            for (let i = 0; i < vertices.length; i++) {
+            //Length caching for possible performance.
+            const length = vertices.length;
+            for (let i = 0; i < length; i++) {
 
                 //Get three vertices so we can generate two consective vectors in our polygon.
                 //NOTE: These vertices are being stored as vectors, as to provide easy access to the vector help methods.
                 const p1 = vertices[i];
-                const p2 = vertices[(i + 1) % vertices.length];
-                const p3 = vertices[(i + 2) % vertices.length];
+                const p2 = vertices[(i + 1) % length];
+                const p3 = vertices[(i + 2) % length];
 
                 //Create our first two consecutive vectors (P1->P2, P2->P3).
                 const v1 = p2.subtract(p1);
@@ -586,7 +607,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //If the number of sign counter addes up to the number of vertices then the sign did not change.
             //Convex: If the sign was consistent for all calculated cross-product vectors.
             //Concave: If the sign differred for 1 or more cross-product vectors.
-            return vertices.length === signCounter ? SHAPE_TYPE.CONVEX : SHAPE_TYPE.CONCAVE;
+            return length === signCounter ? SHAPE_TYPE.CONVEX : SHAPE_TYPE.CONCAVE;
         }
     }
 })();

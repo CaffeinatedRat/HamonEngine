@@ -40,8 +40,8 @@ hamonengine.geometry = hamonengine.geometry || {};
         constructor(x = 0, y = 0, x2 = 0, y2 = 0, options = {}) {
 
             //Use any supplied coords as the highest priority so that a shared array can be used if needed.
-            this._coords = options.coords || [x, y, x2, y2];
-            this._offset = options.offset || 0;
+            this._coords = options.coords ?? [x, y, x2, y2];
+            this._offset = options.offset ?? 0;
             this._normalOrientation = options.normalOrientation !== undefined ? options.normalOrientation : ROTATION_TYPE.CW;
 
             //Precache the direction vector.
@@ -225,12 +225,12 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         rotate(theta, offsetVector, {sinTheta, cosTheta} = {}) {
             //Normalize
-            theta = theta || 0.0;
-            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+            theta = theta ?? 0.0;
+            offsetVector = offsetVector ?? new hamonengine.math.vector2(0, 0);
 
             //Precalculate the sin & cos values of theta.
             //NOTE: This can be precomputed using the undocumented precalculated parameters.
-            sinTheta = sinTheta || Math.sin(theta), cosTheta = cosTheta|| Math.cos(theta);
+            sinTheta = sinTheta ?? Math.sin(theta), cosTheta = cosTheta ?? Math.cos(theta);
 
             //Adjust/translate the vertex based on the offset.
             const xOffset = this.x - offsetVector.x;
@@ -281,13 +281,13 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         scale(scaleVector, offsetVector, {xFlipped, yFlipped} = {}) {
             //Normalize.
-            scaleVector = scaleVector || new hamonengine.math.vector2(0, 0);
-            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+            scaleVector = scaleVector ?? new hamonengine.math.vector2(0, 0);
+            offsetVector = offsetVector ?? new hamonengine.math.vector2(0, 0);
 
             //If the x-axis (exclusively) or the y-axis is being flipped then reverse the order of vertices so the normals are generated correctly.
             //NOTE: This can be precomputed using the undocumented precalculated parameters.
-            xFlipped = xFlipped || scaleVector.x < 0;
-            yFlipped = yFlipped || scaleVector.y < 0;
+            xFlipped = xFlipped ?? scaleVector.x < 0;
+            yFlipped = yFlipped ?? scaleVector.y < 0;
 
             let x, y, x2, y2;
             if (!xFlipped && yFlipped || xFlipped & !yFlipped) {

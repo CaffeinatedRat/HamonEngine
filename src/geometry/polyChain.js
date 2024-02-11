@@ -44,14 +44,15 @@ hamonengine.geometry = hamonengine.geometry || {};
 
             this._lines = [];
             this._coords = [];
-            this._normals = options.normals || [];
+            this._normals = options.normals ?? [];
             this._dirty = DIRTY_FLAG.ALL;
 
             //Specialized logic to create one shared array for all coordinates for all lines to reduce duplicates.
-            if (options.lines && options.lines.length > 0) {
-                for (let i = 0; i < options.lines.length; i++) {
+            const length = options.lines?.length ?? 0;
+            if (length > 0) {
+                for (let i = 0; i < length; i++) {
                     //Move the coordinates for each line into the shared coordinate array.
-                    const previousLine = (options.lines.length > 0 ? options.lines[i - 1] : null);
+                    const previousLine = (length > 0 ? options.lines[i - 1] : null);
                     options.lines[i].move(this._coords, previousLine);
 
                     //Maintain a reference for this line.
@@ -106,10 +107,12 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @return {object} an array of hamonengine.math.vector2
          */
         toVertices() {
+            //Length caching for possible performance.
+            const length = this._coords.length;
             const vertices = [];
-            for (let i = 0; i + 1 < this._coords.length; i += 2) {
+            for (let i = 0; i + 1 < length; i += 2) {
                 //Look ahead and exclude any duplicate vertices.
-                const nextOffset = (i + 2) % this._coords.length;
+                const nextOffset = (i + 2) % length;
                 if ((this._coords[i] !== this._coords[nextOffset]) || (this._coords[i + 1] !== this._coords[nextOffset + 1])) {
                     vertices.push(new hamonengine.math.vector2(this._coords[i], this._coords[i + 1]));
                 }
@@ -149,7 +152,7 @@ hamonengine.geometry = hamonengine.geometry || {};
         addLine(line) {
             //Determine if this current lineSegment shares and endpoint with the previous one.
             let previousLine = (this.lines.length > 0 ? this.lines[this.lines.length - 1] : null);
-            
+
             //If the new lineSegment does note share the same endpoints as the previousLine then create a bridgingLine.
             if (previousLine && !previousLine.sharesEndPoint(line)) {
                 const bridgingLine = new hamonengine.geometry.lineSegment(previousLine.x2, previousLine.y2, line.x, line.y);
@@ -171,7 +174,7 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         translate(translateVector) {
             //Normalize the translateVector.
-            translateVector = translateVector || new hamonengine.math.vector2(0, 0);
+            translateVector = translateVector ?? new hamonengine.math.vector2(0, 0);
 
             //Return a new instance of the polyChain as to preserve the original.
             return new hamonengine.geometry.polyChain({
@@ -184,10 +187,10 @@ hamonengine.geometry = hamonengine.geometry || {};
          * @param {Object} offsetVector an offset vector (hamonengine.math.vector2) of where to rotate.
          * @returns {Object} rotated lineSegment.
          */
-         rotate(theta, offsetVector) {
+        rotate(theta, offsetVector) {
             //Normalize
-            theta = theta || 0.0;
-            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+            theta = theta ?? 0.0;
+            offsetVector = offsetVector ?? new hamonengine.math.vector2(0, 0);
 
             //Precalculate the sin & cos values of theta.
             const sinTheta = Math.sin(theta), cosTheta = Math.cos(theta);
@@ -195,7 +198,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //TODO: Performance evaluation
             //Return a new instance of the polyChain as to preserve the original.
             return new hamonengine.geometry.polyChain({
-                lines: this.lines.map(line => line.rotate(theta, offsetVector, {sinTheta, cosTheta}))
+                lines: this.lines.map(line => line.rotate(theta, offsetVector, { sinTheta, cosTheta }))
             });
         }
         /**
@@ -214,8 +217,8 @@ hamonengine.geometry = hamonengine.geometry || {};
          */
         scale(scaleVector, offsetVector) {
             //Normalize.
-            scaleVector = scaleVector || new hamonengine.math.vector2(0, 0);
-            offsetVector = offsetVector || new hamonengine.math.vector2(0, 0);
+            scaleVector = scaleVector ?? new hamonengine.math.vector2(0, 0);
+            offsetVector = offsetVector ?? new hamonengine.math.vector2(0, 0);
 
             //If the x-axis (exclusively) or the y-axis is being flipped then reverse the order of vertices so the normals are generated correctly.
             const xFlipped = scaleVector.x < 0;
@@ -224,7 +227,7 @@ hamonengine.geometry = hamonengine.geometry || {};
             //TODO: Performance evaluation
             //Return a new instance of the polyChain as to preserve the original.
             return new hamonengine.geometry.polyChain({
-                lines: this.lines.map(line => line.scale(scaleVector, offsetVector, {xFlipped, yFlipped}))
+                lines: this.lines.map(line => line.scale(scaleVector, offsetVector, { xFlipped, yFlipped }))
             });
         }
         /**
@@ -246,7 +249,9 @@ hamonengine.geometry = hamonengine.geometry || {};
         isCollision(shape, direction = new hamonengine.math.vector2()) {
             //Handle collisions detection with otherShapes.
             let correctionMTV = new hamonengine.math.vector2();
-            for (let i = 0; i < this.lines.length; i++) {
+            //Length caching for possible performance.
+            const length = this.lines.length;
+            for (let i = 0; i < length; i++) {
                 //Determine if this shape has collided with another.
                 let mtv = shape.isCollision(this.lines[i], direction);
                 if (mtv.length > 0) {

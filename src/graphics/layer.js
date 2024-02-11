@@ -68,7 +68,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             }
 
             //Check for a canvas first before looking for one in the DOM.
-            canvas = canvas || document.getElementById(options.canvasId);
+            canvas = canvas ?? document.getElementById(options.canvasId);
 
             if (!canvas) {
                 console.error(`[hamonengine.graphics.layer.constructor] Invalid canvas: '${options.canvasId}' unable to create the layer!`);
@@ -78,10 +78,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Canvas properties.
             this._canvas = canvas;
             this._canvasId = canvas.id;
-            this._name = options.name || canvas.getAttribute('name');
+            this._name = options.name ?? canvas.getAttribute('name');
 
             this._alpha = options.alpha !== undefined ? options.alpha : false;
-            this._backgroundColor = options.backgroundColor; // || 'black';
+            this._backgroundColor = options.backgroundColor;
             this._wrapVertical = options.wrapVertical !== undefined ? options.wrapVertical : false;
             this._wrapHorizontal = options.wrapHorizontal !== undefined ? options.wrapHorizontal : false;
             this._clipToViewPort = options.clipToViewPort !== undefined ? options.clipToViewPort : true;
@@ -90,7 +90,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._invertXAxis = options.invertXAxis !== undefined ? options.invertXAxis : false;
 
             //Allow other objects to set metaproperties on the layer.
-            this._metaProperties = options.metaProperties || {
+            this._metaProperties = options.metaProperties ?? {
                 visible: options.visible !== undefined ? options.visible : true
             };
 
@@ -98,10 +98,10 @@ hamonengine.graphics = hamonengine.graphics || {};
             this._allowSaveStateEnabled = options.allowSaveState !== undefined ? options.allowSaveState : true;
 
             //Allow the viewport border to be drawn.
-            this._viewPortBorderColor = options.borderColor || '';
+            this._viewPortBorderColor = options.borderColor ?? '';
 
             //Set the viewport to the size of the layer by default.
-            this.viewPort = options.viewPort || new hamonengine.geometry.rect(0, 0, this._canvas.width, this._canvas.height);
+            this.viewPort = options.viewPort ?? new hamonengine.geometry.rect(0, 0, this._canvas.width, this._canvas.height);
 
             //Try to get the 2d context.
             try {
@@ -196,7 +196,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Get the position of the layer.
          */
         get position() {
-            const boundRect = this.canvas.getBoundingClientRect() || { left: 0, top: 0 };
+            const boundRect = this.canvas.getBoundingClientRect() ?? { left: 0, top: 0 };
             return new hamonengine.math.vector2(boundRect.left, boundRect.top);
         }
         /**
@@ -1046,13 +1046,16 @@ hamonengine.graphics = hamonengine.graphics || {};
                 throw "Parameter polygon is not of type hamonengine.geometry.polygon.";
             }
 
+            //Length caching for possible performance.
+            const length = polygon.vertices.length;
+
             this.context.lineWidth = lineWidth;
             this.context.strokeStyle = color;
             this.context.fillStyle = fillColor;
 
             this.context.beginPath();
 
-            for (let index = 0; index < polygon.vertices.length; index++) {
+            for (let index = 0; index < length; index++) {
                 let x = Math.bitRound(sourceX + polygon.vertices[index].x);
                 let y = Math.bitRound(sourceY + polygon.vertices[index].y);
 
@@ -1080,7 +1083,7 @@ hamonengine.graphics = hamonengine.graphics || {};
             if (hamonengine.debug && drawNormals) {
                 this.context.strokeStyle = 'white';
 
-                for (let index = 0; index < polygon.vertices.length; index++) {
+                for (let index = 0; index < length; index++) {
 
                     //Get the current vertex and edge.
                     const vertex = polygon.vertices[index];

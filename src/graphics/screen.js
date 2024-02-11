@@ -100,7 +100,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Gets a collection of layers.
          */
         get layers() {
-            return this._layers || [];
+            return this._layers ?? [];
         }
         /**
          * Returns the primary layer.
@@ -126,7 +126,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * NOTE: The class MUST support the following methods: begin & end and properties FPS, minFPS, & maxFPS.
          */
         get fpsCounter() {
-            return this._fpsCounter || this.engine?.fpsCounter;
+            return this._fpsCounter ?? this.engine?.fpsCounter;
         }
         /**
          * Assigns a custom FPSCounter.
@@ -249,8 +249,8 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {*} elementToAttach to attach the canvas.
          */
         toLayer(canvasId, name) {
-            canvasId = canvasId || this.id;
-            name = name || this.name;
+            canvasId = canvasId ?? this.id;
+            name = name ?? this.name;
             const newLayer = new hamonengine.graphics.layer(this, {
                 canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name)
             });
@@ -288,7 +288,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} name of the layer to return.
          */
         getLayer(name) {
-            return this.layers.find(layer => (layer?.name || '').toLowerCase().trim() === (name || '').toLowerCase().trim());
+            return this.layers.find(layer => (layer?.name ?? '').toLowerCase().trim() === (name ?? '').toLowerCase().trim());
         }
         /**
          * Returns the index of the layer by its instance or name.
@@ -298,7 +298,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         getLayerIndex(layertoFind) {
             return layertoFind instanceof hamonengine.graphics.layer
                 ? this.layers.findIndex(layer => layer === layertoFind)
-                : this.layers.findIndex(layer => (layer?.name || '').toLowerCase().trim() === (layertoFind || '').toLowerCase().trim());
+                : this.layers.findIndex(layer => (layer?.name ?? '').toLowerCase().trim() === (layertoFind ?? '').toLowerCase().trim());
         }
         /**
          * Adds a new layer to the screen.
