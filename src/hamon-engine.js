@@ -208,12 +208,6 @@ hamonengine.core = hamonengine.core || {};
             return this._captureTouchAsMouseEvents;
         }
         /**
-         * Toggles the ability to cature touch events as sync.
-         */
-        set captureTouchAsMouseEvents(v) {
-            this._captureTouchAsMouseEvents = v;
-        }
-        /**
          * Returns true if all key events are blocked by default.
          */
         get blockByDefaultAllKeys() {
