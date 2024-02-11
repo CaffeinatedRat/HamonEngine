@@ -405,6 +405,13 @@ hamonengine.core = hamonengine.core || {};
         async onEventBinding() {
             const handleDOMBinding = () => {
                 const touchEventMap = new Map();
+
+                //Helper method to store the DOM listeners to remove at another time.
+                const registerAndAddEventListener = (name, element, functionSignature) => {
+                    element.addEventListener(name, functionSignature);
+                    this._registeredEvents.push({ name, element, functionSignature });
+                };
+
                 const bindEvents = (elementToBind, eventContainer) => {
                     const keyEvent = (type, e) => {
                         this.onKeyEvent(type, e.code, e, eventContainer);
@@ -455,12 +462,6 @@ hamonengine.core = hamonengine.core || {};
                         }
                     };
 
-                    //Helper method to store the DOM listeners to remove at another time.
-                    const registerAndAddEventListener = (name, element, functionSignature) => {
-                        element.addEventListener(name, functionSignature)
-                        this._registeredEvents.push({ name, element, functionSignature });
-                    };
-
                     registerAndAddEventListener('keyup', elementToBind, (e) => keyEvent('up', e));
                     registerAndAddEventListener('keydown', elementToBind, (e) => keyEvent('down', e));
                     registerAndAddEventListener('click', elementToBind, (e) => mouseEvent('click', e));
@@ -487,6 +488,7 @@ hamonengine.core = hamonengine.core || {};
                 //Determine if we're handling resizing events.
                 if (this.handleResizingEvents) {
                     this._resizeObserver = new ResizeObserver(e => this.__onScreenResizeObserver(this, e));
+                    registerAndAddEventListener('resize', window, e => this.onWindowResize());
                 }
 
                 // If this is moved into the screens, then it is no longer a graphics based entity, but a graphics & input entity.
@@ -595,7 +597,7 @@ hamonengine.core = hamonengine.core || {};
             hamonengine.debug && hamonengine.verbose && console.debug(`[hamonengine.core.engine.onTouchEvent] Type: '${type}' '${e}'`);
         }
         /**
-         * An internal  event that is triggered when one or more screens (canvas) resize event is fired off by the resize observer.
+         * An internal event that is triggered when one or more screens (canvas) resize event is fired off by the resize observer.
          * NOTE: This event should NOT be overridden, use onScreenResize instead.
          * @param {object} parent this always contains an instance of this engine.
          * @param {object} entries contains a reference to the ResizeObserverEntry object (https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserverEntry).
@@ -604,6 +606,14 @@ hamonengine.core = hamonengine.core || {};
             for (let i = 0; i < entries.length; i++) {
                 const screen = parent.screens.find(screen => screen.canvas === entries[i].target);
                 screen && parent.onScreenResize(screen, new hamonengine.geometry.rect(entries[i].contentRect.x, entries[i].contentRect.y, entries[i].contentRect.width, entries[i].contentRect.height));
+            }
+        }
+        /**
+         * Processes on browser window resize events.
+         */
+        onWindowResize() {
+            for (let i = 0; i < this.screens.length; i++) {
+                this.screens[i].rescale();
             }
         }
         /**
