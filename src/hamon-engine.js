@@ -67,6 +67,7 @@ hamonengine.core = hamonengine.core || {};
             this._captureTouchAsMouseEvents = options.captureTouchAsMouseEvents !== undefined ? options.captureTouchAsMouseEvents : true;
             this._awaitFontResources = options.awaitFontResources !== undefined ? options.awaitFontResources : true;
             this._handleResizingEvents = options.handleResizingEvents !== undefined ? options.handleResizingEvents : true;
+            this._enableOffscreenLayers = options.enableOffscreenLayers !== undefined ? options.enableOffscreenLayers : true;
             this._storyboard = options.storyboard;
 
             //Assign the engine if this one is not assigned.
@@ -141,6 +142,8 @@ hamonengine.core = hamonengine.core || {};
                 console.debug(`[hamonengine.core.engine.constructor] Capture touch as mouse events: ${this.captureTouchAsMouseEvents ? 'Enabled' : 'Disabled'}`);
                 console.debug(`[hamonengine.core.engine.constructor] Block all default keys: ${this.blockByDefaultAllKeys ? 'Enabled' : 'Disabled'}`);
                 console.debug(`[hamonengine.core.engine.constructor] Block arrow keys: ${this.blockByDefaultArrowKeys ? 'Enabled' : 'Disabled'}`);
+                console.debug(`[hamonengine.core.engine.constructor] Use Offscreen Layers by default: ${this.enableOffscreenLayers ? 'Enabled' : 'Disabled'}`);
+                
 
                 console.debug(`[hamonengine.core.engine.constructor] Await for font resources to complete loading: ${this._awaitFontResources ? 'Enabled' : 'Disabled'}`);
 
@@ -250,6 +253,12 @@ hamonengine.core = hamonengine.core || {};
          */
         get handleResizingEvents() {
             return this._handleResizingEvents;
+        }
+        /**
+         * Determines if the screens will use offscreen layers [OffscreenCanvas (https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas)] when a layer is created.
+         */
+        get enableOffscreenLayers () {
+            return this._enableOffscreenLayers;
         }
         //--------------------------------------------------------
         // Methods

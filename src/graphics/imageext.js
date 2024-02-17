@@ -162,7 +162,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         getImageData(region) {
             //Create a new canvas if this is the first time we're blending.
-            this._internalBufferResource = this._internalBufferResource ?? hamonengine.graphics.layer.createNewCanvas(this.rawImage.width, this.rawImage.height);
+            this._internalBufferResource = this._internalBufferResource ?? hamonengine.graphics.layer.createNewCanvas(this.rawImage.width, this.rawImage.height, {isOffscreen: true});
 
             //Draw the raw image to our modified canvas.
             this._internalBufferCtx = this._internalBufferCtx ?? this._internalBufferResource.getContext('2d', {
@@ -292,7 +292,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                 const destImageData = this.getImageData(destRegion);
 
                 //Get the canvas and source.
-                const targetCanavs = hamonengine.graphics.layer.createNewCanvas(imageData.width, imageData.height);
+                const targetCanavs = hamonengine.graphics.layer.createNewCanvas(imageData.width, imageData.height, {isOffscreen: true});
                 const targetCtx = targetCanavs.getContext('2d');
                 targetCtx.drawImage(imageData, 0, 0);
                 const srcImageData = targetCtx.getImageData(srcRegion.x, srcRegion.y, srcRegion.width, srcRegion.height);

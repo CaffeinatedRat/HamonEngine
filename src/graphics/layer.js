@@ -77,8 +77,8 @@ hamonengine.graphics = hamonengine.graphics || {};
 
             //Canvas properties.
             this._canvas = canvas;
-            this._canvasId = canvas.id;
-            this._name = options.name ?? canvas.getAttribute('name');
+            this._canvasId = canvas?.id ?? '';
+            this._name = options.name ?? canvas.name ?? (canvas.getAttribute && canvas.getAttribute('name')) ?? '';
 
             this._alpha = options.alpha !== undefined ? options.alpha : false;
             this._backgroundColor = options.backgroundColor;
@@ -184,18 +184,22 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Get the left offset of the layer.
          */
         get offsetX() {
-            return this.canvas.offsetLeft;
+            return this.canvas.offsetLeft ?? 0;
         }
         /**
          * Get the left offset of the layer.
          */
         get offsetY() {
-            return this.canvas.offsetTop;
+            return this.canvas.offsetTop ?? 0;
         }
         /**
          * Get the position of the layer.
          */
         get position() {
+            if (this.canvas instanceof OffscreenCanvas) {
+                return new hamonengine.math.vector2(0, 0);
+            }
+            
             const boundRect = this.canvas.getBoundingClientRect() ?? { left: 0, top: 0 };
             return new hamonengine.math.vector2(boundRect.left, boundRect.top);
         }
@@ -306,25 +310,29 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Gets the current tooltip of the layer.
          */
         get tooltip() {
-            return this.canvas.title;
+            return this.canvas.title ?? '';
         }
         /**
          * Sets the current tooltip of the layer.
          */
         set tooltip(v) {
-            this.canvas.title = v;
+            if (!(this.canvas instanceof OffscreenCanvas)) {
+                this.canvas.title = v;
+            }
         }
         /**
          * Returns the current cursor of the layer.
          */
         get cursor() {
-            return this.canvas.style.cursor;
+            return this.canvas.style?.cursor ?? '';
         }
         /**
           * Sets the current cursor of the layer.
           */
         set cursor(v) {
-            this.canvas.style.cursor = v;
+            if (!(this.canvas instanceof OffscreenCanvas)) {
+                this.canvas.style.cursor = v;
+            }
         }
         /**
          * Returns the background color, defaults to black.
@@ -342,13 +350,15 @@ hamonengine.graphics = hamonengine.graphics || {};
          * Returns the zIndex of the canvas element.
          */
         get depthIndex() {
-            return this.canvas.style.zIndex;
+            return this.canvas.style?.zIndex ?? '';
         }
         /**
          * Assigns the zIndex of the canvas element.
          */
         set depthIndex(v) {
-            this.canvas.style.zIndex = v;
+            if (!(this.canvas instanceof OffscreenCanvas)) {
+                this.canvas.style.zIndex = v;
+            }
         }
         /**
          * Returns the metaproperties on this layer.
@@ -372,6 +382,12 @@ hamonengine.graphics = hamonengine.graphics || {};
         set visible(v) {
             this.metaProperties.visible = v;
         }
+        /**
+         * Determines if the canvas being used is [OffscreenCanvas (https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas)].
+         */
+        get isOffscreen() {
+            return this.canvas instanceof OffscreenCanvas;
+        }
         //--------------------------------------------------------
         // Methods
         //--------------------------------------------------------
@@ -382,14 +398,26 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {number} height of the new canvas.
          * @param {string} id of the new canvas.
          * @param {string} name of the new canvas.
+         * @param {bool} isOffscreen determines if the canvas that is created is offscreen.
          * @returns {Object} a newly created canvas
          */
-        static createNewCanvas(width, height, id = '', name = '') {
-            const canvas = document.createElement('canvas');
-            canvas.setAttribute('width', width);
-            canvas.setAttribute('height', height);
-            id && canvas.setAttribute('id', id);
-            name && canvas.setAttribute('name', name);
+        static createNewCanvas(width, height, { id = '', name = '', isOffscreen = false } = {}) {
+            let canvas;
+            if (!isOffscreen) {
+                canvas = document.createElement('canvas');
+                canvas.setAttribute('width', width);
+                canvas.setAttribute('height', height);
+                id && canvas.setAttribute('id', id);
+                name && canvas.setAttribute('name', name);
+            }
+            else {
+                canvas = new OffscreenCanvas(width, height);
+                //Stub out properties that are not available on the OffscreenCanvas.
+                canvas.id = id;
+                canvas.name = name;
+                canvas.width = width;
+                canvas.height = height;
+            }
             return canvas;
         }
         /**
@@ -397,10 +425,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          * NOTE: This is an expensive operation.
          * @param {string} canvasId of the new layer.
          * @param {string} name of the new layer.
+         * @param {bool} isOffscreen determines if the canvas that is created is offscreen.
+         * @param {object} properties additional properties to be appended to the cloned layer.  This is mostly an internal parameter.
          */
-        clone(canvasId, name, properties = {}) {
+        clone(canvasId, name, isOffscreen, properties = {}) {
             return new hamonengine.graphics.layer(this, {
-                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name),
+                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, { id: canvasId, name, isOffscreen }),
                 ...properties
             });
         }
@@ -409,7 +439,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} enable true to enable.
          */
         enableImageSmoothing(enable = true) {
-            hamonengine.debug && console.debug(`[hamonengine.graphics.layer.constructor] EnableImageSmoothing: ${enable}`);
+            hamonengine.verbose && console.debug(`[hamonengine.graphics.layer.constructor] EnableImageSmoothing: ${enable}`);
             this._enableImageSmoothing = enable;
             try {
                 this.context.webkitImageSmoothingEnabled = enable;
@@ -424,10 +454,12 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {object} rect to resize the layer (canvas) to.
          */
         resize(rect) {
-            this.canvas.style.left = rect.x;
-            this.canvas.style.top = rect.y;
-            this.canvas.width = rect.width;
-            this.canvas.height = rect.height;
+            if (!(this.canvas instanceof OffscreenCanvas)) {
+                this.canvas.style.left = rect.x;
+                this.canvas.style.top = rect.y;
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+            }
         }
         /**
          * Clears the layer
@@ -530,11 +562,11 @@ hamonengine.graphics = hamonengine.graphics || {};
             //Attempt to handle predefined vertical text offsets.
             switch (verticalTextOffset.toLowerCase()) {
                 case 'center':
-                    sourceY -= (height / 2);
+                    sourceY -= height / 2;
                     break;
 
                 case 'bottom':
-                    sourceY -= (height);
+                    sourceY -= height;
                     break;
 
                 case 'top':
@@ -642,7 +674,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {boolean} obj.disableMetrics when set to true, internal metric gathering is disabled to improve performance; however, both textOffset & verticalTextOffset will no longer work.
          * @returns {object} metrics in the form of hamonengine.geometry.rect.
          */
-        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', verticalTextOffset = 'top', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black', shadowBlur  = 0, metrics, disableMetrics = false } = {}) {
+        drawText(text, sourceX = 0, sourceY = 0, { font = '16px serif', color = 'white', textDrawType = TEXT_DRAW_TYPE.FILL, textOffset = 'left', verticalTextOffset = 'top', shadow = false, shadowXOffset = 2, shadowYOffset = 2, shadowColor = 'black', shadowBlur = 0, metrics, disableMetrics = false } = {}) {
 
             //If metrics are disabled then set the context and create a metric set that only contains the source coordinates, since width & height cannot be inferred.
             if (disableMetrics) {

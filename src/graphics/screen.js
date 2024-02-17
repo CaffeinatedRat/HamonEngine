@@ -234,7 +234,7 @@ hamonengine.graphics = hamonengine.graphics || {};
                         rect: new hamonengine.geometry.rect(this.canvas.style.left, this.canvas.style.top, this.canvas.width, this.canvas.height)
                     };
                 }
-    
+
                 //Handle the fullscreen & windowed mode toggling and resizing the screen.
                 this.rescale();
             }
@@ -244,15 +244,15 @@ hamonengine.graphics = hamonengine.graphics || {};
         //--------------------------------------------------------
         /**
          * Converts the screen to a new hamonengine.graphics.layer.
-         * @param {string} canvasId of the new layer.
+         * @param {string} id of the new layer.
          * @param {string} name of the new layer.
-         * @param {*} elementToAttach to attach the canvas.
+         * @param {bool} isOffscreen determines if the canvas that is created is offscreen.
          */
-        toLayer(canvasId, name) {
+        toLayer({ canvasId, name, isOffscreen = false } = {}) {
             canvasId = canvasId ?? this.id;
             name = name ?? this.name;
             const newLayer = new hamonengine.graphics.layer(this, {
-                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name)
+                canvas: hamonengine.graphics.layer.createNewCanvas(this.width, this.height, { id: canvasId, name, isOffscreen })
             });
             newLayer.drawLayer(this);
             return newLayer;
@@ -265,7 +265,7 @@ hamonengine.graphics = hamonengine.graphics || {};
          */
         clone(canvasId, name, elementToAttach = null) {
             //Create a new canvas element and attach it after the original.
-            const newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, canvasId, name);
+            const newCanvas = hamonengine.graphics.layer.createNewCanvas(this.width, this.height, { id: canvasId, name });
             //Layers can no longer be attached to an element, as this is reserved for screens.
             elementToAttach?.insertBefore(newCanvas, null);
 
@@ -305,8 +305,9 @@ hamonengine.graphics = hamonengine.graphics || {};
          * @param {string} name of the new layer.
          * @returns {object} layer being added to the screen.
          */
-        addLayer(name) {
-            const newLayer = super.clone(name, name);
+        addLayer(name, {isOffscreen}={}) {
+            isOffscreen = isOffscreen ?? this.engine.enableOffscreenLayers;
+            const newLayer = super.clone(name, name, isOffscreen);
             this.layers.push(newLayer);
             return newLayer;
         }
@@ -370,7 +371,7 @@ hamonengine.graphics = hamonengine.graphics || {};
         rescale() {
             //Toggle between fullscreen & windowed mode, as well as rescale the display.
             this.canvas.style.position = this._fullscreen ? 'fixed' : this._lastWindowedState.position;
-            var rect = this._fullscreen  ? new hamonengine.geometry.rect(0, 0, visualViewport.width, visualViewport.height) : this._lastWindowedState.rect;
+            var rect = this._fullscreen ? new hamonengine.geometry.rect(0, 0, visualViewport.width, visualViewport.height) : this._lastWindowedState.rect;
             rect && this.resize(rect);
         }
         /**
