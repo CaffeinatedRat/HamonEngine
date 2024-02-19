@@ -64,11 +64,11 @@ Math.sqr = (x) => x * x;
  * @param {number} degrees to convert to radians.
  * @return {number} radian value.
  */
-Math.toDegrees = (degrees) => (degrees * Math.PI / 180);
+Math.toRadians = (degrees) => (degrees * Math.PI / 180);
 
 /**
  * Convert radians to degrees.
  * @param {number} radians to convert to degrees.
  * @return {number} degree value.
  */
-Math.toRadians = (radians) => (radians * 180 / Math.PI);
+Math.toDegrees = (radians) => (radians * 180 / Math.PI);
